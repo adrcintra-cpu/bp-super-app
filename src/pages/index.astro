@@ -1,0 +1,567 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/app.css";
+
+const unreadMessages = 3;
+const navItems = [
+  { id: "inicio", label: "Início", icon: "home" },
+  { id: "bomcorp", label: "Bom Corp", icon: "building-2" },
+  { id: "cadastro", label: "Meu cadastro", icon: "user" },
+  { id: "avisos", label: "Comunicação", icon: "bell", badge: String(unreadMessages) },
+  { id: "plano", label: "Plano e contrato", icon: "file-text" },
+  { id: "financeiro", label: "Financeiro", icon: "wallet" },
+  { id: "bommed", label: "Minhas Guias", icon: "heart-pulse" },
+  { id: "instituto", label: "Instituto do Luto", icon: "heart-handshake" },
+];
+
+const shortcuts = [
+  { id: "bommed", title: "Gerar guia", text: "Atendimento com até 35% de desconto", icon: "heart-pulse", tone: "blue featured" },
+  { id: "financeiro", title: "2ª via e Pix", text: "Vencimento em 5 dias", icon: "wallet", tone: "orange" },
+  { id: "plano", title: "Meu plano", text: "Contrato e dependentes", icon: "file-text", tone: "purple" },
+  { id: "instituto", title: "Pedir apoio", text: "Atendimento confidencial", icon: "heart-handshake", tone: "teal" },
+];
+---
+
+<Layout title="Super App Bom Pastor | Área do Cliente" description="Acesse seu plano, financeiro, benefícios e serviços do Grupo Bom Pastor.">
+  <div class="app-shell" data-app>
+    <aside class="sidebar" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" data-route="inicio" aria-label="Grupo Bom Pastor - Início">
+        <img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" />
+      </a>
+      <nav class="side-nav">
+        <p class="nav-eyebrow">Sua área</p>
+        {navItems.map((item) => (
+          <button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button">
+            <img src={`/icons/${item.icon}.svg`} alt="" />
+            <span>{item.label}</span>
+            {item.badge && <span class="nav-badge">{item.badge}</span>}
+          </button>
+        ))}
+      </nav>
+      <div class="sidebar-help">
+        <span class="help-icon"><img src="/icons/phone.svg" alt="" /></span>
+        <div><small>Precisa de ajuda?</small><strong>Fale com a gente</strong></div>
+        <img class="help-arrow" src="/icons/chevron-right.svg" alt="" />
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <button class="menu-button" type="button" aria-label="Abrir menu" data-menu-open><img src="/logos/bompastor-logo-minimalista.svg" alt="Bom Pastor" /></button>
+        <div class="top-actions">
+          <button class="header-search" type="button" data-search-button aria-label="Buscar no aplicativo"><img src="/icons/search.svg" alt="" /></button>
+          <button class="profile-button" type="button" data-profile-button aria-expanded="false">
+            <span class="avatar-shell"><span class="avatar">FE</span><i aria-label={`${unreadMessages} comunicados não lidos`}>{String(unreadMessages).padStart(2, "0")}</i></span><span class="profile-copy"><small>Bem-vindo,</small><strong>Fernando Ernerto</strong></span><img src="/icons/chevron-right.svg" alt="" />
+          </button>
+        </div>
+        <div class="global-search" data-global-search hidden>
+          <label><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar serviço, guia ou informação" autofocus /></label>
+          <button type="button" data-search-close aria-label="Fechar busca"><img src="/icons/x.svg" alt="" /></button>
+        </div>
+        <button class="accessibility-backdrop" type="button" data-accessibility-backdrop aria-label="Fechar opções de acessibilidade" hidden></button>
+        <section class="accessibility-panel" id="accessibility-panel" data-accessibility-panel role="dialog" aria-modal="true" aria-labelledby="accessibility-title" hidden>
+          <div class="accessibility-head"><div><p class="eyebrow">ACESSIBILIDADE</p><h2 id="accessibility-title">Acessibilidade</h2></div><button class="icon-button" type="button" data-accessibility-close aria-label="Fechar opções de acessibilidade"><img src="/icons/x.svg" alt="" /></button></div>
+          <p class="accessibility-description">Ajuste a visualização para deixar sua experiência mais confortável.</p>
+          <div class="accessibility-section"><h3>Tamanho do texto</h3><div class="font-scale-controls" role="group" aria-label="Ajustar tamanho do texto"><button type="button" data-font-action="decrease" aria-label="Diminuir texto">A−</button><button type="button" data-font-action="default" aria-label="Usar tamanho padrão">A</button><button type="button" data-font-action="increase" aria-label="Aumentar texto">A+</button></div><p class="font-scale-status" data-font-scale-status aria-live="polite">Tamanho padrão</p></div>
+          <button class="button button-ghost accessibility-reset" type="button" data-font-reset>Restaurar padrão</button>
+        </section>
+        <div class="profile-popover" data-profile-popover hidden>
+          <div><strong>Fernando Ernerto</strong><small>Titular • TOTAL+</small></div>
+          <button type="button" data-route="cadastro"><img src="/icons/user.svg" alt="" /> Meu cadastro</button>
+          <button type="button" data-route="avisos"><img src="/icons/bell.svg" alt="" /> Comunicação <span class="profile-menu-badge" aria-label={`${unreadMessages} comunicados não lidos`}>{unreadMessages}</span></button>
+          <button class="profile-accessibility-button" type="button" data-accessibility-button aria-label="Opções de acessibilidade" aria-expanded="false" aria-controls="accessibility-panel"><img src="/icons/accessibility.svg" alt="" /> Acessibilidade</button>
+          <button type="button" data-show-login><img src="/icons/log-out.svg" alt="" /> Sair da conta</button>
+        </div>
+      </header>
+
+      <nav class="product-menu product-strip" aria-label="Principais produtos">
+        <button class="product-item pet" type="button" data-toast="Bom Pet estará disponível em breve"><span><img src="/icons/dog.svg" alt="" /></span><small>BomPet</small></button>
+        <button class="product-item med" type="button" data-route="bommed"><span><img src="/icons/heart-pulse.svg" alt="" /></span><small>BomMed</small></button>
+        <button class="product-item auto" type="button" data-toast="Bom Auto estará disponível em breve"><span><img src="/icons/car.svg" alt="" /></span><small>BomAuto</small></button>
+        <button class="product-item corp" type="button" data-route="bomcorp"><span><img src="/icons/building-2.svg" alt="" /></span><small>BomCorp</small></button>
+        <button class="product-item descanso desktop-product" type="button" data-toast="BomDescanso estará disponível em breve"><span><img src="/icons/moon.svg" alt="" /></span><small>BomDescanso</small></button>
+        <button class="product-item cremacao desktop-product" type="button" data-toast="Cremação estará disponível em breve"><span><img src="/icons/urn.svg" alt="" /></span><small>Cremação</small></button>
+      </nav>
+
+      <main class="content" id="conteudo">
+        <section class="screen active" data-screen="inicio" aria-labelledby="inicio-title">
+          <div class="page-intro intro-home">
+            <div><p class="eyebrow">QUARTA-FEIRA, 17 DE SETEMBRO</p><h1 id="inicio-title">Olá, <strong>Fernando.</strong><br />Tudo bem por aí?</h1><p class="intro-text">Seu plano e seus serviços, organizados em um só lugar.</p></div>
+            <span class="status-pill"><i></i> Plano ativo</span>
+          </div>
+
+          <article class="hero-card reveal">
+            <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div>
+            <div class="hero-content"><p class="eyebrow light">SEU PLANO</p><h2>TOTAL<span>+</span></h2><p>Proteção para você e sua família, todos os dias.</p><button class="button button-light" type="button" data-route="plano">Ver detalhes <span>→</span></button></div>
+            <div class="digital-card" aria-label="Carteirinha digital">
+              <div class="card-brand"><img class="card-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></div><img class="card-watermark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" /><span class="card-chip"></span><div><small>TITULAR</small><strong>FERNANDO ERNERTO</strong></div>
+              <div class="card-meta"><span><small>PLANO</small><strong>TOTAL+</strong></span><span><small>CARTEIRINHA</small><strong>BP-248197-22</strong></span></div>
+            </div>
+          </article>
+
+          <section class="section-block">
+            <div class="section-heading"><div><p class="eyebrow">ACESSO RÁPIDO</p><h2>O que você precisa hoje?</h2></div></div>
+            <div class="shortcut-grid">
+              {shortcuts.map((item, index) => (
+                <button class={`shortcut-card ${item.tone} reveal`} style={`--delay:${index * 70}ms`} type="button" data-route={item.id}>
+                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <div class="dashboard-grid">
+            <article class="panel finance-summary reveal">
+              <div class="panel-title"><div><p class="eyebrow">FINANCEIRO</p><h3>Próxima mensalidade</h3></div><span class="soft-badge warning">Em aberto</span></div>
+              <div class="invoice-value"><div><small>VENCIMENTO</small><strong>10 FEV</strong></div><div><small>VALOR</small><strong>R$ 79,90</strong></div></div><div class="progress"><span style="width:72%"></span></div>
+              <button class="text-link" type="button" data-route="financeiro">Ver opções de pagamento <span>→</span></button>
+            </article>
+            <article class="panel notice-summary reveal">
+              <div class="panel-title"><div><p class="eyebrow">COMUNICAÇÃO</p><h3>Avisos recentes</h3></div><button class="text-link compact" type="button" data-route="avisos">Ver todos</button></div>
+              <ul class="mini-list"><li><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><div><strong>Boleto disponível</strong><small>Sua mensalidade vence em 5 dias.</small></div><time>2h</time></li><li><span class="list-icon blue"><img src="/icons/heart-pulse.svg" alt="" /></span><div><strong>Nova guia autorizada</strong><small>Disponível para visualização.</small></div><time>Ontem</time></li></ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="bomcorp" aria-labelledby="bomcorp-title">
+          <div class="page-intro"><div><p class="eyebrow">BOM CORP</p><h1 id="bomcorp-title">Painel do <strong>gestor</strong></h1><p class="intro-text">Visão geral dos colaboradores, planos e pendências da empresa.</p></div><button class="button button-primary" type="button">+ Adicionar colaborador</button></div>
+          <div class="metric-grid"><article class="metric-card gradient-blue"><span><img src="/icons/users.svg" alt="" /></span><small>Colaboradores ativos</small><strong>248</strong><em>+8 este mês</em></article><article class="metric-card gradient-purple"><span><img src="/icons/user.svg" alt="" /></span><small>Dependentes</small><strong>12</strong><em>no mês</em></article><article class="metric-card gradient-orange"><span><img src="/icons/wallet.svg" alt="" /></span><small>Faturamento atual</small><strong>R$ 38.420</strong><em>vence dia 10</em></article><article class="metric-card gradient-blue"><span><img src="/icons/clock.svg" alt="" /></span><small>Pendências</small><strong>3</strong><em>aguardando ação</em></article></div>
+          <article class="panel data-panel"><div class="panel-title"><div><p class="eyebrow">GESTÃO DE VIDAS</p><h3>Colaboradores</h3></div><label class="search-field"><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar colaborador" /></label></div><div class="table-wrap"><table><thead><tr><th>Colaborador</th><th>CPF</th><th>Plano</th><th>Status</th><th></th></tr></thead><tbody><tr><td><span class="person"><b>AS</b><span><strong>Ana Souza</strong><small>ana@empresa.com</small></span></span></td><td>123.***.***-00</td><td>Bom Med +</td><td><span class="soft-badge success">Ativo</span></td><td>⋯</td></tr><tr><td><span class="person"><b>CM</b><span><strong>Carlos Mendes</strong><small>carlos@empresa.com</small></span></span></td><td>456.***.***-00</td><td>Bom Pet</td><td><span class="soft-badge success">Ativo</span></td><td>⋯</td></tr><tr><td><span class="person"><b>JR</b><span><strong>Júlia Rocha</strong><small>julia@empresa.com</small></span></span></td><td>789.***.***-00</td><td>Bom Auto</td><td><span class="soft-badge warning">Pendente</span></td><td>⋯</td></tr></tbody></table></div></article>
+        </section>
+
+        <section class="screen" data-screen="cadastro" aria-labelledby="cadastro-title">
+          <div class="page-intro"><div><p class="eyebrow">MINHA CONTA</p><h1 id="cadastro-title">Dados <strong>cadastrais</strong></h1><p class="intro-text">Mantenha seus dados atualizados para receber todos os comunicados.</p></div><span class="status-pill"><i></i> Cadastro verificado</span></div>
+          <div class="form-layout">
+            <aside class="profile-card panel">
+              <div class="profile-photo-wrap">
+                <span class="large-avatar" data-profile-photo-preview aria-label="Foto de perfil de Fernando Ernerto">FE</span>
+                <label class="photo-edit-button"><img src="/icons/camera.svg" alt="" /><span>Alterar foto</span><input type="file" accept="image/*" data-profile-photo-input /></label>
+              </div>
+              <h3>Fernando Ernerto</h3><p>Titular • Cliente desde 2018</p>
+              <div class="profile-completion"><span><small>Cadastro completo</small><strong>92%</strong></span><div class="progress"><span style="width:92%"></span></div></div>
+              <button class="button profile-contact-button" data-route="cadastro" data-scroll-target="cadastro-contatos" type="button"><img src="/icons/contact.svg" alt="" /> Gerenciar contatos</button>
+            </aside>
+            <form class="panel form-panel" data-demo-form autocomplete="on">
+              <div class="panel-title"><div><p class="eyebrow">INFORMAÇÕES</p><h3>Dados pessoais</h3></div></div>
+              <div class="form-grid">
+                <label class="span-2">Nome completo<input value="Fernando Ernerto" autocomplete="name" /></label>
+                <label>CPF<input value="123.456.789-00" autocomplete="off" disabled /></label>
+                <label>Data de nascimento<input value="12/04/1972" autocomplete="bday" /></label>
+                <label>Estado civil<select autocomplete="off"><option>Casado</option></select></label>
+                <label class="span-2">Endereço<input value="Al. Rio Negro - Alphaville" autocomplete="address-line1" data-address-field /><small class="address-autocomplete-status" data-address-status aria-live="polite">Digite o CEP para preencher o endereço automaticamente.</small></label>
+                <label>Número da residência<input value="161" inputmode="numeric" autocomplete="address-line2" data-address-number /></label>
+                <label>CEP<input value="06454-000" inputmode="numeric" autocomplete="postal-code" data-address-cep /></label>
+                <label>Cidade<input value="Barueri" autocomplete="address-level2" data-address-city /></label>
+                <label>Estado<input value="SP" maxlength="2" autocomplete="address-level1" data-address-state /></label>
+              </div>
+              <div class="form-actions"><button class="button button-primary" type="submit">Salvar alterações</button></div>
+            </form>
+          </div>
+          <section class="cadastro-contacts section-block" id="cadastro-contatos" aria-labelledby="cadastro-contatos-title">
+            <div class="section-heading cadastro-contacts-heading">
+              <div><p class="eyebrow">CONTATOS E PREFERÊNCIAS</p><h2 id="cadastro-contatos-title">Onde podemos <strong>falar com você</strong></h2><p class="intro-text">Escolha onde deseja receber boletos, alertas e comunicados.</p></div>
+              <button class="button button-primary" type="button">+ Adicionar contato</button>
+            </div>
+            <div class="contact-grid"><article class="panel contact-card"><span class="contact-icon gradient-blue"><img src="/icons/contact.svg" alt="" /></span><div><small>E-MAIL PRINCIPAL</small><h3>fernando.ernerto@email.com</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> Verificado</span><p>Comunicados, boletos e alertas importantes.</p></div><button class="text-link">Editar</button></article><article class="panel contact-card"><span class="contact-icon gradient-purple"><img src="/icons/phone.svg" alt="" /></span><div><small>TELEFONE PRINCIPAL</small><h3>(11) 99876-5432</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> WhatsApp e SMS</span><p>Canal preferido para confirmações e tokens.</p></div><button class="text-link">Editar</button></article></div>
+          </section>
+        </section>
+
+        <section class="screen" data-screen="avisos" aria-labelledby="avisos-title">
+          <div class="page-intro"><div><p class="eyebrow">CENTRAL DE COMUNICAÇÃO</p><h1 id="avisos-title">Avisos e <strong>comunicados</strong></h1><p class="intro-text">Tudo o que importa sobre seu plano e seus serviços.</p></div><button class="button button-ghost" type="button">Marcar tudo como lido</button></div>
+          <div class="notice-layout"><div class="filter-chips"><button class="active">Todos</button><button>Avisos</button><button>Boletos</button><button>Bom Med</button><button>Instituto</button></div><article class="panel notice-list"><button class="notice-item unread"><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><span><small>FINANCEIRO</small><strong>Boleto disponível</strong><p>Sua mensalidade de fevereiro vence em 5 dias.</p></span><time>há 2h</time></button><button class="notice-item unread"><span class="list-icon blue"><img src="/icons/heart-pulse.svg" alt="" /></span><span><small>BOM MED</small><strong>Nova guia autorizada</strong><p>Guia médica autorizada para Dr. Paulo Andrade.</p></span><time>ontem</time></button><button class="notice-item"><span class="list-icon green"><img src="/icons/check-circle.svg" alt="" /></span><span><small>CADASTRO</small><strong>Telefone confirmado</strong><p>Seu novo telefone foi verificado com sucesso.</p></span><time>2 dias</time></button><button class="notice-item"><span class="list-icon purple"><img src="/icons/bell.svg" alt="" /></span><span><small>COMUNICADO</small><strong>Novo benefício disponível</strong><p>Conheça as novas vantagens para titulares.</p></span><time>5 dias</time></button></article></div>
+        </section>
+
+        <section class="screen" data-screen="plano" aria-labelledby="plano-title">
+          <div class="page-intro"><div><p class="eyebrow">PLANO E CONTRATO</p><h1 id="plano-title">Seu plano, <strong>sem complicação</strong></h1><p class="intro-text">Consulte vigência, contrato, carteirinha e dependentes.</p></div><span class="status-pill"><i></i> Ativo</span></div>
+          <article class="plan-banner"><div><p class="eyebrow light">PLANO ATUAL</p><h2>TOTAL<span>+</span></h2><p>Desde 15 de março de 2018</p></div><div class="plan-stats"><span><small>MENSALIDADE</small><strong>R$ 139,90</strong></span><span><small>PRÓX. VENCIMENTO</small><strong>10/02/2026</strong></span><span><small>CARTEIRINHA</small><strong>BP-248197-22</strong></span></div></article>
+          <div class="action-grid">
+            <button class="panel action-card" type="button" data-toast="Contrato preparado para download"><span class="list-icon blue"><img src="/icons/download.svg" alt="" /></span><span><strong>2ª via do contrato</strong><small>PDF assinado digitalmente</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-toast="Exibindo todos os beneficiários"><span class="list-icon purple"><img src="/icons/users.svg" alt="" /></span><span><strong>Dependentes (3)</strong><small>Fernando, João e Ana</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-toast="Coberturas atualizadas do seu plano"><span class="list-icon orange"><img src="/icons/file-text.svg" alt="" /></span><span><strong>Coberturas</strong><small>Detalhamento por serviço</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+          </div>
+
+          <div class="plan-overview-grid">
+            <article class="panel plan-members">
+              <div class="panel-title"><div><p class="eyebrow">BENEFICIÁRIOS</p><h3>Quem está protegido</h3></div><span class="plan-count">4 pessoas</span></div>
+              <ul class="member-list">
+                <li><span class="member-avatar titular">FE</span><span><strong>Fernando Ernerto</strong><small>Titular • CPF final 42</small></span><span class="soft-badge success">Ativo</span></li>
+                <li><span class="member-avatar">JS</span><span><strong>João da Silva</strong><small>Cônjuge • CPF final 18</small></span><span class="soft-badge success">Ativo</span></li>
+                <li><span class="member-avatar">AS</span><span><strong>Ana da Silva</strong><small>Filha • 17 anos</small></span><span class="soft-badge success">Ativo</span></li>
+                <li><span class="member-avatar">LS</span><span><strong>Lucas da Silva</strong><small>Filho • 12 anos</small></span><span class="soft-badge success">Ativo</span></li>
+              </ul>
+              <button class="text-link" type="button" data-toast="Gestão de beneficiários aberta">Gerenciar beneficiários →</button>
+            </article>
+
+            <article class="panel plan-coverages">
+              <div class="panel-title"><div><p class="eyebrow">COBERTURAS</p><h3>Benefícios incluídos</h3></div><span class="soft-badge success">Plano completo</span></div>
+              <div class="coverage-grid">
+                <div><span class="coverage-icon blue"><img src="/icons/umbrella.svg" alt="" /></span><strong>Assistência familiar</strong><small>Atendimento 24 horas</small></div>
+                <div><span class="coverage-icon pink"><img src="/icons/heart-pulse.svg" alt="" /></span><strong>Bom Med</strong><small>Descontos em saúde</small></div>
+                <div><span class="coverage-icon teal"><img src="/icons/heart-handshake.svg" alt="" /></span><strong>Apoio emocional</strong><small>Instituto do Luto</small></div>
+                <div><span class="coverage-icon orange"><img src="/icons/phone.svg" alt="" /></span><strong>Central exclusiva</strong><small>Suporte para a família</small></div>
+              </div>
+              <button class="text-link" type="button" data-toast="Manual de coberturas preparado">Ver manual de coberturas →</button>
+            </article>
+          </div>
+
+          <div class="plan-bottom-grid">
+            <article class="panel contract-summary"><span class="contract-icon"><img src="/icons/file-text.svg" alt="" /></span><div><p class="eyebrow">CONTRATO</p><h3>BP-2018-0315-248197</h3><p>Vigência contínua desde 15/03/2018. Última atualização em 04/01/2026.</p></div><button class="button button-ghost" type="button" data-toast="Documento preparado para download"><img src="/icons/download.svg" alt="" /> Baixar PDF</button></article>
+            <article class="plan-help-card"><img src="/icons/contact.svg" alt="" /><div><small>PRECISA DE AJUDA?</small><strong>Fale com a equipe do seu plano</strong></div><button type="button" data-toast="Canal de atendimento aberto">Atendimento →</button></article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="financeiro" aria-labelledby="financeiro-title">
+          <div class="page-intro"><div><p class="eyebrow">FINANCEIRO</p><h1 id="financeiro-title">Pagamentos <strong>em dia</strong></h1><p class="intro-text">Consulte faturas, copie o código ou pague com Pix.</p></div><span class="soft-badge warning">1 fatura em aberto</span></div>
+          <div class="finance-tabs" role="tablist" aria-label="Visualização financeira"><button class="active" type="button" role="tab" aria-selected="true" data-finance-tab="open">Em aberto <span>1</span></button><button type="button" role="tab" aria-selected="false" data-finance-tab="paid">Pagas</button><button type="button" role="tab" aria-selected="false" data-finance-tab="history">Histórico</button></div>
+
+          <div class="finance-view" data-finance-view="open">
+            <div class="billing-layout">
+              <article class="invoice-card"><div class="invoice-top"><p class="eyebrow light">FATURA • FEVEREIRO 2026</p><span>Em aberto</span></div><div class="invoice-main"><span><small>VALOR TOTAL</small><strong>R$ 79,90</strong></span><span><small>VENCIMENTO</small><strong>10/02/2026</strong></span></div><div class="due-line"><span><i></i> Vence em 5 dias</span><small>Sem juros até o vencimento</small></div><div class="invoice-actions"><button class="button button-light" type="button" data-toast="Boleto preparado para download"><img src="/icons/download.svg" alt="" /> 2ª via boleto</button><button class="button button-glass" type="button" data-copy="23793381286008211850404074951009198770000007990"><img src="/icons/copy.svg" alt="" /> Copiar código</button></div></article>
+              <article class="panel pix-card"><div><p class="eyebrow">PIX</p><h3>Pagamento imediato</h3><p>Aponte a câmera do aplicativo do seu banco.</p><span class="expires"><img src="/icons/clock.svg" alt="" /> Expira em 30 minutos</span><button class="text-link" type="button" data-copy="00020126580014BR.GOV.BCB.PIX0136bom-pastor-demo">Copiar Pix →</button></div><div class="fake-qr"><img src="/icons/qr-code.svg" alt="QR Code ilustrativo" /></div></article>
+            </div>
+            <article class="panel barcode-card"><span class="barcode-icon"><img src="/icons/pix.svg" alt="" /></span><div><p class="eyebrow">LINHA DIGITÁVEL</p><strong>23793.38128 60082.118504 04074.951009 1 98770000007990</strong><small>Confira os dados do beneficiário antes de concluir o pagamento.</small></div><button class="button button-ghost" type="button" data-copy="23793381286008211850404074951009198770000007990">Copiar linha</button></article>
+          </div>
+
+          <div class="finance-view" data-finance-view="paid" hidden>
+            <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">FATURAS PAGAS</p><h3>Pagamentos confirmados</h3></div><span class="soft-badge success">Tudo em dia</span></div><ul class="payment-list"><li><span>JAN 2026</span><strong>R$ 79,90</strong><small>Pago em 08/01</small><span class="soft-badge success">Pago</span></li><li><span>DEZ 2025</span><strong>R$ 79,90</strong><small>Pago em 09/12</small><span class="soft-badge success">Pago</span></li><li><span>NOV 2025</span><strong>R$ 79,90</strong><small>Pago em 07/11</small><span class="soft-badge success">Pago</span></li></ul></article>
+          </div>
+
+          <div class="finance-view" data-finance-view="history" hidden>
+            <div class="finance-history-summary"><article class="panel"><small>PAGAMENTOS EM 2025</small><strong>12</strong><span>Todos confirmados</span></article><article class="panel"><small>TOTAL NO PERÍODO</small><strong>R$ 958,80</strong><span>Janeiro a dezembro</span></article><article class="panel"><small>PONTUALIDADE</small><strong>100%</strong><span>Nenhum atraso</span></article></div>
+            <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">HISTÓRICO FINANCEIRO</p><h3>Movimentações recentes</h3></div><button class="button button-ghost" type="button" data-toast="Extrato anual preparado para download"><img src="/icons/download.svg" alt="" /> Extrato anual</button></div><ul class="payment-list"><li><span>JAN 2026</span><strong>R$ 79,90</strong><small>Pix • 08/01</small><span class="soft-badge success">Confirmado</span></li><li><span>DEZ 2025</span><strong>R$ 79,90</strong><small>Boleto • 09/12</small><span class="soft-badge success">Confirmado</span></li></ul></article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="bommed" aria-labelledby="bommed-title">
+          <div class="page-intro"><div><p class="eyebrow">MINHAS GUIAS</p><h1 id="bommed-title">Cuidado que <strong>acompanha você</strong></h1><p class="intro-text">Emita guias com desconto e consulte seu histórico.</p></div></div>
+          <div class="medical-layout">
+            <section class="panel guide-form guide-flow" data-guide-flow>
+              <div class="guide-step" data-guide-step="start">
+                <div class="guide-title"><p class="eyebrow">NOVA SOLICITAÇÃO</p><h2>O que você precisa?</h2><span class="discount-badge">até -35%</span></div>
+                <div class="guide-categories" role="group" aria-label="Tipo de atendimento">
+                  <button type="button" data-guide-category="Consulta"><img src="/icons/contact.svg" alt="" /><span>Consulta</span></button>
+                  <button type="button" data-guide-category="Exames"><img src="/icons/file-text.svg" alt="" /><span>Exames</span></button>
+                  <button type="button" data-guide-category="Terapias"><img src="/icons/heart-pulse.svg" alt="" /><span>Terapias</span></button>
+                  <button type="button" data-guide-category="Procedimentos"><img src="/icons/shield-check.svg" alt="" /><span>Procedimentos</span></button>
+                  <button type="button" data-guide-category="Outros"><img src="/icons/layout-grid.svg" alt="" /><span>Outros</span></button>
+                </div>
+              </div>
+
+              <div class="guide-progressive" data-guide-details hidden>
+                <label class="guide-beneficiary"><span>Para quem é a guia?</span><select data-guide-beneficiary><option>Fernando Ernerto (Titular)</option><option>João da Silva</option><option>Ana da Silva</option></select></label>
+                <div class="guide-search-block"><label for="guide-search">Encontre o atendimento</label><div class="guide-search"><img src="/icons/search.svg" alt="" /><input id="guide-search" type="search" autocomplete="off" placeholder="Busque por especialidade ou profissional" role="combobox" aria-expanded="false" data-guide-search /></div>
+                  <div class="guide-suggestions" data-guide-suggestions hidden>
+                    <button type="button" data-guide-option data-specialty="Cardiologia" data-professional=""><strong>Cardiologia</strong><small>Especialidade</small></button>
+                    <button type="button" data-guide-option data-specialty="Cardiologia" data-professional="Dr. Paulo Andrade"><strong>Dr. Paulo Andrade</strong><small>Cardiologia</small></button>
+                    <button type="button" data-guide-option data-specialty="Cardiologia" data-professional="Dra. Lúcia Mendes"><strong>Dra. Lúcia Mendes</strong><small>Cardiologia</small></button>
+                  </div>
+                </div>
+                <div class="guide-selection" data-guide-selection hidden><div><small data-guide-category-copy>CONSULTA</small><strong data-guide-specialty>Cardiologia</strong><span data-guide-professional>Dr. Paulo Andrade</span></div><div><small>BENEFICIÁRIO</small><strong data-guide-beneficiary-copy>Fernando Ernerto (Titular)</strong></div><button class="button button-primary" type="button" data-guide-review>Gerar guia</button></div>
+              </div>
+
+              <div class="guide-confirm" data-guide-confirm hidden><p class="eyebrow">CONFIRMAÇÃO</p><h2>Tudo certo?</h2><div class="guide-confirm-summary"><strong><span data-confirm-category>Consulta</span> — <span data-confirm-specialty>Cardiologia</span></strong><span data-confirm-professional>Dr. Paulo Andrade</span><small data-confirm-beneficiary>Fernando Ernerto</small></div><p class="guide-discount">Desconto de até 35%</p><div class="guide-confirm-actions"><button class="button button-ghost" type="button" data-guide-back>Voltar</button><button class="button button-primary" type="button" data-guide-generate>Confirmar e gerar guia</button></div></div>
+
+              <div class="guide-success" data-guide-success hidden><span class="guide-success-icon"><img src="/icons/check-circle.svg" alt="" /></span><p class="eyebrow">SOLICITAÇÃO CONCLUÍDA</p><h2>Guia gerada com sucesso</h2><p>Sua guia BomMed já está pronta para uso.</p><div><button class="button button-primary" type="button" data-toast="Abrindo a guia BomMed">Ver guia</button><button class="button button-ghost" type="button" data-toast="PDF da guia preparado para download"><img src="/icons/download.svg" alt="" /> Baixar PDF</button><button class="button button-ghost" type="button" data-toast="Guia preparada para envio pelo WhatsApp"><img src="/icons/phone.svg" alt="" /> Enviar pelo WhatsApp</button></div><button class="text-link" type="button" data-guide-new>Fazer nova solicitação</button></div>
+            </section>
+
+            <article class="panel usage-history"><div class="panel-title"><div><p class="eyebrow">UTILIZAÇÃO</p><h3>Histórico recente</h3></div><label class="guide-history-search"><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar no histórico" aria-label="Buscar no histórico de guias" data-guide-history-search /></label></div><ul class="timeline guide-history" data-guide-history-list><li><button type="button" data-guide-history><time>12 JAN</time><span><strong>Cardiologia</strong><small>Dr. Paulo Andrade</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia BP-2026-0112</b><span>Fernando Ernerto • desconto de 35%</span></div></li><li><button type="button" data-guide-history><time>28 DEZ</time><span><strong>Clínico geral</strong><small>Dra. Lúcia Mendes</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia BP-2025-1228</b><span>Fernando Ernerto • desconto de 30%</span></div></li><li><button type="button" data-guide-history><time>15 NOV</time><span><strong>Exame laboratorial</strong><small>Lab Bom Pastor</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia BP-2025-1115</b><span>Fernando Ernerto • desconto de 25%</span></div></li></ul><p class="guide-history-empty" data-guide-history-empty hidden>Nenhuma guia encontrada para essa busca.</p></article>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="instituto" aria-labelledby="instituto-title">
+          <article class="support-hero"><div class="support-glow"></div><div><p class="eyebrow light">INSTITUTO DO LUTO</p><h1 id="instituto-title">Você não está <strong>sozinho.</strong></h1><p>Acolhimento profissional, gratuito e confidencial para titulares e dependentes.</p><button class="button button-light" type="button" data-focus-support>Abrir solicitação de apoio</button></div><span class="support-symbol"><img src="/icons/heart-handshake.svg" alt="" /></span></article>
+          <div class="support-layout"><form class="panel support-form" data-demo-form><div class="panel-title"><div><p class="eyebrow">NOVO PROTOCOLO</p><h3>Como podemos ajudar?</h3></div></div><fieldset><legend>Tipo de apoio</legend><label class="radio-card"><input type="radio" name="apoio" checked /><span><strong>Acolhimento individual</strong><small>Conversa reservada com um profissional.</small></span></label><label class="radio-card"><input type="radio" name="apoio" /><span><strong>Grupo de apoio</strong><small>Encontros mediados em um ambiente seguro.</small></span></label><label class="radio-card"><input type="radio" name="apoio" /><span><strong>Apoio familiar</strong><small>Orientação para toda a família.</small></span></label></fieldset><label>Mensagem opcional<textarea rows="4" placeholder="Conte brevemente como podemos ajudar..."></textarea></label><button class="button button-primary full" type="submit">Abrir protocolo</button></form><aside class="privacy-note"><img src="/icons/shield-check.svg" alt="" /><h3>Seu espaço é seguro</h3><p>As informações compartilhadas são confidenciais e usadas apenas para direcionar o acolhimento.</p><span>Retorno em até 24 horas úteis</span></aside></div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Navegação mobile"><button class="active" type="button" data-route="inicio"><img src="/icons/home.svg" alt="" /><span>Início</span></button><button type="button" data-route="plano"><img src="/icons/umbrella.svg" alt="" /><span>Meu Plano</span></button><button type="button" data-route="plano"><img src="/icons/credit-card.svg" alt="" /><span>Carteirinha</span></button><button type="button" data-menu-open><img src="/icons/menu.svg" alt="" /><span>Menu</span></button></nav>
+
+    <div class="mobile-drawer" data-drawer aria-hidden="true"><button class="drawer-backdrop" type="button" data-menu-close aria-label="Fechar menu"></button><aside><div class="drawer-head"><a class="brand" href="#inicio" data-route="inicio"><img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></a><button class="icon-button" type="button" data-menu-close><img src="/icons/x.svg" alt="" /></button></div><nav>{navItems.map((item) => (<button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button"><img src={`/icons/${item.icon}.svg`} alt="" /><span>{item.label}</span>{item.badge && <span class="nav-badge">{item.badge}</span>}</button>))}</nav></aside></div>
+
+    <div class="login-overlay" data-login hidden style="--login-image: url('/media/image-login.png')">
+      <div class="login-visual" aria-hidden="true" style="--login-shape: url('/elements/login-mask.svg')">
+        <img class="login-photo" src="/media/image-login.png" alt="" />
+        <img class="login-photo-mobile" src="/media/image-login.png" alt="" />
+        <div class="login-message"><p>Seu cuidado.<br /><strong>Seu jeito de viver.</strong></p></div>
+      </div>
+      <form class="login-form" data-login-form>
+        <img class="login-stage-mark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" />
+        <img class="login-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" />
+        <div class="login-heading"><p class="eyebrow">ACESSAR MINHA CONTA</p><h1>Entre com seus dados</h1></div>
+        <label>CPF<input required inputmode="numeric" autocomplete="username" placeholder="Digite seu CPF" /></label>
+        <label>Senha<span class="password-field"><input required type="password" autocomplete="current-password" placeholder="Digite sua senha" data-password /><button type="button" data-password-toggle aria-label="Mostrar senha"><img src="/icons/eye-off.svg" alt="" /></button></span></label>
+        <button class="button button-primary full login-submit" type="submit">Entrar</button>
+        <div class="login-links"><button type="button" data-toast="Enviaremos as instruções para redefinir sua senha">Esqueci a senha</button><button type="button" data-toast="Vamos iniciar o seu primeiro acesso">Primeiro acesso</button></div>
+        <small class="login-security"><img src="/icons/shield-check.svg" alt="" /> Ambiente seguro e protegido</small>
+      </form>
+    </div>
+    <div class="toast" data-toast-box role="status" aria-live="polite"><img src="/icons/check-circle.svg" alt="" /><span>Ação concluída</span></div>
+  </div>
+
+  <script is:inline>
+    const screens = [...document.querySelectorAll('[data-screen]')];
+    const routeButtons = [...document.querySelectorAll('[data-route]')];
+    const drawer = document.querySelector('[data-drawer]');
+    const toast = document.querySelector('[data-toast-box]');
+    let toastTimer;
+    function showToast(message) { toast.querySelector('span').textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2600); }
+    function navigate(route, updateHash = true, scrollTarget = '') {
+      const target = document.querySelector(`[data-screen="${route}"]`); if (!target) return;
+      screens.forEach(screen => screen.classList.toggle('active', screen === target));
+      routeButtons.forEach(button => button.classList.toggle('active', button.dataset.route === route));
+      drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open');
+      if (updateHash) history.replaceState(null, '', `#${route}`);
+      const section = scrollTarget && document.getElementById(scrollTarget);
+      if (section) requestAnimationFrame(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      requestAnimationFrame(() => target.querySelectorAll('.reveal').forEach(el => el.classList.add('visible')));
+    }
+    routeButtons.forEach(button => button.addEventListener('click', event => { event.preventDefault(); navigate(button.dataset.route, true, button.dataset.scrollTarget); const accountMenu = document.querySelector('[data-profile-popover]'); if (accountMenu) accountMenu.hidden = true; document.querySelector('[data-profile-button]')?.setAttribute('aria-expanded', 'false'); }));
+    document.querySelectorAll('[data-menu-open]').forEach(button => button.addEventListener('click', () => { drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); document.body.classList.add('menu-open'); }));
+    document.querySelectorAll('[data-menu-close]').forEach(button => button.addEventListener('click', () => { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open'); }));
+    const searchButton = document.querySelector('[data-search-button]'); const globalSearch = document.querySelector('[data-global-search]');
+    const searchInput = globalSearch.querySelector('input');
+    const openSearch = () => {
+      globalSearch.hidden = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        globalSearch.classList.add('open');
+        searchButton.setAttribute('aria-expanded', 'true');
+        searchInput.focus();
+      }));
+    };
+    const closeSearch = () => {
+      globalSearch.classList.remove('open');
+      searchButton.setAttribute('aria-expanded', 'false');
+      const finishClose = () => { if (!globalSearch.classList.contains('open')) globalSearch.hidden = true; };
+      globalSearch.addEventListener('transitionend', finishClose, { once: true });
+      window.setTimeout(finishClose, 450);
+    };
+    searchButton.setAttribute('aria-expanded', 'false');
+    searchButton.addEventListener('click', openSearch);
+    document.querySelector('[data-search-close]').addEventListener('click', closeSearch);
+    const profileButton = document.querySelector('[data-profile-button]'); const profilePopover = document.querySelector('[data-profile-popover]');
+    profileButton.addEventListener('click', () => { const open = profilePopover.hasAttribute('hidden'); profilePopover.toggleAttribute('hidden', !open); profileButton.setAttribute('aria-expanded', String(open)); });
+    const accessibilityButton = document.querySelector('[data-accessibility-button]');
+    const accessibilityPanel = document.querySelector('[data-accessibility-panel]');
+    const accessibilityBackdrop = document.querySelector('[data-accessibility-backdrop]');
+    const accessibilityClose = document.querySelector('[data-accessibility-close]');
+    const fontStatus = document.querySelector('[data-font-scale-status]');
+    const fontActions = [...document.querySelectorAll('[data-font-action]')];
+    const fontScales = [0.9, 1, 1.1, 1.2, 1.3];
+    let fontScaleIndex = Math.max(0, fontScales.indexOf(Number(document.documentElement.dataset.fontLevel || 1.1)));
+    let accessibilityLastFocus = null;
+    const fontLevelLabel = index => index === 0 ? 'Texto reduzido' : index === 1 ? 'Tamanho padrão' : `Texto aumentado +${index - 1}`;
+    const applyFontScale = (index, persist = true) => {
+      fontScaleIndex = Math.max(0, Math.min(fontScales.length - 1, index));
+      const scale = fontScales[fontScaleIndex];
+      document.documentElement.style.setProperty('--font-scale', String(scale));
+      document.documentElement.dataset.fontLevel = String(scale);
+      fontStatus.textContent = fontLevelLabel(fontScaleIndex);
+      const decrease = document.querySelector('[data-font-action="decrease"]');
+      const standard = document.querySelector('[data-font-action="default"]');
+      const increase = document.querySelector('[data-font-action="increase"]');
+      decrease.disabled = fontScaleIndex === 0;
+      increase.disabled = fontScaleIndex === fontScales.length - 1;
+      standard.setAttribute('aria-pressed', String(fontScaleIndex === 1));
+      if (persist) { try { localStorage.setItem('accessibility-font-scale', String(scale)); } catch {} }
+    };
+    const openAccessibility = () => {
+      accessibilityLastFocus = document.activeElement;
+      accessibilityPanel.hidden = false;
+      accessibilityBackdrop.hidden = false;
+      accessibilityButton.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('accessibility-open');
+      accessibilityClose.focus();
+    };
+    const closeAccessibility = () => {
+      if (accessibilityPanel.hidden) return;
+      accessibilityPanel.hidden = true;
+      accessibilityBackdrop.hidden = true;
+      accessibilityButton.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('accessibility-open');
+      accessibilityButton.focus();
+    };
+    accessibilityButton.addEventListener('click', () => accessibilityPanel.hidden ? openAccessibility() : closeAccessibility());
+    accessibilityClose.addEventListener('click', closeAccessibility);
+    accessibilityBackdrop.addEventListener('click', closeAccessibility);
+    fontActions.forEach(button => button.addEventListener('click', () => {
+      if (button.dataset.fontAction === 'decrease') applyFontScale(fontScaleIndex - 1);
+      if (button.dataset.fontAction === 'default') applyFontScale(1);
+      if (button.dataset.fontAction === 'increase') applyFontScale(fontScaleIndex + 1);
+    }));
+    document.querySelector('[data-font-reset]').addEventListener('click', () => applyFontScale(1));
+    accessibilityPanel.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { event.preventDefault(); closeAccessibility(); return; }
+      if (event.key !== 'Tab') return;
+      const focusable = [...accessibilityPanel.querySelectorAll('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')];
+      const first = focusable[0]; const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !accessibilityPanel.hidden) closeAccessibility(); });
+    applyFontScale(fontScaleIndex, false);
+    const profilePhotoInput = document.querySelector('[data-profile-photo-input]');
+    let profilePhotoUrl = '';
+    profilePhotoInput?.addEventListener('change', () => {
+      const file = profilePhotoInput.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { showToast('Selecione uma imagem válida'); return; }
+      if (profilePhotoUrl) URL.revokeObjectURL(profilePhotoUrl);
+      profilePhotoUrl = URL.createObjectURL(file);
+      document.querySelectorAll('.large-avatar,.avatar').forEach(avatar => {
+        avatar.classList.add('has-photo');
+        avatar.style.setProperty('--profile-photo', `url("${profilePhotoUrl}")`);
+        avatar.textContent = '';
+      });
+      showToast('Foto de perfil atualizada');
+    });
+    const addressCep = document.querySelector('[data-address-cep]');
+    const addressField = document.querySelector('[data-address-field]');
+    const addressCity = document.querySelector('[data-address-city]');
+    const addressState = document.querySelector('[data-address-state]');
+    const addressStatus = document.querySelector('[data-address-status]');
+    const localAddresses = { '06454000': { street: 'Al. Rio Negro - Alphaville', city: 'Barueri', state: 'SP' } };
+    let cepLookupController;
+    const completeAddress = async (announce = true) => {
+      const cep = addressCep?.value.replace(/\D/g, '') || '';
+      if (cep.length !== 8) { addressStatus.textContent = 'Digite um CEP válido com 8 números.'; return; }
+      if (localAddresses[cep]) {
+        const address = localAddresses[cep];
+        addressField.value = address.street;
+        addressCity.value = address.city;
+        addressState.value = address.state;
+        addressStatus.textContent = 'Endereço preenchido automaticamente pelo CEP.';
+        if (announce) showToast('Endereço localizado pelo CEP');
+        return;
+      }
+      cepLookupController?.abort();
+      cepLookupController = new AbortController();
+      addressStatus.textContent = 'Buscando endereço pelo CEP…';
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { signal: cepLookupController.signal });
+        if (!response.ok) throw new Error('Falha na consulta');
+        const data = await response.json();
+        if (data.erro) { addressStatus.textContent = 'CEP não encontrado. Confira os números.'; return; }
+        addressField.value = [data.logradouro, data.bairro].filter(Boolean).join(' - ');
+        addressCity.value = data.localidade || '';
+        addressState.value = data.uf || '';
+        addressStatus.textContent = 'Endereço preenchido automaticamente. Complete o número.';
+        if (announce) showToast('Endereço localizado pelo CEP');
+      } catch (error) {
+        if (error.name !== 'AbortError') addressStatus.textContent = 'Não foi possível consultar agora. Digite o endereço manualmente.';
+      }
+    };
+    addressCep?.addEventListener('input', () => {
+      const digits = addressCep.value.replace(/\D/g, '').slice(0, 8);
+      addressCep.value = digits.replace(/^(\d{5})(\d)/, '$1-$2');
+      if (digits.length === 8) completeAddress();
+    });
+    addressCep?.addEventListener('blur', () => completeAddress(false));
+    completeAddress(false);
+    document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => { try { await navigator.clipboard.writeText(button.dataset.copy); showToast('Código copiado com sucesso'); } catch { showToast('Código pronto para copiar'); } }));
+    document.querySelectorAll('[data-toast]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.toast)));
+    document.querySelectorAll('[data-demo-form]').forEach(form => form.addEventListener('submit', event => { event.preventDefault(); showToast('Informações salvas com sucesso'); }));
+    const login = document.querySelector('[data-login]'); document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => { profilePopover.hidden = true; login.hidden = false; }));
+    const passwordInput = document.querySelector('[data-password]');
+    document.querySelector('[data-password-toggle]')?.addEventListener('click', event => { const visible = passwordInput.type === 'text'; passwordInput.type = visible ? 'password' : 'text'; event.currentTarget.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha'); });
+    document.querySelector('[data-login-form]').addEventListener('submit', event => { event.preventDefault(); login.hidden = true; showToast('Bem-vindo de volta, Fernando'); navigate('inicio'); });
+    document.querySelector('[data-focus-support]')?.addEventListener('click', () => document.querySelector('.support-form textarea')?.focus());
+    const financeTabs = [...document.querySelectorAll('[data-finance-tab]')];
+    const financeViews = [...document.querySelectorAll('[data-finance-view]')];
+    financeTabs.forEach(tab => tab.addEventListener('click', () => {
+      financeTabs.forEach(item => { const active = item === tab; item.classList.toggle('active', active); item.setAttribute('aria-selected', String(active)); });
+      financeViews.forEach(view => view.hidden = view.dataset.financeView !== tab.dataset.financeTab);
+    }));
+    const guideFlow = document.querySelector('[data-guide-flow]');
+    if (guideFlow) {
+      const categoryButtons = [...guideFlow.querySelectorAll('[data-guide-category]')];
+      const details = guideFlow.querySelector('[data-guide-details]');
+      const search = guideFlow.querySelector('[data-guide-search]');
+      const suggestions = guideFlow.querySelector('[data-guide-suggestions]');
+      const options = [...guideFlow.querySelectorAll('[data-guide-option]')];
+      const selection = guideFlow.querySelector('[data-guide-selection]');
+      const beneficiary = guideFlow.querySelector('[data-guide-beneficiary]');
+      const start = guideFlow.querySelector('[data-guide-step="start"]');
+      const confirm = guideFlow.querySelector('[data-guide-confirm]');
+      const success = guideFlow.querySelector('[data-guide-success]');
+      const state = { category: '', specialty: '', professional: '' };
+      const syncSelection = () => {
+        guideFlow.querySelector('[data-guide-category-copy]').textContent = state.category.toUpperCase();
+        guideFlow.querySelector('[data-guide-specialty]').textContent = state.specialty;
+        guideFlow.querySelector('[data-guide-professional]').textContent = state.professional || 'Profissional definido na guia';
+        guideFlow.querySelector('[data-guide-beneficiary-copy]').textContent = beneficiary.value;
+      };
+      categoryButtons.forEach(button => button.addEventListener('click', () => {
+        state.category = button.dataset.guideCategory;
+        categoryButtons.forEach(item => item.classList.toggle('active', item === button));
+        details.hidden = false;
+        selection.hidden = true;
+        search.value = '';
+        search.placeholder = state.category === 'Consulta' ? 'Busque por especialidade ou profissional' : `Busque por ${state.category.toLowerCase()}`;
+        window.setTimeout(() => search.focus(), 180);
+      }));
+      const filterSuggestions = () => {
+        const query = search.value.trim().toLocaleLowerCase('pt-BR');
+        let visibleCount = 0;
+        options.forEach(option => {
+          const visible = !query || option.textContent.toLocaleLowerCase('pt-BR').includes(query);
+          option.hidden = !visible;
+          if (visible) visibleCount += 1;
+        });
+        suggestions.hidden = visibleCount === 0;
+        search.setAttribute('aria-expanded', String(visibleCount > 0));
+      };
+      search.addEventListener('focus', filterSuggestions);
+      search.addEventListener('input', filterSuggestions);
+      options.forEach(option => option.addEventListener('click', () => {
+        state.specialty = option.dataset.specialty;
+        state.professional = option.dataset.professional;
+        search.value = state.professional || state.specialty;
+        suggestions.hidden = true;
+        search.setAttribute('aria-expanded', 'false');
+        syncSelection();
+        selection.hidden = false;
+      }));
+      beneficiary.addEventListener('change', syncSelection);
+      guideFlow.querySelector('[data-guide-review]').addEventListener('click', () => {
+        guideFlow.querySelector('[data-confirm-category]').textContent = state.category;
+        guideFlow.querySelector('[data-confirm-specialty]').textContent = state.specialty;
+        guideFlow.querySelector('[data-confirm-professional]').textContent = state.professional || 'Profissional definido na guia';
+        guideFlow.querySelector('[data-confirm-beneficiary]').textContent = beneficiary.value;
+        start.hidden = true; details.hidden = true; confirm.hidden = false;
+      });
+      guideFlow.querySelector('[data-guide-back]').addEventListener('click', () => { confirm.hidden = true; start.hidden = false; details.hidden = false; });
+      guideFlow.querySelector('[data-guide-generate]').addEventListener('click', () => { confirm.hidden = true; success.hidden = false; showToast('Guia BomMed gerada com sucesso'); });
+      guideFlow.querySelector('[data-guide-new]').addEventListener('click', () => {
+        success.hidden = true; start.hidden = false; details.hidden = true; selection.hidden = true; suggestions.hidden = true;
+        state.category = ''; state.specialty = ''; state.professional = ''; search.value = '';
+        categoryButtons.forEach(item => item.classList.remove('active'));
+      });
+      document.addEventListener('click', event => {
+        if (!guideFlow.querySelector('.guide-search-block').contains(event.target)) { suggestions.hidden = true; search.setAttribute('aria-expanded', 'false'); }
+      });
+    }
+    document.querySelectorAll('[data-guide-history]').forEach(button => button.addEventListener('click', () => {
+      const item = button.closest('li'); const detail = item.querySelector('div'); const open = detail.hidden;
+      detail.hidden = !open; item.classList.toggle('open', open);
+    }));
+    const guideHistorySearch = document.querySelector('[data-guide-history-search]');
+    const guideHistoryItems = [...document.querySelectorAll('[data-guide-history-list] > li')];
+    const guideHistoryEmpty = document.querySelector('[data-guide-history-empty]');
+    guideHistorySearch?.addEventListener('input', () => {
+      const query = guideHistorySearch.value.trim().toLocaleLowerCase('pt-BR');
+      let visibleItems = 0;
+      guideHistoryItems.forEach(item => {
+        const visible = !query || item.textContent.toLocaleLowerCase('pt-BR').includes(query);
+        item.hidden = !visible;
+        if (visible) visibleItems += 1;
+      });
+      guideHistoryEmpty.hidden = visibleItems > 0;
+    });
+    const initialRoute = location.hash.slice(1);
+    if (initialRoute === 'contatos') navigate('cadastro', false, 'cadastro-contatos');
+    else navigate(document.querySelector(`[data-screen="${initialRoute}"]`) ? initialRoute : 'inicio', false);
+    requestAnimationFrame(() => document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible')));
+  </script>
+</Layout>
