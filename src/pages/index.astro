@@ -9,6 +9,7 @@ const navItems = [
   { id: "cadastro", label: "Meu cadastro", icon: "user" },
   { id: "avisos", label: "Comunicação", icon: "bell", badge: String(unreadMessages) },
   { id: "plano", label: "Plano e contrato", icon: "file-text" },
+  { id: "carteirinha", label: "Carteirinha", icon: "credit-card" },
   { id: "financeiro", label: "Financeiro", icon: "wallet" },
   { id: "bommed", label: "Minhas Guias", icon: "heart-pulse" },
   { id: "instituto", label: "Instituto do Luto", icon: "heart-handshake" },
@@ -18,7 +19,7 @@ const shortcuts = [
   { id: "bommed", title: "Gerar guia", text: "Atendimento com até 35% de desconto", icon: "heart-pulse", tone: "blue featured" },
   { id: "financeiro", title: "2ª via e Pix", text: "Vencimento em 5 dias", icon: "wallet", tone: "orange" },
   { id: "plano", title: "Meu plano", text: "Contrato e dependentes", icon: "file-text", tone: "purple" },
-  { id: "instituto", title: "Pedir apoio", text: "Atendimento confidencial", icon: "heart-handshake", tone: "teal" },
+  { id: "instituto", title: "Pedir apoio", text: "Atendimento confidencial", icon: "heart-handshake", tone: "support-highlight" },
 ];
 ---
 
@@ -210,6 +211,43 @@ const shortcuts = [
           </div>
         </section>
 
+        <section class="screen wallet-screen" data-screen="carteirinha" data-card-status="active" aria-labelledby="carteirinha-title">
+          <div class="page-intro wallet-intro"><div><p class="eyebrow">CARTEIRINHA DIGITAL</p><h1 id="carteirinha-title">Minha <strong>Carteirinha</strong></h1><p class="intro-text">Apresente ao parceiro para utilizar seus benefícios.</p></div><span class="status-pill wallet-page-status" data-active-only><i></i> Plano ativo</span></div>
+
+          <div class="wallet-layout">
+            <div class="wallet-main-column">
+              <label class="beneficiary-picker">Carteirinha de:
+                <select data-wallet-beneficiary aria-label="Selecionar beneficiário">
+                  <option value="fernando">Fernando Ernerto — Titular</option>
+                  <option value="joao">João da Silva — Cônjuge</option>
+                  <option value="ana">Ana da Silva — Filha</option>
+                  <option value="lucas">Lucas da Silva — Filho</option>
+                </select>
+              </label>
+
+              <article class="wallet-card" aria-label="Carteirinha digital Bom Pastor">
+                <div class="wallet-card-top"><img class="wallet-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /><span class="wallet-card-status" data-active-only><i></i> Plano ativo</span><span class="wallet-card-status unavailable" data-overdue-only hidden>Indisponível</span></div>
+                <img class="wallet-watermark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" />
+                <div class="wallet-holder"><small data-wallet-role>TITULAR</small><strong data-wallet-name>FERNANDO ERNERTO</strong></div>
+                <div class="wallet-meta"><span><small>PLANO</small><strong>TOTAL+</strong></span><span><small>CARTEIRINHA</small><strong data-wallet-number>BP-248197-22</strong></span></div>
+              </article>
+            </div>
+
+            <article class="panel partner-pass">
+              <div class="partner-pass-head"><div><p class="eyebrow">APRESENTAÇÃO AO PARCEIRO</p><h2>Apresente ao parceiro</h2></div><span class="soft-badge success" data-active-only><i></i> Benefício disponível</span><span class="soft-badge warning" data-overdue-only hidden>Temporariamente indisponível</span></div>
+              <p class="partner-pass-copy" data-active-only>Mostre este QR Code antes de utilizar o serviço para identificar seu benefício.</p>
+              <p class="partner-pass-copy overdue-copy" data-overdue-only hidden>Regularize seu plano para voltar a utilizar seus benefícios.</p>
+              <div class="wallet-qr" data-active-only><img src="/icons/qr-benefit-demo.svg" alt="QR Code demonstrativo do benefício" /></div>
+              <div class="wallet-qr wallet-qr-blocked" data-overdue-only hidden><img src="/icons/qr-benefit-demo.svg" alt="" /><span>QR Code indisponível</span></div>
+              <div class="benefit-code" data-active-only><span><small>CÓDIGO DO BENEFÍCIO</small><strong data-wallet-benefit-code>BP 9284 7712</strong></span><button class="button button-ghost" type="button" data-wallet-copy><img src="/icons/copy.svg" alt="" /> Copiar código</button></div>
+              <button class="button button-primary wallet-regularize" type="button" data-overdue-only data-route="financeiro" hidden>Regularizar plano</button>
+              <small class="prototype-note">QR Code demonstrativo para validação da interface.</small>
+            </article>
+
+            <article class="panel wallet-how"><div><p class="eyebrow">COMO USAR</p><h3>Utilize seu benefício em quatro passos</h3></div><ol><li><span>1</span>Consulte um parceiro credenciado.</li><li><span>2</span>Apresente esta carteirinha antes do atendimento ou compra.</li><li><span>3</span>O parceiro confirma o benefício disponível.</li><li><span>4</span>Utilize seu desconto.</li></ol></article>
+          </div>
+        </section>
+
         <section class="screen" data-screen="financeiro" aria-labelledby="financeiro-title">
           <div class="page-intro"><div><p class="eyebrow">FINANCEIRO</p><h1 id="financeiro-title">Pagamentos <strong>em dia</strong></h1><p class="intro-text">Consulte faturas, copie o código ou pague com Pix.</p></div><span class="soft-badge warning">1 fatura em aberto</span></div>
           <div class="finance-tabs" role="tablist" aria-label="Visualização financeira"><button class="active" type="button" role="tab" aria-selected="true" data-finance-tab="open">Em aberto <span>1</span></button><button type="button" role="tab" aria-selected="false" data-finance-tab="paid">Pagas</button><button type="button" role="tab" aria-selected="false" data-finance-tab="history">Histórico</button></div>
@@ -275,7 +313,7 @@ const shortcuts = [
       </main>
     </div>
 
-    <nav class="bottom-nav" aria-label="Navegação mobile"><button class="active" type="button" data-route="inicio"><img src="/icons/home.svg" alt="" /><span>Início</span></button><button type="button" data-route="plano"><img src="/icons/umbrella.svg" alt="" /><span>Meu Plano</span></button><button type="button" data-route="plano"><img src="/icons/credit-card.svg" alt="" /><span>Carteirinha</span></button><button type="button" data-menu-open><img src="/icons/menu.svg" alt="" /><span>Menu</span></button></nav>
+    <nav class="bottom-nav" aria-label="Navegação mobile"><button class="active" type="button" data-route="inicio"><img src="/icons/home.svg" alt="" /><span>Início</span></button><button type="button" data-route="plano"><img src="/icons/umbrella.svg" alt="" /><span>Meu Plano</span></button><button type="button" data-route="carteirinha"><img src="/icons/credit-card.svg" alt="" /><span>Carteirinha</span></button><button type="button" data-menu-open><img src="/icons/menu.svg" alt="" /><span>Menu</span></button></nav>
 
     <div class="mobile-drawer" data-drawer aria-hidden="true"><button class="drawer-backdrop" type="button" data-menu-close aria-label="Fechar menu"></button><aside><div class="drawer-head"><a class="brand" href="#inicio" data-route="inicio"><img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></a><button class="icon-button" type="button" data-menu-close><img src="/icons/x.svg" alt="" /></button></div><nav>{navItems.map((item) => (<button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button"><img src={`/icons/${item.icon}.svg`} alt="" /><span>{item.label}</span>{item.badge && <span class="nav-badge">{item.badge}</span>}</button>))}</nav></aside></div>
 
@@ -462,10 +500,10 @@ const shortcuts = [
     document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => { try { await navigator.clipboard.writeText(button.dataset.copy); showToast('Código copiado com sucesso'); } catch { showToast('Código pronto para copiar'); } }));
     document.querySelectorAll('[data-toast]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.toast)));
     document.querySelectorAll('[data-demo-form]').forEach(form => form.addEventListener('submit', event => { event.preventDefault(); showToast('Informações salvas com sucesso'); }));
-    const login = document.querySelector('[data-login]'); document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => { profilePopover.hidden = true; login.hidden = false; }));
+    const login = document.querySelector('[data-login]'); document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => { profilePopover.hidden = true; login.hidden = false; document.body.classList.add('login-open'); }));
     const passwordInput = document.querySelector('[data-password]');
     document.querySelector('[data-password-toggle]')?.addEventListener('click', event => { const visible = passwordInput.type === 'text'; passwordInput.type = visible ? 'password' : 'text'; event.currentTarget.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha'); });
-    document.querySelector('[data-login-form]').addEventListener('submit', event => { event.preventDefault(); login.hidden = true; showToast('Bem-vindo de volta, Fernando'); navigate('inicio'); });
+    document.querySelector('[data-login-form]').addEventListener('submit', event => { event.preventDefault(); login.hidden = true; document.body.classList.remove('login-open'); showToast('Bem-vindo de volta, Fernando'); navigate('inicio'); });
     document.querySelector('[data-focus-support]')?.addEventListener('click', () => document.querySelector('.support-form textarea')?.focus());
     const financeTabs = [...document.querySelectorAll('[data-finance-tab]')];
     const financeViews = [...document.querySelectorAll('[data-finance-view]')];
@@ -559,6 +597,38 @@ const shortcuts = [
       });
       guideHistoryEmpty.hidden = visibleItems > 0;
     });
+    const walletScreen = document.querySelector('[data-screen="carteirinha"]');
+    const walletBeneficiary = walletScreen?.querySelector('[data-wallet-beneficiary]');
+    const walletPeople = {
+      fernando: { name: 'FERNANDO ERNERTO', role: 'TITULAR', number: 'BP-248197-22', code: 'BP 9284 7712' },
+      joao: { name: 'JOÃO DA SILVA', role: 'CÔNJUGE', number: 'BP-248197-23', code: 'BP 9284 7713' },
+      ana: { name: 'ANA DA SILVA', role: 'FILHA', number: 'BP-248197-24', code: 'BP 9284 7714' },
+      lucas: { name: 'LUCAS DA SILVA', role: 'FILHO', number: 'BP-248197-25', code: 'BP 9284 7715' }
+    };
+    const updateWalletBeneficiary = () => {
+      if (!walletScreen || !walletBeneficiary) return;
+      const person = walletPeople[walletBeneficiary.value];
+      walletScreen.querySelector('[data-wallet-name]').textContent = person.name;
+      walletScreen.querySelector('[data-wallet-role]').textContent = person.role;
+      walletScreen.querySelector('[data-wallet-number]').textContent = person.number;
+      walletScreen.querySelector('[data-wallet-benefit-code]').textContent = person.code;
+    };
+    const applyWalletStatus = () => {
+      if (!walletScreen) return;
+      const overdue = walletScreen.dataset.cardStatus === 'overdue';
+      walletScreen.classList.toggle('is-overdue', overdue);
+      walletScreen.querySelectorAll('[data-active-only]').forEach(element => element.hidden = overdue);
+      walletScreen.querySelectorAll('[data-overdue-only]').forEach(element => element.hidden = !overdue);
+    };
+    walletBeneficiary?.addEventListener('change', updateWalletBeneficiary);
+    walletScreen && new MutationObserver(applyWalletStatus).observe(walletScreen, { attributes: true, attributeFilter: ['data-card-status'] });
+    walletScreen?.querySelector('[data-wallet-copy]')?.addEventListener('click', async () => {
+      const code = walletScreen.querySelector('[data-wallet-benefit-code]').textContent.trim();
+      try { await navigator.clipboard.writeText(code); showToast('Código copiado'); }
+      catch { showToast('Código pronto para copiar'); }
+    });
+    updateWalletBeneficiary();
+    applyWalletStatus();
     const initialRoute = location.hash.slice(1);
     if (initialRoute === 'contatos') navigate('cadastro', false, 'cadastro-contatos');
     else navigate(document.querySelector(`[data-screen="${initialRoute}"]`) ? initialRoute : 'inicio', false);
