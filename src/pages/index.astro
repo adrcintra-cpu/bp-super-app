@@ -2,10 +2,9 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/app.css";
 
-const unreadMessages = 3;
+const unreadMessages = 2;
 const navItems = [
   { id: "inicio", label: "Início", icon: "home" },
-  { id: "bomcorp", label: "Bom Corp", icon: "building-2" },
   { id: "cadastro", label: "Meu cadastro", icon: "user" },
   { id: "avisos", label: "Comunicação", icon: "bell", badge: String(unreadMessages) },
   { id: "plano", label: "Plano e contrato", icon: "file-text" },
@@ -39,11 +38,11 @@ const shortcuts = [
           </button>
         ))}
       </nav>
-      <div class="sidebar-help">
+      <button class="sidebar-help" type="button" data-route="instituto">
         <span class="help-icon"><img src="/icons/phone.svg" alt="" /></span>
         <div><small>Precisa de ajuda?</small><strong>Fale com a gente</strong></div>
         <img class="help-arrow" src="/icons/chevron-right.svg" alt="" />
-      </div>
+      </button>
     </aside>
 
     <div class="app-main">
@@ -58,6 +57,7 @@ const shortcuts = [
         <div class="global-search" data-global-search hidden>
           <label><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar serviço, guia ou informação" autofocus /></label>
           <button type="button" data-search-close aria-label="Fechar busca"><img src="/icons/x.svg" alt="" /></button>
+          <div class="global-search-results" data-search-results hidden role="listbox" aria-label="Resultados da busca"></div>
         </div>
         <button class="accessibility-backdrop" type="button" data-accessibility-backdrop aria-label="Fechar opções de acessibilidade" hidden></button>
         <section class="accessibility-panel" id="accessibility-panel" data-accessibility-panel role="dialog" aria-modal="true" aria-labelledby="accessibility-title" hidden>
@@ -76,12 +76,12 @@ const shortcuts = [
       </header>
 
       <nav class="product-menu product-strip" aria-label="Principais produtos">
-        <button class="product-item pet" type="button" data-toast="Bom Pet estará disponível em breve"><span><img src="/icons/dog.svg" alt="" /></span><small>BomPet</small></button>
+        <a class="product-item pet" href="https://grupobompastor.com.br/bompet/" target="_blank" rel="noopener noreferrer"><span><img src="/icons/dog.svg" alt="" /></span><small>BomPet</small></a>
         <button class="product-item med" type="button" data-route="bommed"><span><img src="/icons/heart-pulse.svg" alt="" /></span><small>BomMed</small></button>
-        <button class="product-item auto" type="button" data-toast="Bom Auto estará disponível em breve"><span><img src="/icons/car.svg" alt="" /></span><small>BomAuto</small></button>
-        <button class="product-item corp" type="button" data-route="bomcorp"><span><img src="/icons/building-2.svg" alt="" /></span><small>BomCorp</small></button>
-        <button class="product-item descanso desktop-product" type="button" data-toast="BomDescanso estará disponível em breve"><span><img src="/icons/moon.svg" alt="" /></span><small>BomDescanso</small></button>
-        <button class="product-item cremacao desktop-product" type="button" data-toast="Cremação estará disponível em breve"><span><img src="/icons/urn.svg" alt="" /></span><small>Cremação</small></button>
+        <a class="product-item auto" href="https://grupobompastor.com.br/bomauto/" target="_blank" rel="noopener noreferrer"><span><img src="/icons/car.svg" alt="" /></span><small>BomAuto</small></a>
+        <a class="product-item corp" href="https://grupobompastor.com.br/plano-bomcorp/" target="_blank" rel="noopener noreferrer"><span><img src="/icons/building-2.svg" alt="" /></span><small>BomCorp</small></a>
+        <a class="product-item descanso desktop-product" href="https://grupobompastor.com.br/bomdescanso/" target="_blank" rel="noopener noreferrer"><span><img src="/icons/moon.svg" alt="" /></span><small>BomDescanso</small></a>
+        <a class="product-item cremacao desktop-product" href="https://grupobompastor.com.br/cremacao/" target="_blank" rel="noopener noreferrer"><span><img src="/icons/urn.svg" alt="" /></span><small>Cremação</small></a>
       </nav>
 
       <main class="content" id="conteudo">
@@ -125,9 +125,9 @@ const shortcuts = [
         </section>
 
         <section class="screen" data-screen="bomcorp" aria-labelledby="bomcorp-title">
-          <div class="page-intro"><div><p class="eyebrow">BOM CORP</p><h1 id="bomcorp-title">Painel do <strong>gestor</strong></h1><p class="intro-text">Visão geral dos colaboradores, planos e pendências da empresa.</p></div><button class="button button-primary" type="button">+ Adicionar colaborador</button></div>
-          <div class="metric-grid"><article class="metric-card gradient-blue"><span><img src="/icons/users.svg" alt="" /></span><small>Colaboradores ativos</small><strong>248</strong><em>+8 este mês</em></article><article class="metric-card gradient-purple"><span><img src="/icons/user.svg" alt="" /></span><small>Dependentes</small><strong>12</strong><em>no mês</em></article><article class="metric-card gradient-orange"><span><img src="/icons/wallet.svg" alt="" /></span><small>Faturamento atual</small><strong>R$ 38.420</strong><em>vence dia 10</em></article><article class="metric-card gradient-blue"><span><img src="/icons/clock.svg" alt="" /></span><small>Pendências</small><strong>3</strong><em>aguardando ação</em></article></div>
-          <article class="panel data-panel"><div class="panel-title"><div><p class="eyebrow">GESTÃO DE VIDAS</p><h3>Colaboradores</h3></div><label class="search-field"><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar colaborador" /></label></div><div class="table-wrap"><table><thead><tr><th>Colaborador</th><th>CPF</th><th>Plano</th><th>Status</th><th></th></tr></thead><tbody><tr><td><span class="person"><b>AS</b><span><strong>Ana Souza</strong><small>ana@empresa.com</small></span></span></td><td>123.***.***-00</td><td>Bom Med +</td><td><span class="soft-badge success">Ativo</span></td><td>⋯</td></tr><tr><td><span class="person"><b>CM</b><span><strong>Carlos Mendes</strong><small>carlos@empresa.com</small></span></span></td><td>456.***.***-00</td><td>Bom Pet</td><td><span class="soft-badge success">Ativo</span></td><td>⋯</td></tr><tr><td><span class="person"><b>JR</b><span><strong>Júlia Rocha</strong><small>julia@empresa.com</small></span></span></td><td>789.***.***-00</td><td>Bom Auto</td><td><span class="soft-badge warning">Pendente</span></td><td>⋯</td></tr></tbody></table></div></article>
+          <div class="page-intro"><div><p class="eyebrow">BOM CORP</p><h1 id="bomcorp-title">Painel do <strong>gestor</strong></h1><p class="intro-text">Visão geral dos colaboradores, planos e pendências da empresa.</p></div><button class="button button-primary" type="button" data-add-collaborator>+ Adicionar colaborador</button></div>
+          <div class="metric-grid"><article class="metric-card gradient-blue"><span><img src="/icons/users.svg" alt="" /></span><small>Colaboradores ativos</small><strong data-collaborator-count>248</strong><em>+8 este mês</em></article><article class="metric-card gradient-purple"><span><img src="/icons/user.svg" alt="" /></span><small>Dependentes</small><strong>12</strong><em>no mês</em></article><article class="metric-card gradient-orange"><span><img src="/icons/wallet.svg" alt="" /></span><small>Faturamento atual</small><strong>R$ 38.420</strong><em>vence dia 10</em></article><article class="metric-card gradient-blue"><span><img src="/icons/clock.svg" alt="" /></span><small>Pendências</small><strong>3</strong><em>aguardando ação</em></article></div>
+          <article class="panel data-panel"><div class="panel-title"><div><p class="eyebrow">GESTÃO DE VIDAS</p><h3>Colaboradores</h3></div><label class="search-field"><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar colaborador" data-collaborator-search /></label></div><div class="table-wrap"><table><thead><tr><th>Colaborador</th><th>CPF</th><th>Plano</th><th>Status</th><th></th></tr></thead><tbody data-collaborator-list><tr><td><span class="person"><b>AS</b><span><strong>Ana Souza</strong><small>ana@empresa.com</small></span></span></td><td>123.***.***-00</td><td>Bom Med +</td><td><span class="soft-badge success">Ativo</span></td><td><button class="row-action" type="button" data-collaborator-action aria-label="Opções de Ana Souza">⋯</button></td></tr><tr><td><span class="person"><b>CM</b><span><strong>Carlos Mendes</strong><small>carlos@empresa.com</small></span></span></td><td>456.***.***-00</td><td>Bom Pet</td><td><span class="soft-badge success">Ativo</span></td><td><button class="row-action" type="button" data-collaborator-action aria-label="Opções de Carlos Mendes">⋯</button></td></tr><tr><td><span class="person"><b>JR</b><span><strong>Júlia Rocha</strong><small>julia@empresa.com</small></span></span></td><td>789.***.***-00</td><td>Bom Auto</td><td><span class="soft-badge warning">Pendente</span></td><td><button class="row-action" type="button" data-collaborator-action aria-label="Opções de Júlia Rocha">⋯</button></td></tr></tbody></table><p class="table-empty" data-collaborator-empty hidden>Nenhum colaborador encontrado.</p></div></article>
         </section>
 
         <section class="screen" data-screen="cadastro" aria-labelledby="cadastro-title">
@@ -161,28 +161,28 @@ const shortcuts = [
           <section class="cadastro-contacts section-block" id="cadastro-contatos" aria-labelledby="cadastro-contatos-title">
             <div class="section-heading cadastro-contacts-heading">
               <div><p class="eyebrow">CONTATOS E PREFERÊNCIAS</p><h2 id="cadastro-contatos-title">Onde podemos <strong>falar com você</strong></h2><p class="intro-text">Escolha onde deseja receber boletos, alertas e comunicados.</p></div>
-              <button class="button button-primary" type="button">+ Adicionar contato</button>
+              <button class="button button-primary" type="button" data-add-contact>+ Adicionar contato</button>
             </div>
-            <div class="contact-grid"><article class="panel contact-card"><span class="contact-icon gradient-blue"><img src="/icons/contact.svg" alt="" /></span><div><small>E-MAIL PRINCIPAL</small><h3>fernando.ernerto@email.com</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> Verificado</span><p>Comunicados, boletos e alertas importantes.</p></div><button class="text-link">Editar</button></article><article class="panel contact-card"><span class="contact-icon gradient-purple"><img src="/icons/phone.svg" alt="" /></span><div><small>TELEFONE PRINCIPAL</small><h3>(11) 99876-5432</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> WhatsApp e SMS</span><p>Canal preferido para confirmações e tokens.</p></div><button class="text-link">Editar</button></article></div>
+            <div class="contact-grid" data-contact-grid><article class="panel contact-card" data-contact-card="email"><span class="contact-icon gradient-blue"><img src="/icons/contact.svg" alt="" /></span><div><small>E-MAIL PRINCIPAL</small><h3>fernando.ernerto@email.com</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> Verificado</span><p>Comunicados, boletos e alertas importantes.</p></div><button class="text-link" type="button" data-edit-contact="email">Editar</button></article><article class="panel contact-card" data-contact-card="phone"><span class="contact-icon gradient-purple"><img src="/icons/phone.svg" alt="" /></span><div><small>TELEFONE PRINCIPAL</small><h3>(11) 99876-5432</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> WhatsApp e SMS</span><p>Canal preferido para confirmações e tokens.</p></div><button class="text-link" type="button" data-edit-contact="phone">Editar</button></article></div>
           </section>
         </section>
 
         <section class="screen" data-screen="avisos" aria-labelledby="avisos-title">
-          <div class="page-intro"><div><p class="eyebrow">CENTRAL DE COMUNICAÇÃO</p><h1 id="avisos-title">Avisos e <strong>comunicados</strong></h1><p class="intro-text">Tudo o que importa sobre seu plano e seus serviços.</p></div><button class="button button-ghost" type="button">Marcar tudo como lido</button></div>
-          <div class="notice-layout"><div class="filter-chips"><button class="active">Todos</button><button>Avisos</button><button>Boletos</button><button>Bom Med</button><button>Instituto</button></div><article class="panel notice-list"><button class="notice-item unread"><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><span><small>FINANCEIRO</small><strong>Boleto disponível</strong><p>Sua mensalidade de fevereiro vence em 5 dias.</p></span><time>há 2h</time></button><button class="notice-item unread"><span class="list-icon blue"><img src="/icons/heart-pulse.svg" alt="" /></span><span><small>BOM MED</small><strong>Nova guia autorizada</strong><p>Guia médica autorizada para Dr. Paulo Andrade.</p></span><time>ontem</time></button><button class="notice-item"><span class="list-icon green"><img src="/icons/check-circle.svg" alt="" /></span><span><small>CADASTRO</small><strong>Telefone confirmado</strong><p>Seu novo telefone foi verificado com sucesso.</p></span><time>2 dias</time></button><button class="notice-item"><span class="list-icon purple"><img src="/icons/bell.svg" alt="" /></span><span><small>COMUNICADO</small><strong>Novo benefício disponível</strong><p>Conheça as novas vantagens para titulares.</p></span><time>5 dias</time></button></article></div>
+          <div class="page-intro"><div><p class="eyebrow">CENTRAL DE COMUNICAÇÃO</p><h1 id="avisos-title">Avisos e <strong>comunicados</strong></h1><p class="intro-text">Tudo o que importa sobre seu plano e seus serviços.</p></div><button class="button button-ghost" type="button" data-mark-all-read>Marcar tudo como lido</button></div>
+          <div class="notice-layout"><div class="filter-chips"><button class="active" type="button" data-notice-filter="all">Todos</button><button type="button" data-notice-filter="notice">Avisos</button><button type="button" data-notice-filter="financeiro">Boletos</button><button type="button" data-notice-filter="bommed">Bom Med</button><button type="button" data-notice-filter="instituto">Instituto</button></div><article class="panel notice-list"><button class="notice-item unread" type="button" data-notice-item data-notice-category="financeiro"><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><span><small>FINANCEIRO</small><strong>Boleto disponível</strong><p>Sua mensalidade de fevereiro vence em 5 dias.</p></span><time>há 2h</time></button><button class="notice-item unread" type="button" data-notice-item data-notice-category="bommed"><span class="list-icon blue"><img src="/icons/heart-pulse.svg" alt="" /></span><span><small>BOM MED</small><strong>Nova guia autorizada</strong><p>Guia médica autorizada para Dr. Paulo Andrade.</p></span><time>ontem</time></button><button class="notice-item" type="button" data-notice-item data-notice-category="notice"><span class="list-icon green"><img src="/icons/check-circle.svg" alt="" /></span><span><small>CADASTRO</small><strong>Telefone confirmado</strong><p>Seu novo telefone foi verificado com sucesso.</p></span><time>2 dias</time></button><button class="notice-item" type="button" data-notice-item data-notice-category="notice"><span class="list-icon purple"><img src="/icons/bell.svg" alt="" /></span><span><small>COMUNICADO</small><strong>Novo benefício disponível</strong><p>Conheça as novas vantagens para titulares.</p></span><time>5 dias</time></button><p class="notice-empty" data-notice-empty hidden>Nenhum comunicado nesta categoria.</p></article></div>
         </section>
 
         <section class="screen" data-screen="plano" aria-labelledby="plano-title">
           <div class="page-intro"><div><p class="eyebrow">PLANO E CONTRATO</p><h1 id="plano-title">Seu plano, <strong>sem complicação</strong></h1><p class="intro-text">Consulte vigência, contrato, carteirinha e dependentes.</p></div><span class="status-pill"><i></i> Ativo</span></div>
           <article class="plan-banner"><div><p class="eyebrow light">PLANO ATUAL</p><h2>TOTAL<span>+</span></h2><p>Desde 15 de março de 2018</p></div><div class="plan-stats"><span><small>MENSALIDADE</small><strong>R$ 139,90</strong></span><span><small>PRÓX. VENCIMENTO</small><strong>10/02/2026</strong></span><span><small>CARTEIRINHA</small><strong>BP-248197-22</strong></span></div></article>
           <div class="action-grid">
-            <button class="panel action-card" type="button" data-toast="Contrato preparado para download"><span class="list-icon blue"><img src="/icons/download.svg" alt="" /></span><span><strong>2ª via do contrato</strong><small>PDF assinado digitalmente</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
-            <button class="panel action-card" type="button" data-toast="Exibindo todos os beneficiários"><span class="list-icon purple"><img src="/icons/users.svg" alt="" /></span><span><strong>Dependentes (3)</strong><small>Fernando, João e Ana</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
-            <button class="panel action-card" type="button" data-toast="Coberturas atualizadas do seu plano"><span class="list-icon orange"><img src="/icons/file-text.svg" alt="" /></span><span><strong>Coberturas</strong><small>Detalhamento por serviço</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-download="contrato"><span class="list-icon blue"><img src="/icons/download.svg" alt="" /></span><span><strong>2ª via do contrato</strong><small>Documento demonstrativo</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-scroll-to="plan-members"><span class="list-icon purple"><img src="/icons/users.svg" alt="" /></span><span><strong>Dependentes (3)</strong><small>Fernando, João e Ana</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-scroll-to="plan-coverages"><span class="list-icon orange"><img src="/icons/file-text.svg" alt="" /></span><span><strong>Coberturas</strong><small>Detalhamento por serviço</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
           </div>
 
           <div class="plan-overview-grid">
-            <article class="panel plan-members">
+            <article class="panel plan-members" id="plan-members">
               <div class="panel-title"><div><p class="eyebrow">BENEFICIÁRIOS</p><h3>Quem está protegido</h3></div><span class="plan-count">4 pessoas</span></div>
               <ul class="member-list">
                 <li><span class="member-avatar titular">FE</span><span><strong>Fernando Ernerto</strong><small>Titular • CPF final 42</small></span><span class="soft-badge success">Ativo</span></li>
@@ -193,7 +193,7 @@ const shortcuts = [
               <button class="text-link" type="button" data-toast="Gestão de beneficiários aberta">Gerenciar beneficiários →</button>
             </article>
 
-            <article class="panel plan-coverages">
+            <article class="panel plan-coverages" id="plan-coverages">
               <div class="panel-title"><div><p class="eyebrow">COBERTURAS</p><h3>Benefícios incluídos</h3></div><span class="soft-badge success">Plano completo</span></div>
               <div class="coverage-grid">
                 <div><span class="coverage-icon blue"><img src="/icons/umbrella.svg" alt="" /></span><strong>Assistência familiar</strong><small>Atendimento 24 horas</small></div>
@@ -201,12 +201,12 @@ const shortcuts = [
                 <div><span class="coverage-icon teal"><img src="/icons/heart-handshake.svg" alt="" /></span><strong>Apoio emocional</strong><small>Instituto do Luto</small></div>
                 <div><span class="coverage-icon orange"><img src="/icons/phone.svg" alt="" /></span><strong>Central exclusiva</strong><small>Suporte para a família</small></div>
               </div>
-              <button class="text-link" type="button" data-toast="Manual de coberturas preparado">Ver manual de coberturas →</button>
+              <button class="text-link" type="button" data-download="coberturas">Ver manual de coberturas →</button>
             </article>
           </div>
 
           <div class="plan-bottom-grid">
-            <article class="panel contract-summary"><span class="contract-icon"><img src="/icons/file-text.svg" alt="" /></span><div><p class="eyebrow">CONTRATO</p><h3>BP-2018-0315-248197</h3><p>Vigência contínua desde 15/03/2018. Última atualização em 04/01/2026.</p></div><button class="button button-ghost" type="button" data-toast="Documento preparado para download"><img src="/icons/download.svg" alt="" /> Baixar PDF</button></article>
+            <article class="panel contract-summary"><span class="contract-icon"><img src="/icons/file-text.svg" alt="" /></span><div><p class="eyebrow">CONTRATO</p><h3>BP-2018-0315-248197</h3><p>Vigência contínua desde 15/03/2018. Última atualização em 04/01/2026.</p></div><button class="button button-ghost" type="button" data-download="contrato"><img src="/icons/download.svg" alt="" /> Baixar documento</button></article>
             <article class="plan-help-card"><img src="/icons/contact.svg" alt="" /><div><small>PRECISA DE AJUDA?</small><strong>Fale com a equipe do seu plano</strong></div><button type="button" data-toast="Canal de atendimento aberto">Atendimento →</button></article>
           </div>
         </section>
@@ -254,7 +254,7 @@ const shortcuts = [
 
           <div class="finance-view" data-finance-view="open">
             <div class="billing-layout">
-              <article class="invoice-card"><div class="invoice-top"><p class="eyebrow light">FATURA • FEVEREIRO 2026</p><span>Em aberto</span></div><div class="invoice-main"><span><small>VALOR TOTAL</small><strong>R$ 79,90</strong></span><span><small>VENCIMENTO</small><strong>10/02/2026</strong></span></div><div class="due-line"><span><i></i> Vence em 5 dias</span><small>Sem juros até o vencimento</small></div><div class="invoice-actions"><button class="button button-light" type="button" data-toast="Boleto preparado para download"><img src="/icons/download.svg" alt="" /> 2ª via boleto</button><button class="button button-glass" type="button" data-copy="23793381286008211850404074951009198770000007990"><img src="/icons/copy.svg" alt="" /> Copiar código</button></div></article>
+              <article class="invoice-card"><div class="invoice-top"><p class="eyebrow light">FATURA • FEVEREIRO 2026</p><span>Em aberto</span></div><div class="invoice-main"><span><small>VALOR TOTAL</small><strong>R$ 79,90</strong></span><span><small>VENCIMENTO</small><strong>10/02/2026</strong></span></div><div class="due-line"><span><i></i> Vence em 5 dias</span><small>Sem juros até o vencimento</small></div><div class="invoice-actions"><button class="button button-light" type="button" data-download="boleto"><img src="/icons/download.svg" alt="" /> 2ª via boleto</button><button class="button button-glass" type="button" data-copy="23793381286008211850404074951009198770000007990"><img src="/icons/copy.svg" alt="" /> Copiar código</button></div></article>
               <article class="panel pix-card"><div><p class="eyebrow">PIX</p><h3>Pagamento imediato</h3><p>Aponte a câmera do aplicativo do seu banco.</p><span class="expires"><img src="/icons/clock.svg" alt="" /> Expira em 30 minutos</span><button class="text-link" type="button" data-copy="00020126580014BR.GOV.BCB.PIX0136bom-pastor-demo">Copiar Pix →</button></div><div class="fake-qr"><img src="/icons/qr-code.svg" alt="QR Code ilustrativo" /></div></article>
             </div>
             <article class="panel barcode-card"><span class="barcode-icon"><img src="/icons/pix.svg" alt="" /></span><div><p class="eyebrow">LINHA DIGITÁVEL</p><strong>23793.38128 60082.118504 04074.951009 1 98770000007990</strong><small>Confira os dados do beneficiário antes de concluir o pagamento.</small></div><button class="button button-ghost" type="button" data-copy="23793381286008211850404074951009198770000007990">Copiar linha</button></article>
@@ -266,7 +266,7 @@ const shortcuts = [
 
           <div class="finance-view" data-finance-view="history" hidden>
             <div class="finance-history-summary"><article class="panel"><small>PAGAMENTOS EM 2025</small><strong>12</strong><span>Todos confirmados</span></article><article class="panel"><small>TOTAL NO PERÍODO</small><strong>R$ 958,80</strong><span>Janeiro a dezembro</span></article><article class="panel"><small>PONTUALIDADE</small><strong>100%</strong><span>Nenhum atraso</span></article></div>
-            <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">HISTÓRICO FINANCEIRO</p><h3>Movimentações recentes</h3></div><button class="button button-ghost" type="button" data-toast="Extrato anual preparado para download"><img src="/icons/download.svg" alt="" /> Extrato anual</button></div><ul class="payment-list"><li><span>JAN 2026</span><strong>R$ 79,90</strong><small>Pix • 08/01</small><span class="soft-badge success">Confirmado</span></li><li><span>DEZ 2025</span><strong>R$ 79,90</strong><small>Boleto • 09/12</small><span class="soft-badge success">Confirmado</span></li></ul></article>
+            <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">HISTÓRICO FINANCEIRO</p><h3>Movimentações recentes</h3></div><button class="button button-ghost" type="button" data-download="extrato"><img src="/icons/download.svg" alt="" /> Extrato anual</button></div><ul class="payment-list"><li><span>JAN 2026</span><strong>R$ 79,90</strong><small>Pix • 08/01</small><span class="soft-badge success">Confirmado</span></li><li><span>DEZ 2025</span><strong>R$ 79,90</strong><small>Boleto • 09/12</small><span class="soft-badge success">Confirmado</span></li></ul></article>
           </div>
         </section>
 
@@ -299,7 +299,7 @@ const shortcuts = [
 
               <div class="guide-confirm" data-guide-confirm hidden><p class="eyebrow">CONFIRMAÇÃO</p><h2>Tudo certo?</h2><div class="guide-confirm-summary"><strong><span data-confirm-category>Consulta</span> — <span data-confirm-specialty>Cardiologia</span></strong><span data-confirm-professional>Dr. Paulo Andrade</span><small data-confirm-beneficiary>Fernando Ernerto</small></div><p class="guide-discount">Desconto de até 35%</p><div class="guide-confirm-actions"><button class="button button-ghost" type="button" data-guide-back>Voltar</button><button class="button button-primary" type="button" data-guide-generate>Confirmar e gerar guia</button></div></div>
 
-              <div class="guide-success" data-guide-success hidden><span class="guide-success-icon"><img src="/icons/check-circle.svg" alt="" /></span><p class="eyebrow">SOLICITAÇÃO CONCLUÍDA</p><h2>Guia gerada com sucesso</h2><p>Sua guia BomMed já está pronta para uso.</p><div><button class="button button-primary" type="button" data-toast="Abrindo a guia BomMed">Ver guia</button><button class="button button-ghost" type="button" data-toast="PDF da guia preparado para download"><img src="/icons/download.svg" alt="" /> Baixar PDF</button><button class="button button-ghost" type="button" data-toast="Guia preparada para envio pelo WhatsApp"><img src="/icons/phone.svg" alt="" /> Enviar pelo WhatsApp</button></div><button class="text-link" type="button" data-guide-new>Fazer nova solicitação</button></div>
+              <div class="guide-success" data-guide-success hidden><span class="guide-success-icon"><img src="/icons/check-circle.svg" alt="" /></span><p class="eyebrow">SOLICITAÇÃO CONCLUÍDA</p><h2>Guia gerada com sucesso</h2><p>Sua guia BomMed já está pronta para uso.</p><div><button class="button button-primary" type="button" data-open-guide>Ver guia</button><button class="button button-ghost" type="button" data-download="guia"><img src="/icons/download.svg" alt="" /> Baixar guia</button><button class="button button-ghost" type="button" data-share-guide><img src="/icons/phone.svg" alt="" /> Enviar pelo WhatsApp</button></div><button class="text-link" type="button" data-guide-new>Fazer nova solicitação</button></div>
             </section>
 
             <article class="panel usage-history"><div class="panel-title"><div><p class="eyebrow">UTILIZAÇÃO</p><h3>Histórico recente</h3></div><label class="guide-history-search"><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar no histórico" aria-label="Buscar no histórico de guias" data-guide-history-search /></label></div><ul class="timeline guide-history" data-guide-history-list><li><button type="button" data-guide-history><time>12 JAN</time><span><strong>Cardiologia</strong><small>Dr. Paulo Andrade</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia BP-2026-0112</b><span>Fernando Ernerto • desconto de 35%</span></div></li><li><button type="button" data-guide-history><time>28 DEZ</time><span><strong>Clínico geral</strong><small>Dra. Lúcia Mendes</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia BP-2025-1228</b><span>Fernando Ernerto • desconto de 30%</span></div></li><li><button type="button" data-guide-history><time>15 NOV</time><span><strong>Exame laboratorial</strong><small>Lab Bom Pastor</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia BP-2025-1115</b><span>Fernando Ernerto • desconto de 25%</span></div></li></ul><p class="guide-history-empty" data-guide-history-empty hidden>Nenhuma guia encontrada para essa busca.</p></article>
@@ -317,7 +317,7 @@ const shortcuts = [
 
     <div class="mobile-drawer" data-drawer aria-hidden="true"><button class="drawer-backdrop" type="button" data-menu-close aria-label="Fechar menu"></button><aside><div class="drawer-head"><a class="brand" href="#inicio" data-route="inicio"><img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></a><button class="icon-button" type="button" data-menu-close><img src="/icons/x.svg" alt="" /></button></div><nav>{navItems.map((item) => (<button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button"><img src={`/icons/${item.icon}.svg`} alt="" /><span>{item.label}</span>{item.badge && <span class="nav-badge">{item.badge}</span>}</button>))}</nav></aside></div>
 
-    <div class="login-overlay" data-login hidden style="--login-image: url('/media/image-login.png')">
+    <div class="login-overlay" data-login style="--login-image: url('/media/image-login.png')">
       <div class="login-visual" aria-hidden="true" style="--login-shape: url('/elements/login-mask.svg')">
         <img class="login-photo" src="/media/image-login.png" alt="" />
         <img class="login-photo-mobile" src="/media/image-login.png" alt="" />
@@ -326,14 +326,23 @@ const shortcuts = [
       <form class="login-form" data-login-form>
         <img class="login-stage-mark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" />
         <img class="login-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" />
-        <div class="login-heading"><p class="eyebrow">ACESSAR MINHA CONTA</p><h1>Entre com seus dados</h1></div>
-        <label>CPF<input required inputmode="numeric" autocomplete="username" placeholder="Digite seu CPF" /></label>
+        <div class="login-heading"><p class="eyebrow">ACESSAR MINHA CONTA</p><h1>Entre com seus dados</h1><p class="login-demo-hint">Acesso de teste: <strong>teste</strong> · senha <strong>1234</strong></p></div>
+        <label>CPF ou usuário<input required autocomplete="username" placeholder="Digite seu CPF ou usuário" data-login-user /></label>
         <label>Senha<span class="password-field"><input required type="password" autocomplete="current-password" placeholder="Digite sua senha" data-password /><button type="button" data-password-toggle aria-label="Mostrar senha"><img src="/icons/eye-off.svg" alt="" /></button></span></label>
-        <button class="button button-primary full login-submit" type="submit">Entrar</button>
-        <div class="login-links"><button type="button" data-toast="Enviaremos as instruções para redefinir sua senha">Esqueci a senha</button><button type="button" data-toast="Vamos iniciar o seu primeiro acesso">Primeiro acesso</button></div>
+        <p class="login-error" data-login-error role="alert" aria-live="polite" hidden></p>
+        <button class="button button-primary full login-submit" type="submit" data-login-submit>Entrar</button>
+        <div class="login-links"><button type="button" data-account-flow="password">Esqueci a senha</button><button type="button" data-account-flow="first-access">Primeiro acesso</button></div>
         <small class="login-security"><img src="/icons/shield-check.svg" alt="" /> Ambiente seguro e protegido</small>
       </form>
     </div>
+    <dialog class="app-dialog" data-app-dialog aria-labelledby="app-dialog-title">
+      <form class="app-dialog-card" data-dialog-form method="dialog">
+        <div class="app-dialog-head"><div><p class="eyebrow" data-dialog-eyebrow>ATUALIZAÇÃO</p><h2 id="app-dialog-title" data-dialog-title>Informações</h2></div><button class="icon-button" type="button" data-dialog-close aria-label="Fechar"><img src="/icons/x.svg" alt="" /></button></div>
+        <p class="app-dialog-description" data-dialog-description></p>
+        <div class="app-dialog-fields" data-dialog-fields></div>
+        <div class="app-dialog-actions"><button class="button button-ghost" type="button" data-dialog-cancel>Cancelar</button><button class="button button-primary" type="submit" data-dialog-submit>Salvar</button></div>
+      </form>
+    </dialog>
     <div class="toast" data-toast-box role="status" aria-live="polite"><img src="/icons/check-circle.svg" alt="" /><span>Ação concluída</span></div>
   </div>
 
@@ -342,14 +351,53 @@ const shortcuts = [
     const routeButtons = [...document.querySelectorAll('[data-route]')];
     const drawer = document.querySelector('[data-drawer]');
     const toast = document.querySelector('[data-toast-box]');
+    const login = document.querySelector('[data-login]');
+    const protectedSurfaces = [...document.querySelectorAll('.sidebar,.app-main,.bottom-nav')];
+    const individualRoutes = new Set(['inicio', 'cadastro', 'avisos', 'plano', 'carteirinha', 'financeiro', 'bommed', 'instituto']);
+    let isAuthenticated = sessionStorage.getItem('bp-master-authenticated') === 'true';
     let toastTimer;
     function showToast(message) { toast.querySelector('span').textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2600); }
+    const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+    const appDialog = document.querySelector('[data-app-dialog]');
+    const dialogForm = appDialog.querySelector('[data-dialog-form]');
+    const dialogFields = appDialog.querySelector('[data-dialog-fields]');
+    let dialogSubmitHandler = null;
+    const closeDialog = () => { if (appDialog.open) appDialog.close(); dialogSubmitHandler = null; };
+    const openDialog = ({ eyebrow = 'ATUALIZAÇÃO', title, description = '', fields = '', submitLabel = 'Salvar', onSubmit }) => {
+      appDialog.querySelector('[data-dialog-eyebrow]').textContent = eyebrow;
+      appDialog.querySelector('[data-dialog-title]').textContent = title;
+      appDialog.querySelector('[data-dialog-description]').textContent = description;
+      dialogFields.innerHTML = fields;
+      appDialog.querySelector('[data-dialog-submit]').textContent = submitLabel;
+      dialogSubmitHandler = onSubmit;
+      appDialog.showModal();
+      requestAnimationFrame(() => dialogFields.querySelector('input,select,textarea,button')?.focus());
+    };
+    appDialog.querySelector('[data-dialog-close]').addEventListener('click', closeDialog);
+    appDialog.querySelector('[data-dialog-cancel]').addEventListener('click', closeDialog);
+    appDialog.addEventListener('click', event => { if (event.target === appDialog) closeDialog(); });
+    dialogForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const result = dialogSubmitHandler?.(new FormData(dialogForm));
+      if (result !== false) closeDialog();
+    });
+    const setProtectedState = locked => protectedSurfaces.forEach(surface => { surface.inert = locked; surface.setAttribute('aria-hidden', String(locked)); });
+    const showLogin = (resetRoute = false) => {
+      login.hidden = false;
+      document.body.classList.add('login-open');
+      setProtectedState(true);
+      if (resetRoute) history.replaceState({ route: 'login' }, '', '#login');
+      requestAnimationFrame(() => login.querySelector('[data-login-user]')?.focus());
+    };
+    const hideLogin = () => { login.hidden = true; document.body.classList.remove('login-open'); setProtectedState(false); };
     function navigate(route, updateHash = true, scrollTarget = '') {
+      if (!isAuthenticated) { showLogin(true); return; }
+      if (!individualRoutes.has(route)) route = 'inicio';
       const target = document.querySelector(`[data-screen="${route}"]`); if (!target) return;
       screens.forEach(screen => screen.classList.toggle('active', screen === target));
       routeButtons.forEach(button => button.classList.toggle('active', button.dataset.route === route));
       drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open');
-      if (updateHash) history.replaceState(null, '', `#${route}`);
+      if (updateHash && location.hash !== `#${route}`) history.pushState({ route }, '', `#${route}`);
       const section = scrollTarget && document.getElementById(scrollTarget);
       if (section) requestAnimationFrame(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }));
       else window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -378,6 +426,23 @@ const shortcuts = [
     searchButton.setAttribute('aria-expanded', 'false');
     searchButton.addEventListener('click', openSearch);
     document.querySelector('[data-search-close]').addEventListener('click', closeSearch);
+    const searchResults = document.querySelector('[data-search-results]');
+    const searchCatalog = [
+      ['Início', 'Visão geral, atalhos e mensalidade', 'inicio'], ['Meu cadastro', 'Dados pessoais, endereço e contatos', 'cadastro'],
+      ['Comunicação', 'Avisos e mensagens recebidas', 'avisos'], ['Plano e contrato', 'Beneficiários, coberturas e contrato', 'plano'],
+      ['Carteirinha', 'Carteirinha digital e código do benefício', 'carteirinha'], ['Financeiro', 'Boleto, Pix, faturas e extrato', 'financeiro'],
+      ['Minhas Guias', 'Gerar guia, consultas, exames e histórico', 'bommed'], ['Instituto do Luto', 'Solicitar acolhimento e apoio emocional', 'instituto']
+    ];
+    const renderGlobalSearch = () => {
+      const query = searchInput.value.trim().toLocaleLowerCase('pt-BR');
+      if (!query) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
+      const matches = searchCatalog.filter(item => item.join(' ').toLocaleLowerCase('pt-BR').includes(query)).slice(0, 6);
+      searchResults.innerHTML = matches.length ? matches.map(([title, text, route]) => `<button type="button" role="option" data-search-route="${route}"><strong>${title}</strong><small>${text}</small></button>`).join('') : '<p>Nenhum resultado encontrado.</p>';
+      searchResults.hidden = false;
+      searchResults.querySelectorAll('[data-search-route]').forEach(button => button.addEventListener('click', () => { navigate(button.dataset.searchRoute); searchInput.value = ''; searchResults.hidden = true; closeSearch(); }));
+    };
+    searchInput.addEventListener('input', renderGlobalSearch);
+    searchInput.addEventListener('keydown', event => { if (event.key === 'Enter') { const first = searchResults.querySelector('[data-search-route]'); if (first) { event.preventDefault(); first.click(); } } if (event.key === 'Escape') closeSearch(); });
     const profileButton = document.querySelector('[data-profile-button]'); const profilePopover = document.querySelector('[data-profile-popover]');
     profileButton.addEventListener('click', () => { const open = profilePopover.hasAttribute('hidden'); profilePopover.toggleAttribute('hidden', !open); profileButton.setAttribute('aria-expanded', String(open)); });
     const accessibilityButton = document.querySelector('[data-accessibility-button]');
@@ -497,14 +562,101 @@ const shortcuts = [
     });
     addressCep?.addEventListener('blur', () => completeAddress(false));
     completeAddress(false);
+    const collaboratorList = document.querySelector('[data-collaborator-list]');
+    const collaboratorSearch = document.querySelector('[data-collaborator-search]');
+    const collaboratorEmpty = document.querySelector('[data-collaborator-empty]');
+    const initialsFor = name => name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+    const bindCollaboratorAction = button => button.addEventListener('click', () => {
+      const row = button.closest('tr');
+      const name = row.querySelector('.person strong').textContent;
+      const currentStatus = row.querySelector('.soft-badge').textContent.trim();
+      openDialog({ eyebrow: 'BOM CORP', title: name, description: 'Atualize a situação deste colaborador.', fields: `<label>Status<select name="status"><option ${currentStatus === 'Ativo' ? 'selected' : ''}>Ativo</option><option ${currentStatus === 'Pendente' ? 'selected' : ''}>Pendente</option><option ${currentStatus === 'Inativo' ? 'selected' : ''}>Inativo</option></select></label>`, onSubmit: form => { const status = form.get('status'); const badge = row.querySelector('.soft-badge'); badge.textContent = status; badge.className = `soft-badge ${status === 'Ativo' ? 'success' : 'warning'}`; showToast('Situação do colaborador atualizada'); } });
+    });
+    document.querySelectorAll('[data-collaborator-action]').forEach(bindCollaboratorAction);
+    document.querySelector('[data-add-collaborator]')?.addEventListener('click', () => openDialog({
+      eyebrow: 'BOM CORP', title: 'Adicionar colaborador', description: 'Inclua os dados essenciais para iniciar o cadastro.', submitLabel: 'Adicionar',
+      fields: '<label>Nome completo<input name="name" required autocomplete="name" /></label><label>E-mail<input name="email" type="email" required autocomplete="email" /></label><label>CPF<input name="cpf" required inputmode="numeric" placeholder="000.000.000-00" /></label><label>Plano<select name="plan"><option>Bom Med +</option><option>Bom Pet</option><option>Bom Auto</option><option>TOTAL+</option></select></label>',
+      onSubmit: form => { const name = form.get('name').trim(); const email = form.get('email').trim(); if (!name || !email) return false; const row = document.createElement('tr'); row.innerHTML = `<td><span class="person"><b>${escapeHtml(initialsFor(name))}</b><span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(email)}</small></span></span></td><td>${escapeHtml(form.get('cpf'))}</td><td>${escapeHtml(form.get('plan'))}</td><td><span class="soft-badge warning">Pendente</span></td><td><button class="row-action" type="button" data-collaborator-action aria-label="Opções de ${escapeHtml(name)}">⋯</button></td>`; collaboratorList.append(row); bindCollaboratorAction(row.querySelector('[data-collaborator-action]')); const count = document.querySelector('[data-collaborator-count]'); count.textContent = String(Number(count.textContent) + 1); showToast('Colaborador adicionado'); }
+    }));
+    collaboratorSearch?.addEventListener('input', () => { const query = collaboratorSearch.value.trim().toLocaleLowerCase('pt-BR'); let visible = 0; [...collaboratorList.rows].forEach(row => { const match = !query || row.textContent.toLocaleLowerCase('pt-BR').includes(query); row.hidden = !match; if (match) visible += 1; }); collaboratorEmpty.hidden = visible > 0; });
+
+    const contactGrid = document.querySelector('[data-contact-grid]');
+    const contactFieldMarkup = (kind = 'email', value = '') => `<label>Tipo<select name="kind"><option value="email" ${kind === 'email' ? 'selected' : ''}>E-mail</option><option value="phone" ${kind === 'phone' ? 'selected' : ''}>Telefone / WhatsApp</option></select></label><label>Contato<input name="value" required value="${escapeHtml(value)}" ${kind === 'email' ? 'type="email"' : 'inputmode="tel"'} /></label>`;
+    const editContact = button => { const card = button.closest('[data-contact-card]'); const kind = card.dataset.contactCard; const value = card.querySelector('h3').textContent; openDialog({ eyebrow: 'MEU CADASTRO', title: 'Editar contato', description: 'A alteração será refletida nas preferências de comunicação.', fields: contactFieldMarkup(kind, value), onSubmit: form => { const nextValue = form.get('value').trim(); if (!nextValue) return false; card.querySelector('h3').textContent = nextValue; showToast('Contato atualizado'); } }); };
+    document.querySelectorAll('[data-edit-contact]').forEach(button => button.addEventListener('click', () => editContact(button)));
+    document.querySelector('[data-add-contact]')?.addEventListener('click', () => openDialog({ eyebrow: 'MEU CADASTRO', title: 'Adicionar contato', description: 'Adicione um novo canal para receber comunicados.', fields: contactFieldMarkup(), submitLabel: 'Adicionar', onSubmit: form => { const kind = form.get('kind'); const value = form.get('value').trim(); if (!value) return false; const card = document.createElement('article'); card.className = 'panel contact-card'; card.dataset.contactCard = kind; card.innerHTML = `<span class="contact-icon ${kind === 'email' ? 'gradient-blue' : 'gradient-purple'}"><img src="/icons/${kind === 'email' ? 'contact' : 'phone'}.svg" alt="" /></span><div><small>${kind === 'email' ? 'E-MAIL' : 'TELEFONE / WHATSAPP'}</small><h3>${escapeHtml(value)}</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> Pendente de verificação</span><p>Canal adicional para seus comunicados.</p></div><button class="text-link" type="button" data-edit-contact>Editar</button>`; contactGrid.append(card); card.querySelector('[data-edit-contact]').addEventListener('click', event => editContact(event.currentTarget)); showToast('Contato adicionado'); } }));
+
+    const noticeItems = [...document.querySelectorAll('[data-notice-item]')];
+    const noticeEmpty = document.querySelector('[data-notice-empty]');
+    const syncUnreadCount = () => { const count = noticeItems.filter(item => item.classList.contains('unread')).length; document.querySelectorAll('.nav-badge,.profile-menu-badge,.avatar-shell i').forEach(badge => { badge.textContent = badge.matches('.avatar-shell i') ? String(count).padStart(2, '0') : String(count); badge.hidden = count === 0; badge.setAttribute('aria-label', `${count} comunicados não lidos`); }); };
+    const openNotice = item => { item.classList.remove('unread'); syncUnreadCount(); const category = item.querySelector('small').textContent; const title = item.querySelector('strong').textContent; const message = item.querySelector('p').textContent; openDialog({ eyebrow: category, title, description: message, fields: '<div class="dialog-information"><strong>Mensagem recebida</strong><p>Este comunicado foi marcado como lido e permanece disponível na sua central.</p></div>', submitLabel: 'Entendi', onSubmit: () => showToast('Comunicado lido') }); };
+    noticeItems.forEach(item => item.addEventListener('click', () => openNotice(item)));
+    document.querySelectorAll('[data-notice-filter]').forEach(button => button.addEventListener('click', () => { const category = button.dataset.noticeFilter; document.querySelectorAll('[data-notice-filter]').forEach(item => item.classList.toggle('active', item === button)); let visible = 0; noticeItems.forEach(item => { const match = category === 'all' || item.dataset.noticeCategory === category; item.hidden = !match; if (match) visible += 1; }); noticeEmpty.hidden = visible > 0; }));
+    document.querySelector('[data-mark-all-read]')?.addEventListener('click', () => { noticeItems.forEach(item => item.classList.remove('unread')); syncUnreadCount(); showToast('Todos os comunicados foram marcados como lidos'); });
+    syncUnreadCount();
+
+    const downloadDocuments = {
+      contrato: ['contrato-bom-pastor.txt', 'GRUPO BOM PASTOR\nContrato BP-2018-0315-248197\nPlano TOTAL+\nTitular: Fernando Ernerto\nVigência contínua desde 15/03/2018.'],
+      coberturas: ['coberturas-total-plus.txt', 'COBERTURAS TOTAL+\nAssistência familiar 24 horas\nBom Med\nApoio emocional\nCentral exclusiva.'],
+      boleto: ['boleto-fevereiro-2026.txt', 'FATURA FEVEREIRO 2026\nValor: R$ 79,90\nVencimento: 10/02/2026\nLinha digitável: 23793.38128 60082.118504 04074.951009 1 98770000007990'],
+      extrato: ['extrato-2026.txt', 'EXTRATO 2026\nJAN 2026 — R$ 79,90 — Pix — Confirmado\nDEZ 2025 — R$ 79,90 — Boleto — Confirmado'],
+      guia: ['guia-bommed.txt', 'GUIA BOMMED\nBeneficiário: Fernando Ernerto\nStatus: autorizada\nApresente este documento no atendimento.']
+    };
+    document.querySelectorAll('[data-download]').forEach(button => button.addEventListener('click', () => { const [filename, contents] = downloadDocuments[button.dataset.download]; const url = URL.createObjectURL(new Blob([contents], { type: 'text/plain;charset=utf-8' })); const link = document.createElement('a'); link.href = url; link.download = filename; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); showToast('Documento baixado'); }));
+    document.querySelectorAll('[data-scroll-to]').forEach(button => button.addEventListener('click', () => document.getElementById(button.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' })));
     document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => { try { await navigator.clipboard.writeText(button.dataset.copy); showToast('Código copiado com sucesso'); } catch { showToast('Código pronto para copiar'); } }));
     document.querySelectorAll('[data-toast]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.toast)));
-    document.querySelectorAll('[data-demo-form]').forEach(form => form.addEventListener('submit', event => { event.preventDefault(); showToast('Informações salvas com sucesso'); }));
-    const login = document.querySelector('[data-login]'); document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => { profilePopover.hidden = true; login.hidden = false; document.body.classList.add('login-open'); }));
+    document.querySelectorAll('[data-demo-form]').forEach(form => form.addEventListener('submit', event => { event.preventDefault(); if (form.classList.contains('support-form')) { const protocol = `BP-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`; form.reset(); showToast(`Protocolo ${protocol} aberto com sucesso`); } else showToast('Informações salvas com sucesso'); }));
+    document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => {
+      profilePopover.hidden = true;
+      profileButton.setAttribute('aria-expanded', 'false');
+      isAuthenticated = false;
+      sessionStorage.removeItem('bp-master-authenticated');
+      document.querySelector('[data-login-form]').reset();
+      document.querySelector('[data-login-error]').hidden = true;
+      showLogin(true);
+    }));
     const passwordInput = document.querySelector('[data-password]');
     document.querySelector('[data-password-toggle]')?.addEventListener('click', event => { const visible = passwordInput.type === 'text'; passwordInput.type = visible ? 'password' : 'text'; event.currentTarget.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha'); });
-    document.querySelector('[data-login-form]').addEventListener('submit', event => { event.preventDefault(); login.hidden = true; document.body.classList.remove('login-open'); showToast('Bem-vindo de volta, Fernando'); navigate('inicio'); });
+    const loginForm = document.querySelector('[data-login-form]');
+    const loginUser = document.querySelector('[data-login-user]');
+    const loginError = document.querySelector('[data-login-error]');
+    const loginSubmit = document.querySelector('[data-login-submit]');
+    const clearLoginError = () => { loginError.hidden = true; loginError.textContent = ''; loginUser.removeAttribute('aria-invalid'); passwordInput.removeAttribute('aria-invalid'); };
+    loginUser.addEventListener('input', clearLoginError);
+    passwordInput.addEventListener('input', clearLoginError);
+    loginForm.addEventListener('submit', event => {
+      event.preventDefault();
+      clearLoginError();
+      const validCredentials = loginUser.value.trim().toLocaleLowerCase('pt-BR') === 'teste' && passwordInput.value === '1234';
+      if (!validCredentials) {
+        loginError.textContent = 'Usuário ou senha incorretos. Use teste e 1234 para acessar.';
+        loginError.hidden = false;
+        loginUser.setAttribute('aria-invalid', 'true');
+        passwordInput.setAttribute('aria-invalid', 'true');
+        loginUser.focus();
+        return;
+      }
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = 'Entrando…';
+      window.setTimeout(() => {
+        isAuthenticated = true;
+        sessionStorage.setItem('bp-master-authenticated', 'true');
+        hideLogin();
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = 'Entrar';
+        history.replaceState({ route: 'inicio' }, '', '#inicio');
+        showToast('Bem-vindo de volta, Fernando');
+        navigate('inicio', false);
+      }, 450);
+    });
+    document.querySelectorAll('[data-account-flow]').forEach(button => button.addEventListener('click', () => {
+      const firstAccess = button.dataset.accountFlow === 'first-access';
+      openDialog({ eyebrow: 'ACESSO SEGURO', title: firstAccess ? 'Primeiro acesso' : 'Recuperar senha', description: firstAccess ? 'Confirme seus dados para ativar a sua conta.' : 'Enviaremos as instruções para o contato cadastrado.', fields: `<label>CPF<input name="cpf" required inputmode="numeric" placeholder="000.000.000-00" /></label>${firstAccess ? '<label>Data de nascimento<input name="birth" required placeholder="DD/MM/AAAA" inputmode="numeric" /></label>' : '<label>E-mail ou telefone<input name="contact" required autocomplete="email" /></label>'}`, submitLabel: firstAccess ? 'Continuar cadastro' : 'Enviar instruções', onSubmit: () => showToast(firstAccess ? 'Dados validados. Continue pelo link enviado' : 'Instruções de recuperação enviadas') });
+    }));
     document.querySelector('[data-focus-support]')?.addEventListener('click', () => document.querySelector('.support-form textarea')?.focus());
+    document.querySelector('[data-open-guide]')?.addEventListener('click', () => openDialog({ eyebrow: 'GUIA BOMMED', title: 'Guia autorizada', description: 'Documento pronto para apresentação no atendimento.', fields: '<div class="dialog-information"><strong>Fernando Ernerto</strong><p>Consulta • Cardiologia<br />Dr. Paulo Andrade<br />Desconto de até 35%</p></div>', submitLabel: 'Fechar', onSubmit: () => {} }));
+    document.querySelector('[data-share-guide]')?.addEventListener('click', async () => { const shareData = { title: 'Guia BomMed', text: 'Guia BomMed autorizada para Fernando Ernerto.' }; try { if (navigator.share) await navigator.share(shareData); else { await navigator.clipboard.writeText(shareData.text); showToast('Resumo da guia copiado para compartilhar'); } } catch (error) { if (error.name !== 'AbortError') showToast('Não foi possível compartilhar agora'); } });
     const financeTabs = [...document.querySelectorAll('[data-finance-tab]')];
     const financeViews = [...document.querySelectorAll('[data-finance-view]')];
     financeTabs.forEach(tab => tab.addEventListener('click', () => {
@@ -630,8 +782,23 @@ const shortcuts = [
     updateWalletBeneficiary();
     applyWalletStatus();
     const initialRoute = location.hash.slice(1);
-    if (initialRoute === 'contatos') navigate('cadastro', false, 'cadastro-contatos');
-    else navigate(document.querySelector(`[data-screen="${initialRoute}"]`) ? initialRoute : 'inicio', false);
+    if (!isAuthenticated) showLogin(true);
+    else {
+      hideLogin();
+      if (initialRoute === 'contatos') navigate('cadastro', false, 'cadastro-contatos');
+      else {
+        const safeRoute = individualRoutes.has(initialRoute) ? initialRoute : 'inicio';
+        if (safeRoute !== initialRoute) history.replaceState({ route: safeRoute }, '', `#${safeRoute}`);
+        navigate(safeRoute, false);
+      }
+    }
+    window.addEventListener('popstate', () => {
+      if (!isAuthenticated) { showLogin(true); return; }
+      const route = location.hash.slice(1);
+      const safeRoute = individualRoutes.has(route) ? route : 'inicio';
+      if (safeRoute !== route) history.replaceState({ route: safeRoute }, '', `#${safeRoute}`);
+      navigate(safeRoute, false);
+    });
     requestAnimationFrame(() => document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible')));
   </script>
 </Layout>

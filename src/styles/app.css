@@ -408,3 +408,42 @@ body.login-open{overflow:hidden;overscroll-behavior:none;touch-action:none}
 .shortcut-card.support-highlight .shortcut-icon{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25)}
 .shortcut-card.support-highlight .shortcut-icon img,.shortcut-card.support-highlight .shortcut-arrow{filter:brightness(0) invert(1);opacity:1}
 .shortcut-card.support-highlight .shortcut-copy small{color:rgba(255,255,255,.84)}
+
+/* Login mobile: fotografia real e estável, sem objeto sobre o rosto. */
+@media(max-width:820px){
+  .login-overlay .login-visual{background-image:none!important}
+  .login-photo-mobile{display:block!important;position:absolute;z-index:1;inset:60px 0 0;width:100%;height:calc(100% - 60px);object-fit:cover;object-position:52% 42%;border-radius:0}
+  .login-visual:after{display:none!important}
+}
+
+/* Interações globais: pesquisa, diálogos e estados funcionais. */
+.global-search{overflow:visible}
+.global-search-results{position:absolute;z-index:8;top:calc(100% + 10px);left:0;right:0;padding:8px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 22px 48px rgba(25,38,64,.16);display:grid;gap:3px}
+.global-search-results button{width:100%;padding:12px 13px;border-radius:12px;background:transparent;text-align:left;display:grid;gap:3px;transition:.18s ease}
+.global-search-results button:hover,.global-search-results button:focus-visible{background:#f3f6fa;outline:0}
+.global-search-results strong{color:var(--navy);font-size:.75rem}.global-search-results small,.global-search-results>p{color:var(--muted);font-size:.625rem}.global-search-results>p{padding:15px;text-align:center}
+.row-action{width:34px;height:34px;border-radius:10px;background:#f3f5f8;color:var(--navy);font-size:1rem;display:grid;place-items:center}.row-action:hover{background:#e8edf5}.table-empty,.notice-empty{padding:24px;color:var(--muted);font-size:.6875rem;text-align:center}
+#plan-members,#plan-coverages{scroll-margin-top:calc(var(--topbar) + 24px)}
+.app-dialog{width:min(520px,calc(100vw - 32px));max-height:min(760px,calc(100dvh - 32px));padding:0;border:0;border-radius:26px;background:transparent;overflow:visible;color:var(--ink)}
+.app-dialog::backdrop{background:rgba(15,29,53,.48);backdrop-filter:blur(5px)}
+.app-dialog-card{padding:26px;border:1px solid rgba(255,255,255,.72);border-radius:26px;background:rgba(255,255,255,.98);box-shadow:0 28px 80px rgba(15,29,53,.26);overflow-y:auto}
+.app-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.app-dialog-head h2{font-size:1.5rem;font-weight:400;letter-spacing:-.035em}.app-dialog-head .icon-button{width:40px;height:40px;flex:0 0 40px}.app-dialog-head .icon-button img{width:17px}
+.app-dialog-description{margin-top:9px;color:var(--muted);font-size:.6875rem;line-height:1.55}.app-dialog-fields{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.app-dialog-fields label{display:grid;gap:7px;color:var(--muted);font-size:.6875rem;font-weight:600}.app-dialog-fields input,.app-dialog-fields select,.app-dialog-fields textarea{width:100%;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:13px;background:#fbfcfd;color:var(--ink);outline:0}.app-dialog-fields input:focus,.app-dialog-fields select:focus,.app-dialog-fields textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(71,158,246,.1)}
+.app-dialog-actions{margin-top:22px;display:flex;justify-content:flex-end;gap:10px}.dialog-information{grid-column:1/-1;padding:18px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#fff,#f5f8fc)}.dialog-information strong{font-size:.875rem}.dialog-information p{margin-top:6px;color:var(--muted);font-size:.6875rem;line-height:1.65}
+@media(max-width:599px){.global-search-results{top:calc(100% + 7px)}.app-dialog{width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:22px}.app-dialog-card{padding:21px;border-radius:22px}.app-dialog-fields{grid-template-columns:1fr}.app-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.app-dialog-actions .button{width:100%;white-space:normal}}
+
+/* Login mobile: mantém todos os controles dentro da tela, sem rolagem. */
+@media(max-width:820px){
+  .login-overlay .login-form{gap:9px;padding-top:24px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  .login-overlay .login-logo{width:132px;height:62px;margin-bottom:0}
+  .login-overlay .login-form h1{margin:1px 0 3px;font-size:1.5rem}
+  .login-overlay .login-form>label>input,.login-overlay .password-field{min-height:50px}
+  .login-overlay .password-field input,.login-overlay .password-field button{min-height:48px;height:48px}
+  .login-overlay .login-submit{min-height:50px}
+  .login-overlay .login-security{margin-top:2px}
+}
+
+/* Autenticação de demonstração e retorno de validação. */
+.login-demo-hint{margin-top:8px;color:rgba(255,255,255,.82);font-size:.625rem;line-height:1.45}.login-demo-hint strong{color:#fff;font-weight:700}.login-error{margin:-2px 0 0;padding:10px 12px;border:1px solid rgba(179,28,55,.2);border-radius:11px;background:#fff0f2;color:#a41e36;font-size:.625rem;font-weight:600;line-height:1.4}.login-overlay input[aria-invalid="true"],.login-overlay .password-field:has(input[aria-invalid="true"]){border-color:#d63a55!important;box-shadow:0 0 0 3px rgba(214,58,85,.14)!important}.login-submit:disabled{cursor:wait;opacity:.72}
+@media(min-width:821px){.login-demo-hint{color:rgba(255,255,255,.76)}}
+@media(max-width:820px){.login-demo-hint{margin-top:4px;color:rgba(255,255,255,.8)}.login-error{padding:7px 10px;font-size:.5625rem}}
