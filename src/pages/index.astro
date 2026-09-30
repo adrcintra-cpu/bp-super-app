@@ -79,7 +79,7 @@ const shortcuts = [
         </div>
       </header>
 
-      <nav class="product-menu product-strip" aria-label="Principais produtos">
+      <nav class="product-menu product-strip" data-product-menu aria-label="Principais produtos">
         <a class="product-item pet" href="https://grupobompastor.com.br/bompet/" target="_blank" rel="noopener noreferrer" aria-label="BomPet — abre em nova aba"><span><img src="/icons/dog.svg" alt="" /></span><small>BomPet</small></a>
         <button class="product-item med" type="button" data-route="bommed"><span><img src="/icons/heart-pulse.svg" alt="" /></span><small>BomMed</small></button>
         <a class="product-item auto" href="https://grupobompastor.com.br/bomauto/" target="_blank" rel="noopener noreferrer" aria-label="BomAuto — abre em nova aba"><span><img src="/icons/car.svg" alt="" /></span><small>BomAuto</small></a>
@@ -135,7 +135,7 @@ const shortcuts = [
         </section>
 
         <section class="screen" data-screen="cadastro" aria-labelledby="cadastro-title">
-          <div class="page-intro"><div><p class="eyebrow">MINHA CONTA</p><h1 id="cadastro-title">Dados <strong>cadastrais</strong></h1><p class="intro-text">Mantenha seus dados atualizados para receber todos os comunicados.</p></div><span class="status-pill"><i></i> Cadastro verificado</span></div>
+          <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">MINHA CONTA</p><h1 id="cadastro-title">Dados <strong>cadastrais</strong></h1><p class="intro-text">Mantenha seus dados atualizados para receber todos os comunicados.</p></div><span class="status-pill"><i></i> Cadastro verificado</span></div>
           <div class="form-layout">
             <aside class="profile-card panel">
               <div class="profile-photo-wrap">
@@ -172,12 +172,12 @@ const shortcuts = [
         </section>
 
         <section class="screen" data-screen="avisos" aria-labelledby="avisos-title">
-          <div class="page-intro"><div><p class="eyebrow">CENTRAL DE COMUNICAÇÃO</p><h1 id="avisos-title">Avisos e <strong>comunicados</strong></h1><p class="intro-text">Tudo o que importa sobre seu plano e seus serviços.</p></div><button class="button button-ghost" type="button" data-mark-all-read>Marcar tudo como lido</button></div>
+          <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">CENTRAL DE COMUNICAÇÃO</p><h1 id="avisos-title">Avisos e <strong>comunicados</strong></h1><p class="intro-text">Tudo o que importa sobre seu plano e seus serviços.</p></div><button class="button button-ghost" type="button" data-mark-all-read>Marcar tudo como lido</button></div>
           <div class="notice-layout"><div class="filter-chips"><button class="active" type="button" data-notice-filter="all">Todos</button><button type="button" data-notice-filter="notice">Avisos</button><button type="button" data-notice-filter="financeiro">Boletos</button><button type="button" data-notice-filter="bommed">BomMed</button><button type="button" data-notice-filter="instituto">Instituto</button></div><article class="panel notice-list">{communications.map((message) => <button class:list={["notice-item", { unread: message.unread }]} type="button" data-notice-item data-notice-category={message.category}><span class:list={["list-icon", message.category === "financeiro" ? "orange" : message.category === "bommed" ? "blue" : message.title.includes("Telefone") ? "green" : "purple"]}><img src={`/icons/${message.category === "financeiro" ? "wallet" : message.category === "bommed" ? "heart-pulse" : message.title.includes("Telefone") ? "check-circle" : "bell"}.svg`} alt="" /></span><span><small>{message.label}</small><strong>{message.title}</strong><p>{message.message}</p></span><time>{message.time}</time></button>)}<p class="notice-empty" data-notice-empty hidden>Nenhum comunicado nesta categoria.</p></article></div>
         </section>
 
         <section class="screen" data-screen="plano" aria-labelledby="plano-title">
-          <div class="page-intro"><div><p class="eyebrow">PLANO E CONTRATO</p><h1 id="plano-title">Seu plano, <strong>sem complicação</strong></h1><p class="intro-text">Consulte vigência, contrato, carteirinha e dependentes.</p></div><span class="status-pill"><i></i> Ativo</span></div>
+          <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">PLANO E CONTRATO</p><h1 id="plano-title">Seu plano, <strong>sem complicação</strong></h1><p class="intro-text">Consulte vigência, contrato, carteirinha e dependentes.</p></div><span class="status-pill"><i></i> Ativo</span></div>
           <article class="plan-banner"><div><p class="eyebrow light">PLANO ATUAL</p><h2>TOTAL<span>+</span></h2><p>Desde 15 de março de 2018</p></div><div class="plan-stats"><span><small>MENSALIDADE</small><strong>{plan.monthlyAmount}</strong></span><span><small>PRÓX. VENCIMENTO</small><strong>{plan.nextDueDate}</strong></span><span><small>CARTEIRINHA</small><strong>{plan.cardNumber}</strong></span></div></article>
           <div class="action-grid">
             <button class="panel action-card" type="button" data-download="contrato"><span class="list-icon blue"><img src="/icons/download.svg" alt="" /></span><span><strong>2ª via do contrato</strong><small>Documento demonstrativo</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
@@ -216,7 +216,7 @@ const shortcuts = [
         </section>
 
         <section class="screen wallet-screen" data-screen="carteirinha" data-card-status="active" aria-labelledby="carteirinha-title">
-          <div class="page-intro wallet-intro"><div><p class="eyebrow">CARTEIRINHA DIGITAL</p><h1 id="carteirinha-title">Minha <strong>Carteirinha</strong></h1><p class="intro-text">Apresente ao parceiro para utilizar seus benefícios.</p></div><span class="status-pill wallet-page-status" data-active-only><i></i> Plano ativo</span></div>
+          <div class="page-intro wallet-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">CARTEIRINHA DIGITAL</p><h1 id="carteirinha-title">Minha <strong>Carteirinha</strong></h1><p class="intro-text">Apresente ao parceiro para utilizar seus benefícios.</p></div><span class="status-pill wallet-page-status" data-active-only><i></i> Plano ativo</span></div>
 
           <div class="wallet-layout">
             <div class="wallet-main-column">
@@ -253,7 +253,7 @@ const shortcuts = [
         </section>
 
         <section class="screen" data-screen="financeiro" aria-labelledby="financeiro-title">
-          <div class="page-intro"><div><p class="eyebrow">FINANCEIRO</p><h1 id="financeiro-title">Pagamentos <strong>em dia</strong></h1><p class="intro-text">Consulte faturas, copie o código ou pague com Pix.</p></div><span class="soft-badge warning">1 fatura em aberto</span></div>
+          <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">FINANCEIRO</p><h1 id="financeiro-title">Pagamentos <strong>em dia</strong></h1><p class="intro-text">Consulte faturas, copie o código ou pague com Pix.</p></div><span class="soft-badge warning">1 fatura em aberto</span></div>
           <div class="finance-tabs" role="tablist" aria-label="Visualização financeira"><button class="active" type="button" role="tab" aria-selected="true" data-finance-tab="open">Em aberto <span>1</span></button><button type="button" role="tab" aria-selected="false" data-finance-tab="paid">Pagas</button><button type="button" role="tab" aria-selected="false" data-finance-tab="history">Histórico</button></div>
 
           <div class="finance-view" data-finance-view="open">
@@ -275,7 +275,7 @@ const shortcuts = [
         </section>
 
         <section class="screen" data-screen="bommed" aria-labelledby="bommed-title">
-          <div class="page-intro"><div><p class="eyebrow">MINHAS GUIAS</p><h1 id="bommed-title">Cuidado que <strong>acompanha você</strong></h1><p class="intro-text">Emita guias com desconto e consulte seu histórico.</p></div></div>
+          <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">BOMMED · MINHAS GUIAS</p><h1 id="bommed-title">Cuidado que <strong>acompanha você</strong></h1><p class="intro-text">Emita guias com desconto e consulte seu histórico.</p></div></div>
           <div class="medical-layout">
             <section class="panel guide-form guide-flow" data-guide-flow>
               <div class="guide-step" data-guide-step="start">
@@ -308,10 +308,11 @@ const shortcuts = [
 
             <article class="panel usage-history"><div class="panel-title"><div><p class="eyebrow">UTILIZAÇÃO</p><h3>Histórico recente</h3></div><label class="guide-history-search"><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar no histórico" aria-label="Buscar no histórico de guias" data-guide-history-search /></label></div><ul class="timeline guide-history" data-guide-history-list>{guides.map((guide) => <li><button type="button" data-guide-history><time>{guide.date}</time><span><strong>{guide.specialty}</strong><small>{guide.professional}</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia {guide.id}</b><span>{guide.beneficiary} • desconto de {guide.discount}</span></div></li>)}</ul><p class="guide-history-empty" data-guide-history-empty hidden>Nenhuma guia encontrada para essa busca.</p></article>
           </div>
+          <footer class="screen-footer"><button class="page-footer-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button></footer>
         </section>
 
         <section class="screen" data-screen="instituto" aria-labelledby="instituto-title">
-          <article class="support-hero"><div class="support-glow"></div><div><p class="eyebrow light">INSTITUTO DO LUTO</p><h1 id="instituto-title">Você não está <strong>sozinho.</strong></h1><p>Acolhimento profissional, gratuito e confidencial para titulares e dependentes.</p><button class="button button-light" type="button" data-focus-support>Abrir solicitação de apoio</button></div><span class="support-symbol"><img src="/icons/heart-handshake.svg" alt="" /></span></article>
+          <article class="support-hero"><div class="support-glow"></div><div><button class="page-back page-back-light" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow light">INSTITUTO DO LUTO</p><h1 id="instituto-title">Você não está <strong>sozinho.</strong></h1><p>Acolhimento profissional, gratuito e confidencial para titulares e dependentes.</p><button class="button button-light" type="button" data-focus-support>Abrir solicitação de apoio</button></div><span class="support-symbol"><img src="/icons/heart-handshake.svg" alt="" /></span></article>
           <div class="support-layout"><form class="panel support-form" data-demo-form><div class="panel-title"><div><p class="eyebrow">NOVO PROTOCOLO</p><h3>Como podemos ajudar?</h3></div></div><fieldset><legend>Tipo de apoio</legend><label class="radio-card"><input type="radio" name="apoio" checked /><span><strong>Acolhimento individual</strong><small>Conversa reservada com um profissional.</small></span></label><label class="radio-card"><input type="radio" name="apoio" /><span><strong>Grupo de apoio</strong><small>Encontros mediados em um ambiente seguro.</small></span></label><label class="radio-card"><input type="radio" name="apoio" /><span><strong>Apoio familiar</strong><small>Orientação para toda a família.</small></span></label></fieldset><label>Mensagem opcional<textarea rows="4" placeholder="Conte brevemente como podemos ajudar..."></textarea></label><button class="button button-primary full" type="submit">Abrir protocolo</button></form><aside class="privacy-note"><img src="/icons/shield-check.svg" alt="" /><h3>Seu espaço é seguro</h3><p>As informações compartilhadas são confidenciais e usadas apenas para direcionar o acolhimento.</p><span>Retorno em até 24 horas úteis</span></aside></div>
         </section>
       </main>
@@ -331,6 +332,7 @@ const shortcuts = [
     const screens = [...document.querySelectorAll('[data-screen]')];
     const routeButtons = [...document.querySelectorAll('[data-route]')];
     const drawer = document.querySelector('[data-drawer]');
+    const productMenu = document.querySelector('[data-product-menu]');
     const toast = document.querySelector('[data-toast-box]');
     const login = document.querySelector('[data-login]');
     const protectedSurfaces = [...document.querySelectorAll('.sidebar,.app-main,.bottom-nav')];
@@ -384,6 +386,7 @@ const shortcuts = [
       const target = document.querySelector(`[data-screen="${route}"]`); if (!target) return;
       screens.forEach(screen => screen.classList.toggle('active', screen === target));
       routeButtons.forEach(button => button.classList.toggle('active', button.dataset.route === route));
+      if (productMenu) productMenu.hidden = route !== 'inicio';
       drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open');
       if (updateHash && location.hash !== `#${route}`) history.pushState({ route }, '', `#${route}`);
       const section = scrollTarget && document.getElementById(scrollTarget);
@@ -673,6 +676,7 @@ const shortcuts = [
     }));
     const guideFlow = document.querySelector('[data-guide-flow]');
     if (guideFlow) {
+      const usageHistory = document.querySelector('[data-screen="bommed"] .usage-history');
       const categoryButtons = [...guideFlow.querySelectorAll('[data-guide-category]')];
       const details = guideFlow.querySelector('[data-guide-details]');
       const search = guideFlow.querySelector('[data-guide-search]');
@@ -684,6 +688,14 @@ const shortcuts = [
       const confirm = guideFlow.querySelector('[data-guide-confirm]');
       const success = guideFlow.querySelector('[data-guide-success]');
       const state = { category: '', specialty: '', professional: '' };
+      const syncGuideDensity = () => {
+        const historyIsNear = usageHistory && usageHistory.getBoundingClientRect().top < window.innerHeight * .78;
+        const flowIsAtStart = details.hidden && confirm.hidden && success.hidden;
+        guideFlow.classList.toggle('is-history-compact', Boolean(historyIsNear && flowIsAtStart));
+      };
+      window.addEventListener('scroll', syncGuideDensity, { passive: true });
+      window.addEventListener('resize', syncGuideDensity);
+      requestAnimationFrame(syncGuideDensity);
       const syncSelection = () => {
         guideFlow.querySelector('[data-guide-category-copy]').textContent = state.category.toUpperCase();
         guideFlow.querySelector('[data-guide-specialty]').textContent = state.specialty;
@@ -691,6 +703,7 @@ const shortcuts = [
         guideFlow.querySelector('[data-guide-beneficiary-copy]').textContent = beneficiary.value;
       };
       categoryButtons.forEach(button => button.addEventListener('click', () => {
+        guideFlow.classList.remove('is-history-compact');
         state.category = button.dataset.guideCategory;
         categoryButtons.forEach(item => item.classList.toggle('active', item === button));
         details.hidden = false;
@@ -747,6 +760,7 @@ const shortcuts = [
         success.hidden = true; start.hidden = false; details.hidden = true; selection.hidden = true; suggestions.hidden = true;
         state.category = ''; state.specialty = ''; state.professional = ''; search.value = ''; search.setAttribute('aria-expanded', 'false');
         categoryButtons.forEach(item => item.classList.remove('active'));
+        requestAnimationFrame(syncGuideDensity);
       });
       document.addEventListener('click', event => {
         if (!guideFlow.querySelector('.guide-search-block').contains(event.target)) { suggestions.hidden = true; search.setAttribute('aria-expanded', 'false'); }
