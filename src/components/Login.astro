@@ -1,0 +1,18 @@
+<div class="login-overlay" data-login style="--login-image: url('/media/image-login.png')">
+  <div class="login-visual" aria-hidden="true" style="--login-shape: url('/elements/login-mask.svg')">
+    <img class="login-photo" src="/media/image-login.png" alt="" />
+    <img class="login-photo-mobile" src="/media/image-login.png" alt="" />
+    <div class="login-message"><p>Seu cuidado.<br /><strong>Seu jeito de viver.</strong></p></div>
+  </div>
+  <form class="login-form" data-login-form>
+    <img class="login-stage-mark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" />
+    <img class="login-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" />
+    <div class="login-heading"><p class="eyebrow">ACESSAR MINHA CONTA</p><h1>Entre com seus dados</h1><p class="login-demo-hint">Acesso de teste: <strong>teste</strong> · senha <strong>1234</strong></p></div>
+    <label>CPF ou usuário<input required autocomplete="username" placeholder="Digite seu CPF ou usuário" data-login-user /></label>
+    <label>Senha<span class="password-field"><input required type="password" autocomplete="current-password" placeholder="Digite sua senha" data-password /><button type="button" data-password-toggle aria-label="Mostrar senha" aria-pressed="false"><img src="/icons/eye-off.svg" alt="" /></button></span></label>
+    <p class="login-error" data-login-error role="alert" aria-live="polite" hidden></p>
+    <button class="button button-primary full login-submit" type="submit" data-login-submit>Entrar</button>
+    <div class="login-links"><button type="button" data-account-flow="password">Esqueci a senha</button><button type="button" data-account-flow="first-access">Primeiro acesso</button></div>
+    <small class="login-security"><img src="/icons/shield-check.svg" alt="" /> Ambiente seguro e protegido</small>
+  </form>
+</div>
