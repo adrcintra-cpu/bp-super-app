@@ -1,0 +1,298 @@
+---
+// Assistente de dúvidas do app (versão guiada, 100% local).
+// Reconhece a intenção da pergunta, responde e leva o usuário até a tela certa.
+// O "cérebro" fica em `answerFor()`: para trocar por um LLM no futuro, basta
+// substituir essa função por uma chamada ao backend que devolva { text, action }.
+---
+
+<div class="assistant" data-assistant>
+  <button class="assistant-fab" type="button" data-assistant-toggle aria-expanded="false" aria-controls="assistant-panel" aria-label="Abrir assistente de dúvidas" title="Dúvidas? Fale com o assistente">
+    <svg class="assistant-fab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C7 3 3 6.6 3 11c0 2.2 1 4.2 2.7 5.6L5 21l4.1-2.2c.9.2 1.9.3 2.9.3 5 0 9-3.6 9-8s-4-8-9-8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.5" cy="11" r="1.1" fill="currentColor"/><circle cx="12" cy="11" r="1.1" fill="currentColor"/><circle cx="15.5" cy="11" r="1.1" fill="currentColor"/></svg>
+    <svg class="assistant-fab-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+
+  <section class="assistant-panel" id="assistant-panel" data-assistant-panel role="dialog" aria-modal="false" aria-labelledby="assistant-title" hidden>
+    <header class="assistant-head">
+      <span class="assistant-avatar" aria-hidden="true"><img src="/logos/bompastor-logo-minimalista.svg" alt="" /></span>
+      <div><h2 id="assistant-title">Assistente Bom Pastor</h2><p>Tire dúvidas sobre o app. Posso te levar até a tela certa.</p></div>
+      <button class="assistant-icon-btn" type="button" data-assistant-voice-toggle aria-pressed="false" aria-label="Respostas em voz alta" title="Respostas em voz alta">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="assistant-icon-btn" type="button" data-assistant-close aria-label="Fechar assistente">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div class="assistant-log" data-assistant-log role="log" aria-live="polite" aria-relevant="additions"></div>
+
+    <div class="assistant-suggestions" data-assistant-suggestions aria-label="Sugestões de perguntas"></div>
+
+    <form class="assistant-form" data-assistant-form>
+      <label class="sr-only" for="assistant-input">Digite sua dúvida</label>
+      <input id="assistant-input" data-assistant-input type="text" autocomplete="off" maxlength="200" placeholder="Digite ou toque no microfone" />
+      <button class="assistant-mic" type="button" data-assistant-mic aria-pressed="false" aria-label="Falar sua dúvida">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="assistant-send" type="submit" aria-label="Enviar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12 20 4l-5 16-3-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+    <p class="assistant-note">Assistente de demonstração: respondo só sobre o uso deste app.</p>
+  </section>
+</div>
+
+<script is:inline>
+  const initAssistant = () => {
+    const root = document.querySelector('[data-assistant]');
+    if (!root) return;
+    const data = JSON.parse(document.querySelector('[data-mock-data]')?.textContent || '{}');
+    const fab = root.querySelector('[data-assistant-toggle]');
+    const panel = root.querySelector('[data-assistant-panel]');
+    const log = root.querySelector('[data-assistant-log]');
+    const suggestionsBox = root.querySelector('[data-assistant-suggestions]');
+    const form = root.querySelector('[data-assistant-form]');
+    const input = root.querySelector('[data-assistant-input]');
+    const micButton = root.querySelector('[data-assistant-mic]');
+    const voiceToggle = root.querySelector('[data-assistant-voice-toggle]');
+    const closeButton = root.querySelector('[data-assistant-close]');
+
+    const normalize = text => String(text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9ª\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    const firstName = data.customer?.firstName || '';
+    const bill = data.billing?.current || {};
+    const dueDays = () => {
+      if (!bill.dueDateISO) return null;
+      const [y, m, d] = bill.dueDateISO.split('-').map(Number);
+      const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((new Date(y, m - 1, d) - start) / 86400000);
+    };
+    const dueText = () => { const n = dueDays(); if (n === null) return ''; return n > 1 ? `vence em ${n} dias (${bill.dueDate})` : n === 1 ? `vence amanhã (${bill.dueDate})` : n === 0 ? 'vence hoje' : `venceu há ${Math.abs(n)} dia(s)`; };
+    const dependents = (data.beneficiaries || []).filter(person => person.role !== 'Titular').map(person => person.name.split(' ')[0]);
+    const listPt = items => items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} e ${items[items.length - 1]}`;
+    const withYou = () => listPt(['você', ...dependents]);
+
+    // Base de conhecimento: cada intenção tem palavras-chave (sem acento), resposta e ação.
+    const intents = [
+      { id: 'guia', keys: ['guia', 'gerar guia', 'emitir guia', 'consulta', 'exame', 'medico', 'agendar', 'bommed', 'terapia', 'fisioterapia', 'psicologo', 'dentista', 'odontologia', 'especialista'],
+        text: () => 'Para gerar uma guia com desconto de até 35%: abra Minhas Guias, escolha o tipo de atendimento (consulta, exame, terapia…), selecione para quem é, busque a especialidade e toque em "Gerar guia". Já estou te levando lá.',
+        action: { route: 'bommed', highlight: '.guide-categories', label: 'Abrir Minhas Guias' } },
+      { id: 'guias-anteriores', keys: ['guias anteriores', 'historico de guias', 'minhas guias antigas', 'guia antiga', 'guias que fiz', 'utilizacao'],
+        text: () => 'O histórico das suas guias fica em Minhas Guias, no quadro "Histórico recente". Toque em uma guia para ver o número e o desconto.',
+        action: { route: 'bommed', highlight: '.usage-history', label: 'Ver histórico de guias' } },
+      { id: 'pix', keys: ['pix', 'pagar com pix', 'copia e cola', 'qr pix'],
+        text: () => `No Financeiro, toque em "Copiar Pix" e cole na área Pix Copia e Cola do app do seu banco. A mensalidade de ${bill.amount || ''} ${dueText()}.`,
+        action: { route: 'financeiro', highlight: '.pix-card', label: 'Ir para o Pix' } },
+      { id: 'boleto', keys: ['boleto', '2 via', '2ª via', 'segunda via', 'codigo de barras', 'linha digitavel', 'pagar', 'pagamento', 'fatura', 'mensalidade'],
+        text: () => `Sua mensalidade de ${bill.amount || ''} ${dueText()}. No Financeiro você baixa a 2ª via do boleto, copia a linha digitável ou paga com Pix.`,
+        action: { route: 'financeiro', highlight: '.invoice-card', label: 'Ir para o Financeiro' } },
+      { id: 'vencimento', keys: ['vencimento', 'quando vence', 'vence quando', 'quanto pago', 'valor da mensalidade', 'valor do plano', 'quanto custa'],
+        text: () => `Sua próxima mensalidade é de ${bill.amount || ''} e ${dueText()}.`,
+        action: { route: 'financeiro', highlight: '.invoice-card', label: 'Ver fatura' } },
+      { id: 'extrato', keys: ['extrato', 'historico de pagamento', 'pagamentos anteriores', 'ja paguei', 'comprovante', 'faturas pagas', 'paguei'],
+        text: () => 'Seus pagamentos ficam em Financeiro, nas abas "Pagas" e "Histórico". No Histórico você também baixa o extrato anual.',
+        action: { route: 'financeiro', tab: 'history', highlight: '#finance-panel-history', label: 'Ver histórico de pagamentos' } },
+      { id: 'carteirinha-dependente', keys: ['carteirinha do meu filho', 'carteirinha da minha filha', 'carteirinha do dependente', 'carteirinha de dependente', 'carteirinha do conjuge', 'carteirinha da esposa', 'carteirinha do marido'],
+        text: () => `Na Carteirinha, use o seletor "Carteirinha de:" para trocar entre ${withYou()}. Cada um tem seu próprio código de benefício.`,
+        action: { route: 'carteirinha', highlight: '.beneficiary-picker', label: 'Abrir Carteirinha' } },
+      { id: 'carteirinha', keys: ['carteirinha', 'cartao', 'qr code', 'qrcode', 'codigo do beneficio', 'parceiro', 'credenciado', 'desconto no parceiro', 'beneficio'],
+        text: () => 'Sua carteirinha digital está na tela Carteirinha. Mostre o QR Code ao parceiro antes do atendimento ou da compra, ou informe o código do benefício.',
+        action: { route: 'carteirinha', highlight: '.partner-pass', label: 'Abrir Carteirinha' } },
+      { id: 'dependentes', keys: ['dependente', 'dependentes', 'beneficiario', 'beneficiarios', 'incluir dependente', 'adicionar dependente', 'filho', 'filha', 'esposa', 'marido', 'conjuge', 'familia'],
+        text: () => `Seu plano protege ${(data.beneficiaries || []).length} pessoas: ${withYou()}. A lista completa fica em Plano e contrato. A inclusão de novos dependentes pelo app chega em breve.`,
+        action: { route: 'plano', scrollTarget: 'plan-members', highlight: '#plan-members', label: 'Ver beneficiários' } },
+      { id: 'coberturas', keys: ['cobertura', 'coberturas', 'o que meu plano cobre', 'o que o plano cobre', 'beneficios do plano', 'incluido no plano', 'assistencia'],
+        text: () => `Seu plano ${data.plan?.name || ''} inclui assistência familiar 24h, descontos BomMed, apoio emocional do Instituto do Luto e central exclusiva. O manual completo está em Plano e contrato.`,
+        action: { route: 'plano', scrollTarget: 'plan-coverages', highlight: '#plan-coverages', label: 'Ver coberturas' } },
+      { id: 'contrato', keys: ['contrato', 'meu plano', 'plano', 'vigencia', 'numero do contrato'],
+        text: () => `Seu plano é o ${data.plan?.name || ''}, ativo desde ${data.plan?.startDate || ''}. Em Plano e contrato você vê a vigência e baixa a 2ª via do contrato.`,
+        action: { route: 'plano', highlight: '.plan-banner', label: 'Abrir Plano e contrato' } },
+      { id: 'contatos', keys: ['email', 'e mail', 'telefone', 'celular', 'whatsapp', 'contato', 'trocar email', 'mudar telefone', 'alterar telefone'],
+        text: () => 'Para mudar e-mail ou telefone, vá em Meu cadastro, na seção "Onde podemos falar com você", e toque em Editar. O novo contato fica pendente até você confirmar o código enviado.',
+        action: { route: 'cadastro', scrollTarget: 'cadastro-contatos', highlight: '#cadastro-contatos', label: 'Editar contatos' } },
+      { id: 'cadastro', keys: ['endereco', 'mudar endereco', 'cep', 'dados pessoais', 'cadastro', 'meus dados', 'atualizar dados', 'estado civil', 'nome', 'mudei de casa', 'mudanca'],
+        text: () => 'Seus dados pessoais e endereço ficam em Meu cadastro. Digite o CEP que o endereço é preenchido sozinho; depois complete o número e toque em "Salvar alterações".',
+        action: { route: 'cadastro', highlight: '.form-panel', label: 'Abrir Meu cadastro' } },
+      { id: 'foto', keys: ['foto', 'foto de perfil', 'imagem', 'avatar'],
+        text: () => 'Para trocar sua foto, vá em Meu cadastro e toque em "Alterar foto".',
+        action: { route: 'cadastro', highlight: '.profile-photo-wrap', label: 'Alterar foto' } },
+      { id: 'avisos', keys: ['aviso', 'avisos', 'comunicado', 'comunicados', 'notificacao', 'notificacoes', 'mensagem', 'mensagens', 'sininho'],
+        text: () => 'Seus avisos ficam em Comunicação. Dá para filtrar por boletos, BomMed e Instituto e marcar tudo como lido.',
+        action: { route: 'avisos', highlight: '.notice-list', label: 'Abrir Comunicação' } },
+      { id: 'luto', keys: ['luto', 'apoio', 'apoio emocional', 'psicologico', 'acolhimento', 'perdi', 'falecimento', 'faleceu', 'triste', 'instituto', 'protocolo'],
+        text: () => 'Sinto muito se você está passando por um momento difícil. O Instituto do Luto oferece acolhimento gratuito e confidencial para você e seus dependentes. Escolha o tipo de apoio e abra um protocolo; o retorno é em até 24 horas úteis.',
+        action: { route: 'instituto', highlight: '.support-form', label: 'Abrir Instituto do Luto' } },
+      { id: 'acessibilidade', keys: ['letra maior', 'aumentar letra', 'fonte maior', 'aumentar texto', 'texto maior', 'nao consigo ler', 'letra pequena', 'acessibilidade', 'zoom'],
+        text: () => 'Abri as opções de acessibilidade para você. Use A+ para aumentar o texto e A− para diminuir.',
+        action: { openAccessibility: true, label: 'Abrir acessibilidade' } },
+      { id: 'desconto', keys: ['desconto', 'quanto de desconto', 'porcentagem', 'economia'],
+        text: () => 'As guias BomMed têm desconto de até 35%, conforme o tipo de atendimento. Nos parceiros, o desconto é confirmado na hora, ao apresentar a carteirinha.',
+        action: { route: 'bommed', highlight: '.discount-badge', label: 'Gerar uma guia' } },
+      { id: 'senha', keys: ['senha', 'esqueci a senha', 'trocar senha', 'mudar senha', 'login', 'acesso', 'entrar'],
+        text: () => 'Se esquecer a senha, use "Esqueci a senha" na tela de login e informe seu CPF: enviaremos as instruções ao seu contato principal.',
+        action: null },
+      { id: 'sair', keys: ['sair', 'deslogar', 'logout', 'encerrar sessao', 'sair da conta'],
+        text: () => 'Para sair, toque na sua foto no canto superior direito e escolha "Sair da conta".',
+        action: { highlight: '[data-profile-button]', label: 'Mostrar onde fica' } },
+      { id: 'atendente', keys: ['atendente', 'falar com alguem', 'falar com uma pessoa', 'humano', 'ligar', 'central', 'sac', 'reclamacao', 'ouvidoria'],
+        text: () => 'O atendimento humano pelo app chega em breve. Por enquanto, fale com a central do seu plano pelos canais oficiais do Grupo Bom Pastor. Se for um momento de luto, o Instituto do Luto pode te acolher pelo app.',
+        action: null },
+      { id: 'inicio', keys: ['inicio', 'tela inicial', 'voltar ao inicio', 'home', 'pagina inicial'],
+        text: () => 'Voltando para o início.',
+        action: { route: 'inicio', label: 'Ir para o início' } },
+    ];
+
+    const greetings = ['oi', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'ajuda', 'help', 'o que voce faz', 'quem e voce'];
+    const thanks = ['obrigado', 'obrigada', 'valeu', 'brigado', 'show', 'perfeito'];
+    const defaultSuggestions = ['Como gero uma guia?', 'Quero a 2ª via do boleto', 'Mostrar minha carteirinha', 'Mudar meu telefone'];
+    const normalizedIntents = intents.map(intent => ({ ...intent, nkeys: intent.keys.map(normalize) }));
+
+    function answerFor(question) {
+      const q = ` ${normalize(question)} `;
+      if (!q.trim()) return null;
+      if (thanks.some(word => q.includes(` ${word} `))) return { text: 'Por nada! Se precisar de mais alguma coisa, é só chamar.' };
+      let best = null; let bestScore = 0;
+      for (const intent of normalizedIntents) {
+        let score = 0;
+        for (const key of intent.nkeys) {
+          if (q.includes(` ${key} `)) score += key.split(' ').length * 2 + 1;
+          else if (key.length >= 5 && q.includes(key.slice(0, -1))) score += 1; // plural/variações simples
+        }
+        if (score > bestScore) { best = intent; bestScore = score; }
+      }
+      if (best && bestScore >= 2) return { text: best.text(), action: best.action, intent: best.id };
+      if (greetings.some(word => q.includes(` ${word} `))) return { text: `Olá${firstName ? ', ' + firstName : ''}! Posso ajudar com guias BomMed, boletos e Pix, carteirinha, plano e dependentes, seus dados e o Instituto do Luto. O que você precisa?`, suggestions: defaultSuggestions };
+      return { text: 'Não entendi muito bem. Eu ajudo só com o uso deste app: guias, pagamentos, carteirinha, plano, cadastro e Instituto do Luto. Tente uma das opções abaixo ou escreva de outro jeito.', suggestions: defaultSuggestions, fallback: true };
+    }
+
+    // ---------- Interface ----------
+    const isNarrow = () => window.matchMedia('(max-width: 820px)').matches;
+    let started = false;
+    const addMessage = (who, text, action) => {
+      const item = document.createElement('div');
+      item.className = `assistant-msg ${who}`;
+      const bubble = document.createElement('p');
+      bubble.textContent = text;
+      item.append(bubble);
+      if (action?.label) {
+        const go = document.createElement('button');
+        go.type = 'button'; go.className = 'assistant-action'; go.textContent = `${action.label} →`;
+        go.addEventListener('click', () => runAction(action, true));
+        item.append(go);
+      }
+      log.append(item);
+      log.scrollTop = log.scrollHeight;
+    };
+    const setSuggestions = list => {
+      suggestionsBox.innerHTML = '';
+      (list || []).forEach(text => {
+        const chip = document.createElement('button');
+        chip.type = 'button'; chip.textContent = text;
+        chip.addEventListener('click', () => ask(text));
+        suggestionsBox.append(chip);
+      });
+      suggestionsBox.hidden = !(list && list.length);
+    };
+
+    const highlight = selector => {
+      const target = document.querySelector(`.screen.active ${selector}`) || document.querySelector(selector);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.classList.remove('assistant-highlight');
+      void target.offsetWidth;
+      target.classList.add('assistant-highlight');
+      window.setTimeout(() => target.classList.remove('assistant-highlight'), 3200);
+    };
+    function runAction(action, fromButton = false) {
+      if (!action) return;
+      if (action.openAccessibility) { closePanel(false); document.querySelector('[data-accessibility-button]')?.click(); return; }
+      if (action.route) document.dispatchEvent(new CustomEvent('bp:navigate', { detail: { route: action.route, scrollTarget: action.scrollTarget || '' } }));
+      if (action.tab) window.setTimeout(() => document.querySelector(`[data-finance-tab="${action.tab}"]`)?.click(), 120);
+      if (isNarrow() || fromButton) closePanel(false);
+      if (action.highlight) window.setTimeout(() => highlight(action.highlight), action.route ? 650 : 50);
+    }
+
+    // ---------- Voz ----------
+    let speakReplies = false;
+    const synth = window.speechSynthesis;
+    const speak = text => {
+      if (!speakReplies || !synth) return;
+      synth.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      const voice = synth.getVoices().find(v => v.lang?.toLowerCase().startsWith('pt-br')) || synth.getVoices().find(v => v.lang?.toLowerCase().startsWith('pt'));
+      if (voice) utterance.voice = voice;
+      synth.speak(utterance);
+    };
+    const setSpeak = on => { speakReplies = on; voiceToggle.setAttribute('aria-pressed', String(on)); voiceToggle.classList.toggle('on', on); if (!on) synth?.cancel(); };
+    if (!synth) voiceToggle.hidden = true;
+    voiceToggle.addEventListener('click', () => setSpeak(!speakReplies));
+
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null; let listening = false;
+    if (!Recognition) {
+      micButton.hidden = true;
+    } else {
+      recognition = new Recognition();
+      recognition.lang = 'pt-BR'; recognition.interimResults = true; recognition.maxAlternatives = 1;
+      recognition.addEventListener('result', event => {
+        const transcript = [...event.results].map(result => result[0].transcript).join('');
+        input.value = transcript;
+        if (event.results[event.results.length - 1].isFinal) { stopListening(); setSpeak(true); ask(transcript); }
+      });
+      recognition.addEventListener('end', () => stopListening());
+      recognition.addEventListener('error', event => {
+        stopListening();
+        const msg = event.error === 'not-allowed' || event.error === 'service-not-allowed' ? 'Não consegui acessar o microfone. Verifique a permissão do navegador ou digite sua dúvida.' : event.error === 'no-speech' ? 'Não ouvi nada. Toque no microfone e fale de novo.' : 'Não consegui ouvir agora. Você pode digitar sua dúvida.';
+        addMessage('bot', msg);
+      });
+    }
+    function stopListening() { listening = false; micButton.classList.remove('listening'); micButton.setAttribute('aria-pressed', 'false'); micButton.setAttribute('aria-label', 'Falar sua dúvida'); input.placeholder = 'Digite ou toque no microfone'; }
+    micButton.addEventListener('click', () => {
+      if (!recognition) return;
+      if (listening) { recognition.stop(); return; }
+      synth?.cancel();
+      try { recognition.start(); listening = true; micButton.classList.add('listening'); micButton.setAttribute('aria-pressed', 'true'); micButton.setAttribute('aria-label', 'Parar de ouvir'); input.value = ''; input.placeholder = 'Ouvindo… pode falar'; }
+      catch { stopListening(); }
+    });
+
+    // ---------- Fluxo ----------
+    function ask(question) {
+      const text = String(question || '').trim();
+      if (!text) return;
+      addMessage('user', text);
+      input.value = '';
+      const reply = answerFor(text);
+      if (!reply) return;
+      window.setTimeout(() => {
+        addMessage('bot', reply.text, reply.action);
+        setSuggestions(reply.suggestions || []);
+        speak(reply.text);
+        if (reply.action) window.setTimeout(() => runAction(reply.action), isNarrow() ? 1400 : 500);
+      }, 250);
+    }
+    form.addEventListener('submit', event => { event.preventDefault(); ask(input.value); });
+
+    function openPanel() {
+      panel.hidden = false; root.classList.add('open');
+      fab.setAttribute('aria-expanded', 'true'); fab.setAttribute('aria-label', 'Fechar assistente de dúvidas');
+      if (!started) {
+        started = true;
+        addMessage('bot', `Olá${firstName ? ', ' + firstName : ''}! Sou o assistente do app Bom Pastor. Me diga o que você precisa, por texto ou voz, que eu explico e te levo até lá.`);
+        setSuggestions(defaultSuggestions);
+      }
+      requestAnimationFrame(() => input.focus());
+    }
+    function closePanel(restoreFocus = true) {
+      if (panel.hidden) return;
+      panel.hidden = true; root.classList.remove('open');
+      fab.setAttribute('aria-expanded', 'false'); fab.setAttribute('aria-label', 'Abrir assistente de dúvidas');
+      if (listening) recognition?.stop();
+      if (restoreFocus) fab.focus();
+    }
+    fab.addEventListener('click', () => (panel.hidden ? openPanel() : closePanel()));
+    closeButton.addEventListener('click', () => closePanel());
+    panel.addEventListener('keydown', event => { if (event.key === 'Escape') { event.stopPropagation(); closePanel(); } });
+  };
+  // Os dados mock ficam no fim da página: espera o documento terminar de carregar.
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAssistant, { once: true });
+  else initAssistant();
+</script>
