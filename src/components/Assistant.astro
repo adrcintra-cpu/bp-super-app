@@ -68,6 +68,8 @@
     };
     const dueText = () => { const n = dueDays(); if (n === null) return ''; return n > 1 ? `vence em ${n} dias (${bill.dueDate})` : n === 1 ? `vence amanhã (${bill.dueDate})` : n === 0 ? 'vence hoje' : `venceu há ${Math.abs(n)} dia(s)`; };
     const dependents = (data.beneficiaries || []).filter(person => person.role !== 'Titular').map(person => person.name.split(' ')[0]);
+    const listPt = items => items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} e ${items[items.length - 1]}`;
+    const withYou = () => listPt(['você', ...dependents]);
 
     // Base de conhecimento: cada intenção tem palavras-chave (sem acento), resposta e ação.
     const intents = [
@@ -90,13 +92,13 @@
         text: () => 'Seus pagamentos ficam em Financeiro, nas abas "Pagas" e "Histórico". No Histórico você também baixa o extrato anual.',
         action: { route: 'financeiro', tab: 'history', highlight: '#finance-panel-history', label: 'Ver histórico de pagamentos' } },
       { id: 'carteirinha-dependente', keys: ['carteirinha do meu filho', 'carteirinha da minha filha', 'carteirinha do dependente', 'carteirinha de dependente', 'carteirinha do conjuge', 'carteirinha da esposa', 'carteirinha do marido'],
-        text: () => `Na Carteirinha, use o seletor "Carteirinha de:" para trocar entre você${dependents.length ? ' e ' + dependents.join(', ') : ''}. Cada um tem seu próprio código de benefício.`,
+        text: () => `Na Carteirinha, use o seletor "Carteirinha de:" para trocar entre ${withYou()}. Cada um tem seu próprio código de benefício.`,
         action: { route: 'carteirinha', highlight: '.beneficiary-picker', label: 'Abrir Carteirinha' } },
       { id: 'carteirinha', keys: ['carteirinha', 'cartao', 'qr code', 'qrcode', 'codigo do beneficio', 'parceiro', 'credenciado', 'desconto no parceiro', 'beneficio'],
         text: () => 'Sua carteirinha digital está na tela Carteirinha. Mostre o QR Code ao parceiro antes do atendimento ou da compra, ou informe o código do benefício.',
         action: { route: 'carteirinha', highlight: '.partner-pass', label: 'Abrir Carteirinha' } },
       { id: 'dependentes', keys: ['dependente', 'dependentes', 'beneficiario', 'beneficiarios', 'incluir dependente', 'adicionar dependente', 'filho', 'filha', 'esposa', 'marido', 'conjuge', 'familia'],
-        text: () => `Seu plano protege ${(data.beneficiaries || []).length} pessoas: você${dependents.length ? ' e ' + dependents.join(', ') : ''}. A lista completa fica em Plano e contrato. A inclusão de novos dependentes pelo app chega em breve.`,
+        text: () => `Seu plano protege ${(data.beneficiaries || []).length} pessoas: ${withYou()}. A lista completa fica em Plano e contrato. A inclusão de novos dependentes pelo app chega em breve.`,
         action: { route: 'plano', scrollTarget: 'plan-members', highlight: '#plan-members', label: 'Ver beneficiários' } },
       { id: 'coberturas', keys: ['cobertura', 'coberturas', 'o que meu plano cobre', 'o que o plano cobre', 'beneficios do plano', 'incluido no plano', 'assistencia'],
         text: () => `Seu plano ${data.plan?.name || ''} inclui assistência familiar 24h, descontos BomMed, apoio emocional do Instituto do Luto e central exclusiva. O manual completo está em Plano e contrato.`,
