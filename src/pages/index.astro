@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import FeedbackLayer from "../components/FeedbackLayer.astro";
 import Login from "../components/Login.astro";
+import Assistant from "../components/Assistant.astro";
 import "../styles/app.css";
 import { mockAppData } from "../data/mockData.js";
 
@@ -315,6 +316,7 @@ const shortcuts = [
           <div class="support-layout"><form class="panel support-form" data-support-form><div class="panel-title"><div><p class="eyebrow">NOVO PROTOCOLO</p><h3>Como podemos ajudar?</h3></div></div><fieldset><legend>Tipo de apoio</legend><label class="radio-card"><input type="radio" name="apoio" value="Acolhimento individual" checked /><span><strong>Acolhimento individual</strong><small>Conversa reservada com um profissional.</small></span></label><label class="radio-card"><input type="radio" name="apoio" value="Grupo de apoio" /><span><strong>Grupo de apoio</strong><small>Encontros mediados em um ambiente seguro.</small></span></label><label class="radio-card"><input type="radio" name="apoio" value="Apoio familiar" /><span><strong>Apoio familiar</strong><small>Orientação para toda a família.</small></span></label></fieldset><label>Para quem é o apoio?<select name="beneficiario">{beneficiaries.map((person) => <option>{person.name} — {person.role}</option>)}</select></label><label>Mensagem opcional<textarea name="mensagem" rows="4" maxlength="1000" placeholder="Conte brevemente como podemos ajudar..."></textarea></label><button class="button button-primary full" type="submit">Abrir protocolo</button></form><aside class="privacy-note"><img src="/icons/shield-check.svg" alt="" /><h3>Seu espaço é seguro</h3><p>As informações compartilhadas são confidenciais e usadas apenas para direcionar o acolhimento.</p><span>Retorno em até 24 horas úteis</span></aside></div>
         </section>
       </main>
+      <Assistant />
     </div>
 
     <nav class="bottom-nav" aria-label="Navegação mobile"><button class="active" type="button" data-route="inicio"><img src="/icons/home.svg" alt="" /><span>Início</span></button><button type="button" data-route="plano"><img src="/icons/umbrella.svg" alt="" /><span>Meu Plano</span></button><button type="button" data-route="carteirinha"><img src="/icons/credit-card.svg" alt="" /><span>Carteirinha</span></button><button type="button" data-menu-open><img src="/icons/menu.svg" alt="" /><span>Menu</span></button></nav>
@@ -428,6 +430,7 @@ const shortcuts = [
       else window.scrollTo({ top: 0, behavior: 'smooth' });
       requestAnimationFrame(() => target.querySelectorAll('.reveal').forEach(el => el.classList.add('visible')));
     }
+    document.addEventListener('bp:navigate', event => { const { route, scrollTarget = '' } = event.detail || {}; if (route) navigate(route, true, scrollTarget); });
     routeButtons.forEach(button => button.addEventListener('click', event => { event.preventDefault(); navigate(button.dataset.route, true, button.dataset.scrollTarget); const accountMenu = document.querySelector('[data-profile-popover]'); if (accountMenu) accountMenu.hidden = true; document.querySelector('[data-profile-button]')?.setAttribute('aria-expanded', 'false'); }));
     let drawerOpener = null;
     function openDrawer(opener) {
