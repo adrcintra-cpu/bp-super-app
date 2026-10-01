@@ -433,7 +433,9 @@ const shortcuts = [
     function openDrawer(opener) {
       drawerOpener = opener || document.activeElement;
       drawer.inert = false; drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); document.body.classList.add('menu-open');
-      requestAnimationFrame(() => (drawer.querySelector('nav .nav-item.active') || drawer.querySelector('nav .nav-item'))?.focus());
+      const focusFirst = () => { if (drawer.classList.contains('open') && !drawer.contains(document.activeElement)) (drawer.querySelector('nav .nav-item.active') || drawer.querySelector('nav .nav-item'))?.focus(); };
+      requestAnimationFrame(focusFirst);
+      window.setTimeout(focusFirst, 400);
     }
     function closeDrawer(restoreFocus = true) {
       const wasOpen = drawer.classList.contains('open');

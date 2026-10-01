@@ -477,6 +477,7 @@ body.login-open{overflow:hidden;overscroll-behavior:none;touch-action:none}
 /* A1: o clip-path da animação recortava a lista de resultados; a área de recorte agora se estende para baixo. */
 .global-search{clip-path:inset(0 0 -100vh 100% round 24px)}
 .global-search.open{clip-path:inset(0 0 -100vh 0 round 24px)}
+.global-search .global-search-results button{height:auto;min-height:44px;border-radius:12px;place-items:start;justify-items:start;text-align:left}
 /* A5: itens de grade não podem ser mais largos que a tela (chips em rolagem no modo compacto). */
 [data-screen="bommed"] .medical-layout{grid-template-columns:minmax(0,1fr)}
 [data-screen="bommed"] .medical-layout>*,[data-screen="bommed"] .guide-flow,[data-screen="bommed"] .guide-step{min-width:0}
