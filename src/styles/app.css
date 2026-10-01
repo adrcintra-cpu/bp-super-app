@@ -472,3 +472,27 @@ body.login-open{overflow:hidden;overscroll-behavior:none;touch-action:none}
 
 /* Carrossel mobile: cada produto mantém seu próprio espaço e os cantos respiram. */
 @media(max-width:599px){.product-strip{gap:6px;padding:14px 12px 7px!important;scroll-padding-inline:12px}.product-strip .product-item{width:84px;min-width:84px;flex:0 0 84px;gap:4px}.product-strip .product-item small{max-width:100%;font-size:.65rem;line-height:1.05;letter-spacing:-.035em;text-align:center;white-space:nowrap}}
+
+/* Correções de QA (out/2026). */
+/* A1: o clip-path da animação recortava a lista de resultados; a área de recorte agora se estende para baixo. */
+.global-search{clip-path:inset(0 0 -100vh 100% round 24px)}
+.global-search.open{clip-path:inset(0 0 -100vh 0 round 24px)}
+.global-search .global-search-results button{height:auto;min-height:44px;border-radius:12px;place-items:start;justify-items:start;text-align:left}
+/* A5: itens de grade não podem ser mais largos que a tela (chips em rolagem no modo compacto). */
+[data-screen="bommed"] .medical-layout{grid-template-columns:minmax(0,1fr)}
+[data-screen="bommed"] .medical-layout>*,[data-screen="bommed"] .guide-flow,[data-screen="bommed"] .guide-step{min-width:0}
+.guide-suggestions-empty{padding:14px;color:var(--muted);font-size:.625rem;text-align:center}
+/* M5: status de guia recém-emitida. */
+.soft-badge.info{background:#e8f0fb;color:#2c5c9e}
+/* A3: contato aguardando verificação. */
+.verified.pending{color:#ad641c}
+/* Acessibilidade: alvos de toque de links de texto com pelo menos 24px. */
+.text-link{min-height:28px;display:inline-flex;align-items:center;gap:4px}
+.guide-success .text-link{display:flex;justify-content:center}
+.notice-summary .text-link.compact{padding:0 4px}
+/* Diálogos: centralizados; campo de largura total; ação única. */
+.app-dialog{margin:auto}
+.app-dialog-fields .span-2{grid-column:1/-1}
+.app-dialog-fields textarea[readonly]{min-height:72px;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.625rem;word-break:break-all;resize:none}
+.app-dialog-actions.single-action{display:flex;justify-content:flex-end}
+@media(max-width:599px){.app-dialog-actions.single-action{display:grid;grid-template-columns:1fr}}

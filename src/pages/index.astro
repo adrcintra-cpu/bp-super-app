@@ -5,7 +5,7 @@ import Login from "../components/Login.astro";
 import "../styles/app.css";
 import { mockAppData } from "../data/mockData.js";
 
-const { todayLabel, customer, plan, beneficiaries, billing, communications, guides } = mockAppData;
+const { customer, plan, beneficiaries, billing, communications, guides, guideCatalog } = mockAppData;
 const unreadMessages = communications.filter((message) => message.unread).length;
 const navItems = [
   { id: "inicio", label: "Início", icon: "home" },
@@ -20,7 +20,7 @@ const navItems = [
 
 const shortcuts = [
   { id: "bommed", title: "Gerar guia", text: "Atendimento com até 35% de desconto", icon: "heart-pulse", tone: "blue featured" },
-  { id: "financeiro", title: "2ª via e Pix", text: `Vencimento em ${billing.current.daysUntilDue} dias`, icon: "wallet", tone: "orange" },
+  { id: "financeiro", title: "2ª via e Pix", text: `Vencimento em ${billing.current.daysUntilDue} dias`, dueDays: true, icon: "wallet", tone: "orange" },
   { id: "plano", title: "Meu plano", text: "Contrato e dependentes", icon: "file-text", tone: "purple" },
   { id: "instituto", title: "Pedir apoio", text: "Atendimento confidencial", icon: "heart-handshake", tone: "support-highlight" },
 ];
@@ -55,13 +55,13 @@ const shortcuts = [
         <div class="top-actions">
           <button class="header-search" type="button" data-search-button aria-label="Buscar no aplicativo"><img src="/icons/search.svg" alt="" /></button>
           <button class="profile-button" type="button" data-profile-button aria-expanded="false">
-            <span class="avatar-shell"><span class="avatar">{customer.initials}</span><i aria-label={`${unreadMessages} comunicados não lidos`}>{String(unreadMessages).padStart(2, "0")}</i></span><span class="profile-copy"><small>Bem-vindo,</small><strong>{customer.name}</strong></span><img src="/icons/chevron-right.svg" alt="" />
+            <span class="avatar-shell"><span class="avatar">{customer.initials}</span><i aria-label={`${unreadMessages} comunicados não lidos`}>{unreadMessages}</i></span><span class="profile-copy"><small>Bem-vindo,</small><strong>{customer.name}</strong></span><img src="/icons/chevron-right.svg" alt="" />
           </button>
         </div>
         <div class="global-search" data-global-search hidden>
           <label><img src="/icons/search.svg" alt="" /><input type="search" placeholder="Buscar serviço, guia ou informação" autofocus /></label>
           <button type="button" data-search-close aria-label="Fechar busca"><img src="/icons/x.svg" alt="" /></button>
-          <div class="global-search-results" data-search-results hidden role="listbox" aria-label="Resultados da busca"></div>
+          <div class="global-search-results" data-search-results hidden aria-label="Resultados da busca"></div>
         </div>
         <button class="accessibility-backdrop" type="button" data-accessibility-backdrop aria-label="Fechar opções de acessibilidade" hidden></button>
         <section class="accessibility-panel" id="accessibility-panel" data-accessibility-panel role="dialog" aria-modal="true" aria-labelledby="accessibility-title" hidden>
@@ -91,7 +91,7 @@ const shortcuts = [
       <main class="content" id="conteudo">
         <section class="screen active" data-screen="inicio" aria-labelledby="inicio-title">
           <div class="page-intro intro-home">
-            <div><p class="eyebrow">{todayLabel}</p><h1 id="inicio-title">Olá, <strong>{customer.firstName}.</strong><br />Tudo bem por aí?</h1><p class="intro-text">Seu plano e seus serviços, organizados em um só lugar.</p></div>
+            <div><p class="eyebrow" data-today-label>&nbsp;</p><h1 id="inicio-title">Olá, <strong>{customer.firstName}.</strong><br />Tudo bem por aí?</h1><p class="intro-text">Seu plano e seus serviços, organizados em um só lugar.</p></div>
             <span class="status-pill"><i></i> Plano ativo</span>
           </div>
 
@@ -109,7 +109,7 @@ const shortcuts = [
             <div class="shortcut-grid">
               {shortcuts.map((item, index) => (
                 <button class={`shortcut-card ${item.tone} reveal`} style={`--delay:${index * 70}ms`} type="button" data-route={item.id}>
-                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
+                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small {...(item.dueDays ? { "data-due-text": "Vencimento {n}" } : {})}>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
                 </button>
               ))}
             </div>
@@ -123,7 +123,7 @@ const shortcuts = [
             </article>
             <article class="panel notice-summary reveal">
               <div class="panel-title"><div><p class="eyebrow">COMUNICAÇÃO</p><h3>Avisos recentes</h3></div><button class="text-link compact" type="button" data-route="avisos">Ver todos</button></div>
-              <ul class="mini-list"><li><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><div><strong>Boleto disponível</strong><small>Sua mensalidade vence em {billing.current.daysUntilDue} dias.</small></div><time>2h</time></li><li><span class="list-icon blue"><img src="/icons/heart-pulse.svg" alt="" /></span><div><strong>Nova guia autorizada</strong><small>Disponível para visualização.</small></div><time>Ontem</time></li></ul>
+              <ul class="mini-list"><li><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><div><strong>Boleto disponível</strong><small data-due-text="Sua mensalidade vence {n}.">Sua mensalidade vence em {billing.current.daysUntilDue} dias.</small></div><time>há 2h</time></li><li><span class="list-icon blue"><img src="/icons/heart-pulse.svg" alt="" /></span><div><strong>Nova guia autorizada</strong><small>Disponível para visualização.</small></div><time>ontem</time></li></ul>
             </article>
           </div>
         </section>
@@ -146,16 +146,16 @@ const shortcuts = [
               <div class="profile-completion"><span><small>Cadastro completo</small><strong>92%</strong></span><div class="progress"><span style="width:92%"></span></div></div>
               <button class="button profile-contact-button" data-route="cadastro" data-scroll-target="cadastro-contatos" type="button"><img src="/icons/contact.svg" alt="" /> Gerenciar contatos</button>
             </aside>
-            <form class="panel form-panel" data-demo-form autocomplete="on">
+            <form class="panel form-panel" data-profile-form autocomplete="on">
               <div class="panel-title"><div><p class="eyebrow">INFORMAÇÕES</p><h3>Dados pessoais</h3></div></div>
               <div class="form-grid">
                 <label class="span-2">Nome completo<input value="Fernando Ernerto" autocomplete="name" required minlength="3" /></label>
                 <label>CPF<input value="123.456.789-00" autocomplete="off" disabled /></label>
-                <label>Data de nascimento<input value="12/04/1972" autocomplete="bday" required inputmode="numeric" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" /></label>
-                <label>Estado civil<select autocomplete="off"><option>Casado</option></select></label>
+                <label>Data de nascimento<input value="12/04/1972" autocomplete="bday" required inputmode="numeric" maxlength="10" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" data-birth-date /></label>
+                <label>Estado civil<select autocomplete="off"><option>Solteiro(a)</option><option selected>Casado(a)</option><option>União estável</option><option>Divorciado(a)</option><option>Viúvo(a)</option></select></label>
+                <label>CEP<input value="06454-000" inputmode="numeric" autocomplete="postal-code" data-address-cep required pattern="[0-9]{5}-?[0-9]{3}" /></label>
                 <label class="span-2">Endereço<input value="Al. Rio Negro - Alphaville" autocomplete="address-line1" data-address-field required /><small class="address-autocomplete-status" data-address-status aria-live="polite">Digite o CEP para preencher o endereço automaticamente.</small></label>
                 <label>Número da residência<input value="161" inputmode="numeric" autocomplete="address-line2" data-address-number required /></label>
-                <label>CEP<input value="06454-000" inputmode="numeric" autocomplete="postal-code" data-address-cep required pattern="[0-9]{5}-?[0-9]{3}" /></label>
                 <label>Cidade<input value="Barueri" autocomplete="address-level2" data-address-city required /></label>
                 <label>Estado<input value="SP" maxlength="2" autocomplete="address-level1" data-address-state required pattern="[A-Za-z]{2}" /></label>
               </div>
@@ -167,13 +167,13 @@ const shortcuts = [
               <div><p class="eyebrow">CONTATOS E PREFERÊNCIAS</p><h2 id="cadastro-contatos-title">Onde podemos <strong>falar com você</strong></h2><p class="intro-text">Escolha onde deseja receber boletos, alertas e comunicados.</p></div>
               <button class="button button-primary" type="button" data-add-contact>+ Adicionar contato</button>
             </div>
-            <div class="contact-grid" data-contact-grid><article class="panel contact-card" data-contact-card="email"><span class="contact-icon gradient-blue"><img src="/icons/contact.svg" alt="" /></span><div><small>E-MAIL PRINCIPAL</small><h3>fernando.ernerto@email.com</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> Verificado</span><p>Comunicados, boletos e alertas importantes.</p></div><button class="text-link" type="button" data-edit-contact="email">Editar</button></article><article class="panel contact-card" data-contact-card="phone"><span class="contact-icon gradient-purple"><img src="/icons/phone.svg" alt="" /></span><div><small>TELEFONE PRINCIPAL</small><h3>(11) 99876-5432</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> WhatsApp e SMS</span><p>Canal preferido para confirmações e tokens.</p></div><button class="text-link" type="button" data-edit-contact="phone">Editar</button></article></div>
+            <div class="contact-grid" data-contact-grid><article class="panel contact-card" data-contact-card="email"><span class="contact-icon gradient-blue"><img src="/icons/contact.svg" alt="" /></span><div><small>E-MAIL PRINCIPAL</small><h3>fernando.ernerto@email.com</h3><span class="verified" data-contact-status><img src="/icons/check-circle.svg" alt="" /> Verificado</span><p>Comunicados, boletos e alertas importantes.</p></div><button class="text-link" type="button" data-edit-contact="email">Editar</button></article><article class="panel contact-card" data-contact-card="phone"><span class="contact-icon gradient-purple"><img src="/icons/phone.svg" alt="" /></span><div><small>TELEFONE PRINCIPAL</small><h3>(11) 99876-5432</h3><span class="verified" data-contact-status><img src="/icons/check-circle.svg" alt="" /> WhatsApp e SMS</span><p>Canal preferido para confirmações e tokens.</p></div><button class="text-link" type="button" data-edit-contact="phone">Editar</button></article></div>
           </section>
         </section>
 
         <section class="screen" data-screen="avisos" aria-labelledby="avisos-title">
           <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">CENTRAL DE COMUNICAÇÃO</p><h1 id="avisos-title">Avisos e <strong>comunicados</strong></h1><p class="intro-text">Tudo o que importa sobre seu plano e seus serviços.</p></div><button class="button button-ghost" type="button" data-mark-all-read>Marcar tudo como lido</button></div>
-          <div class="notice-layout"><div class="filter-chips"><button class="active" type="button" data-notice-filter="all">Todos</button><button type="button" data-notice-filter="notice">Avisos</button><button type="button" data-notice-filter="financeiro">Boletos</button><button type="button" data-notice-filter="bommed">BomMed</button><button type="button" data-notice-filter="instituto">Instituto</button></div><article class="panel notice-list">{communications.map((message) => <button class:list={["notice-item", { unread: message.unread }]} type="button" data-notice-item data-notice-category={message.category}><span class:list={["list-icon", message.category === "financeiro" ? "orange" : message.category === "bommed" ? "blue" : message.title.includes("Telefone") ? "green" : "purple"]}><img src={`/icons/${message.category === "financeiro" ? "wallet" : message.category === "bommed" ? "heart-pulse" : message.title.includes("Telefone") ? "check-circle" : "bell"}.svg`} alt="" /></span><span><small>{message.label}</small><strong>{message.title}</strong><p>{message.message}</p></span><time>{message.time}</time></button>)}<p class="notice-empty" data-notice-empty hidden>Nenhum comunicado nesta categoria.</p></article></div>
+          <div class="notice-layout"><div class="filter-chips"><button class="active" type="button" aria-pressed="true" data-notice-filter="all">Todos</button><button type="button" aria-pressed="false" data-notice-filter="notice">Avisos</button><button type="button" aria-pressed="false" data-notice-filter="financeiro">Boletos</button><button type="button" aria-pressed="false" data-notice-filter="bommed">BomMed</button><button type="button" aria-pressed="false" data-notice-filter="instituto">Instituto</button></div><article class="panel notice-list">{communications.map((message) => <button class:list={["notice-item", { unread: message.unread }]} type="button" data-notice-item data-notice-category={message.category}><span class:list={["list-icon", message.category === "financeiro" ? "orange" : message.category === "bommed" ? "blue" : message.title.includes("Telefone") ? "green" : "purple"]}><img src={`/icons/${message.category === "financeiro" ? "wallet" : message.category === "bommed" ? "heart-pulse" : message.title.includes("Telefone") ? "check-circle" : "bell"}.svg`} alt="" /></span><span><small>{message.label}</small><strong>{message.title}</strong><p>{message.message}</p></span><time>{message.time}</time></button>)}<p class="notice-empty" data-notice-empty hidden>Nenhum comunicado nesta categoria.</p></article></div>
         </section>
 
         <section class="screen" data-screen="plano" aria-labelledby="plano-title">
@@ -189,12 +189,12 @@ const shortcuts = [
             <article class="panel plan-members" id="plan-members">
               <div class="panel-title"><div><p class="eyebrow">BENEFICIÁRIOS</p><h3>Quem está protegido</h3></div><span class="plan-count">4 pessoas</span></div>
               <ul class="member-list">
-                <li><span class="member-avatar titular">FE</span><span><strong>Fernando Ernerto</strong><small>Titular • CPF final 42</small></span><span class="soft-badge success">Ativo</span></li>
+                <li><span class="member-avatar titular">FE</span><span><strong>Fernando Ernerto</strong><small>Titular • CPF final 00</small></span><span class="soft-badge success">Ativo</span></li>
                 <li><span class="member-avatar">JS</span><span><strong>João da Silva</strong><small>Cônjuge • CPF final 18</small></span><span class="soft-badge success">Ativo</span></li>
                 <li><span class="member-avatar">AS</span><span><strong>Ana da Silva</strong><small>Filha • 17 anos</small></span><span class="soft-badge success">Ativo</span></li>
                 <li><span class="member-avatar">LS</span><span><strong>Lucas da Silva</strong><small>Filho • 12 anos</small></span><span class="soft-badge success">Ativo</span></li>
               </ul>
-              <button class="text-link" type="button" data-toast="Gestão de beneficiários aberta">Gerenciar beneficiários →</button>
+              <button class="text-link" type="button" data-toast="Em breve: a gestão de beneficiários estará disponível no app">Gerenciar beneficiários →</button>
             </article>
 
             <article class="panel plan-coverages" id="plan-coverages">
@@ -205,13 +205,13 @@ const shortcuts = [
                 <div><span class="coverage-icon teal"><img src="/icons/heart-handshake.svg" alt="" /></span><strong>Apoio emocional</strong><small>Instituto do Luto</small></div>
                 <div><span class="coverage-icon orange"><img src="/icons/phone.svg" alt="" /></span><strong>Central exclusiva</strong><small>Suporte para a família</small></div>
               </div>
-              <button class="text-link" type="button" data-download="coberturas">Ver manual de coberturas →</button>
+              <button class="text-link" type="button" data-download="coberturas">Baixar manual de coberturas →</button>
             </article>
           </div>
 
           <div class="plan-bottom-grid">
             <article class="panel contract-summary"><span class="contract-icon"><img src="/icons/file-text.svg" alt="" /></span><div><p class="eyebrow">CONTRATO</p><h3>BP-2018-0315-248197</h3><p>Vigência contínua desde 15/03/2018. Última atualização em 04/01/2026.</p></div><button class="button button-ghost" type="button" data-download="contrato"><img src="/icons/download.svg" alt="" /> Baixar documento</button></article>
-            <article class="plan-help-card"><img src="/icons/contact.svg" alt="" /><div><small>PRECISA DE AJUDA?</small><strong>Fale com a equipe do seu plano</strong></div><button type="button" data-toast="Canal de atendimento aberto">Atendimento →</button></article>
+            <article class="plan-help-card"><img src="/icons/contact.svg" alt="" /><div><small>PRECISA DE AJUDA?</small><strong>Fale com a equipe do seu plano</strong></div><button type="button" data-toast="Em breve: atendimento pelo app. Ligue para a central do seu plano">Atendimento →</button></article>
           </div>
         </section>
 
@@ -254,21 +254,21 @@ const shortcuts = [
 
         <section class="screen" data-screen="financeiro" aria-labelledby="financeiro-title">
           <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">FINANCEIRO</p><h1 id="financeiro-title">Pagamentos <strong>em dia</strong></h1><p class="intro-text">Consulte faturas, copie o código ou pague com Pix.</p></div><span class="soft-badge warning">1 fatura em aberto</span></div>
-          <div class="finance-tabs" role="tablist" aria-label="Visualização financeira"><button class="active" type="button" role="tab" aria-selected="true" data-finance-tab="open">Em aberto <span>1</span></button><button type="button" role="tab" aria-selected="false" data-finance-tab="paid">Pagas</button><button type="button" role="tab" aria-selected="false" data-finance-tab="history">Histórico</button></div>
+          <div class="finance-tabs" role="tablist" aria-label="Visualização financeira"><button class="active" type="button" role="tab" id="finance-tab-open" aria-controls="finance-panel-open" aria-selected="true" tabindex="0" data-finance-tab="open">Em aberto <span>1</span></button><button type="button" role="tab" id="finance-tab-paid" aria-controls="finance-panel-paid" aria-selected="false" tabindex="-1" data-finance-tab="paid">Pagas</button><button type="button" role="tab" id="finance-tab-history" aria-controls="finance-panel-history" aria-selected="false" tabindex="-1" data-finance-tab="history">Histórico</button></div>
 
-          <div class="finance-view" data-finance-view="open">
+          <div class="finance-view" id="finance-panel-open" role="tabpanel" aria-labelledby="finance-tab-open" data-finance-view="open">
             <div class="billing-layout">
-              <article class="invoice-card"><div class="invoice-top"><p class="eyebrow light">FATURA • {billing.current.month}</p><span>Em aberto</span></div><div class="invoice-main"><span><small>VALOR TOTAL</small><strong>{billing.current.amount}</strong></span><span><small>VENCIMENTO</small><strong>{billing.current.dueDate}</strong></span></div><div class="due-line"><span><i></i> Vence em {billing.current.daysUntilDue} dias</span><small>Sem juros até o vencimento</small></div><div class="invoice-actions"><button class="button button-light" type="button" data-download="boleto"><img src="/icons/download.svg" alt="" /> 2ª via boleto</button><button class="button button-glass" type="button" data-copy="23793381286008211850404074951009198770000007990"><img src="/icons/copy.svg" alt="" /> Copiar código</button></div></article>
-              <article class="panel pix-card"><div><p class="eyebrow">PIX</p><h3>Pagamento imediato</h3><p>Aponte a câmera do aplicativo do seu banco.</p><span class="expires"><img src="/icons/clock.svg" alt="" /> Expira em 30 minutos</span><button class="text-link" type="button" data-copy="00020126580014BR.GOV.BCB.PIX0136bom-pastor-demo">Copiar Pix →</button></div><div class="fake-qr"><img src="/icons/qr-code.svg" alt="QR Code ilustrativo" /></div></article>
+              <article class="invoice-card"><div class="invoice-top"><p class="eyebrow light">FATURA • {billing.current.month}</p><span>Em aberto</span></div><div class="invoice-main"><span><small>VALOR TOTAL</small><strong>{billing.current.amount}</strong></span><span><small>VENCIMENTO</small><strong>{billing.current.dueDate}</strong></span></div><div class="due-line"><span><i></i> <span data-due-text="Vence {n}">Vence em {billing.current.daysUntilDue} dias</span></span><small>Sem juros até o vencimento</small></div><div class="invoice-actions"><button class="button button-light" type="button" data-download="boleto"><img src="/icons/download.svg" alt="" /> 2ª via boleto</button><button class="button button-glass" type="button" data-copy={billing.current.barcodeDigits} data-copy-label="Código de barras"><img src="/icons/copy.svg" alt="" /> Copiar código</button></div></article>
+              <article class="panel pix-card"><div><p class="eyebrow">PIX</p><h3>Pagamento imediato</h3><p>Copie o código Pix e cole na área Pix Copia e Cola do app do seu banco.</p><span class="expires"><img src="/icons/clock.svg" alt="" /> Válido até o vencimento</span><button class="text-link" type="button" data-copy={billing.current.pixCode} data-copy-label="Código Pix">Copiar Pix →</button></div><div class="fake-qr"><img src="/icons/qr-code.svg" alt="QR Code ilustrativo (demonstração)" /></div></article>
             </div>
-            <article class="panel barcode-card"><span class="barcode-icon"><img src="/icons/pix.svg" alt="" /></span><div><p class="eyebrow">LINHA DIGITÁVEL</p><strong>23793.38128 60082.118504 04074.951009 1 98770000007990</strong><small>Confira os dados do beneficiário antes de concluir o pagamento.</small></div><button class="button button-ghost" type="button" data-copy="23793381286008211850404074951009198770000007990">Copiar linha</button></article>
+            <article class="panel barcode-card"><span class="barcode-icon"><img src="/icons/pix.svg" alt="" /></span><div><p class="eyebrow">LINHA DIGITÁVEL</p><strong>{billing.current.barcode}</strong><small>Confira os dados do beneficiário antes de concluir o pagamento.</small></div><button class="button button-ghost" type="button" data-copy={billing.current.barcodeDigits} data-copy-label="Linha digitável">Copiar linha</button></article>
           </div>
 
-          <div class="finance-view" data-finance-view="paid" hidden>
-            <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">FATURAS PAGAS</p><h3>Pagamentos confirmados</h3></div><span class="soft-badge success">Tudo em dia</span></div><ul class="payment-list">{billing.paid.map((payment) => <li><span>{payment.month}</span><strong>{payment.amount}</strong><small>Pago em {payment.paidAt}</small><span class="soft-badge success">Pago</span></li>)}</ul></article>
+          <div class="finance-view" id="finance-panel-paid" role="tabpanel" aria-labelledby="finance-tab-paid" data-finance-view="paid" hidden>
+            <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">FATURAS PAGAS</p><h3>Últimos pagamentos</h3></div><span class="soft-badge success">Tudo em dia</span></div><ul class="payment-list">{billing.paid.map((payment) => <li><span>{payment.month}</span><strong>{payment.amount}</strong><small>Pago em {payment.paidAt}</small><span class="soft-badge success">Pago</span></li>)}</ul></article>
           </div>
 
-          <div class="finance-view" data-finance-view="history" hidden>
+          <div class="finance-view" id="finance-panel-history" role="tabpanel" aria-labelledby="finance-tab-history" data-finance-view="history" hidden>
             <div class="finance-history-summary"><article class="panel"><small>PAGAMENTOS EM {billing.yearSummary.year}</small><strong>{billing.yearSummary.payments}</strong><span>Todos confirmados</span></article><article class="panel"><small>TOTAL NO PERÍODO</small><strong>{billing.yearSummary.total}</strong><span>{billing.yearSummary.period}</span></article><article class="panel"><small>PONTUALIDADE</small><strong>100%</strong><span>Nenhum atraso</span></article></div>
             <article class="panel history-card"><div class="panel-title"><div><p class="eyebrow">HISTÓRICO FINANCEIRO</p><h3>Movimentações recentes</h3></div><button class="button button-ghost" type="button" data-download="extrato"><img src="/icons/download.svg" alt="" /> Extrato anual</button></div><ul class="payment-list">{billing.paid.map((payment) => <li><span>{payment.month}</span><strong>{payment.amount}</strong><small>{payment.method} • {payment.paidAt}</small><span class="soft-badge success">Confirmado</span></li>)}</ul></article>
           </div>
@@ -293,9 +293,8 @@ const shortcuts = [
                 <label class="guide-beneficiary"><span>Para quem é a guia?</span><select data-guide-beneficiary>{beneficiaries.map((person) => <option>{person.name}{person.role === "Titular" ? " (Titular)" : ""}</option>)}</select></label>
                 <div class="guide-search-block"><label for="guide-search">Encontre o atendimento</label><div class="guide-search"><img src="/icons/search.svg" alt="" /><input id="guide-search" type="search" autocomplete="off" placeholder="Busque por especialidade ou profissional" role="combobox" aria-expanded="false" data-guide-search /></div>
                   <div class="guide-suggestions" data-guide-suggestions hidden>
-                    <button type="button" data-guide-option data-specialty="Cardiologia" data-professional=""><strong>Cardiologia</strong><small>Especialidade</small></button>
-                    <button type="button" data-guide-option data-specialty="Cardiologia" data-professional="Dr. Paulo Andrade"><strong>Dr. Paulo Andrade</strong><small>Cardiologia</small></button>
-                    <button type="button" data-guide-option data-specialty="Cardiologia" data-professional="Dra. Lúcia Mendes"><strong>Dra. Lúcia Mendes</strong><small>Cardiologia</small></button>
+                    {guideCatalog.map((option) => <button type="button" data-guide-option data-category={option.category} data-specialty={option.specialty} data-professional={option.professional || ""}><strong>{option.professional || option.specialty}</strong><small>{option.professional ? option.specialty : "Especialidade"}</small></button>)}
+                    <p class="guide-suggestions-empty" data-guide-suggestions-empty role="status" hidden>Nenhum resultado. Tente outro termo ou escolha outra categoria.</p>
                   </div>
                 </div>
                 <div class="guide-selection" data-guide-selection hidden><div><small data-guide-category-copy>CONSULTA</small><strong data-guide-specialty>Cardiologia</strong><span data-guide-professional>Dr. Paulo Andrade</span></div><div><small>BENEFICIÁRIO</small><strong data-guide-beneficiary-copy>Fernando Ernerto (Titular)</strong></div><button class="button button-primary" type="button" data-guide-review>Gerar guia</button></div>
@@ -313,14 +312,14 @@ const shortcuts = [
 
         <section class="screen" data-screen="instituto" aria-labelledby="instituto-title">
           <article class="support-hero"><div class="support-glow"></div><div><button class="page-back page-back-light" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow light">INSTITUTO DO LUTO</p><h1 id="instituto-title">Você não está <strong>sozinho.</strong></h1><p>Acolhimento profissional, gratuito e confidencial para titulares e dependentes.</p><button class="button button-light" type="button" data-focus-support>Abrir solicitação de apoio</button></div><span class="support-symbol"><img src="/icons/heart-handshake.svg" alt="" /></span></article>
-          <div class="support-layout"><form class="panel support-form" data-demo-form><div class="panel-title"><div><p class="eyebrow">NOVO PROTOCOLO</p><h3>Como podemos ajudar?</h3></div></div><fieldset><legend>Tipo de apoio</legend><label class="radio-card"><input type="radio" name="apoio" checked /><span><strong>Acolhimento individual</strong><small>Conversa reservada com um profissional.</small></span></label><label class="radio-card"><input type="radio" name="apoio" /><span><strong>Grupo de apoio</strong><small>Encontros mediados em um ambiente seguro.</small></span></label><label class="radio-card"><input type="radio" name="apoio" /><span><strong>Apoio familiar</strong><small>Orientação para toda a família.</small></span></label></fieldset><label>Mensagem opcional<textarea rows="4" placeholder="Conte brevemente como podemos ajudar..."></textarea></label><button class="button button-primary full" type="submit">Abrir protocolo</button></form><aside class="privacy-note"><img src="/icons/shield-check.svg" alt="" /><h3>Seu espaço é seguro</h3><p>As informações compartilhadas são confidenciais e usadas apenas para direcionar o acolhimento.</p><span>Retorno em até 24 horas úteis</span></aside></div>
+          <div class="support-layout"><form class="panel support-form" data-support-form><div class="panel-title"><div><p class="eyebrow">NOVO PROTOCOLO</p><h3>Como podemos ajudar?</h3></div></div><fieldset><legend>Tipo de apoio</legend><label class="radio-card"><input type="radio" name="apoio" value="Acolhimento individual" checked /><span><strong>Acolhimento individual</strong><small>Conversa reservada com um profissional.</small></span></label><label class="radio-card"><input type="radio" name="apoio" value="Grupo de apoio" /><span><strong>Grupo de apoio</strong><small>Encontros mediados em um ambiente seguro.</small></span></label><label class="radio-card"><input type="radio" name="apoio" value="Apoio familiar" /><span><strong>Apoio familiar</strong><small>Orientação para toda a família.</small></span></label></fieldset><label>Para quem é o apoio?<select name="beneficiario">{beneficiaries.map((person) => <option>{person.name} — {person.role}</option>)}</select></label><label>Mensagem opcional<textarea name="mensagem" rows="4" maxlength="1000" placeholder="Conte brevemente como podemos ajudar..."></textarea></label><button class="button button-primary full" type="submit">Abrir protocolo</button></form><aside class="privacy-note"><img src="/icons/shield-check.svg" alt="" /><h3>Seu espaço é seguro</h3><p>As informações compartilhadas são confidenciais e usadas apenas para direcionar o acolhimento.</p><span>Retorno em até 24 horas úteis</span></aside></div>
         </section>
       </main>
     </div>
 
     <nav class="bottom-nav" aria-label="Navegação mobile"><button class="active" type="button" data-route="inicio"><img src="/icons/home.svg" alt="" /><span>Início</span></button><button type="button" data-route="plano"><img src="/icons/umbrella.svg" alt="" /><span>Meu Plano</span></button><button type="button" data-route="carteirinha"><img src="/icons/credit-card.svg" alt="" /><span>Carteirinha</span></button><button type="button" data-menu-open><img src="/icons/menu.svg" alt="" /><span>Menu</span></button></nav>
 
-    <div class="mobile-drawer" data-drawer aria-hidden="true"><button class="drawer-backdrop" type="button" data-menu-close aria-label="Fechar menu"></button><aside><div class="drawer-head"><a class="brand" href="#inicio" data-route="inicio"><img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></a><button class="icon-button" type="button" data-menu-close><img src="/icons/x.svg" alt="" /></button></div><nav>{navItems.map((item) => (<button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button"><img src={`/icons/${item.icon}.svg`} alt="" /><span>{item.label}</span>{item.badge && <span class="nav-badge">{item.badge}</span>}</button>))}</nav></aside></div>
+    <div class="mobile-drawer" data-drawer aria-hidden="true" inert><button class="drawer-backdrop" type="button" data-menu-close aria-label="Fechar menu" tabindex="-1"></button><aside role="dialog" aria-modal="true" aria-label="Menu"><div class="drawer-head"><a class="brand" href="#inicio" data-route="inicio"><img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></a><button class="icon-button" type="button" data-menu-close aria-label="Fechar menu"><img src="/icons/x.svg" alt="" /></button></div><nav>{navItems.map((item) => (<button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button"><img src={`/icons/${item.icon}.svg`} alt="" /><span>{item.label}</span>{item.badge && <span class="nav-badge">{item.badge}</span>}</button>))}</nav></aside></div>
 
     <Login />
     <FeedbackLayer />
@@ -340,6 +339,38 @@ const shortcuts = [
     let isAuthenticated = sessionStorage.getItem('bp-master-authenticated') === 'true';
     let toastTimer;
     function showToast(message) { toast.querySelector('span').textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2600); }
+    const normalizeText = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
+    const today = new Date();
+    const monthsShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+    const shortDate = date => `${String(date.getDate()).padStart(2, '0')} ${monthsShort[date.getMonth()]}`;
+    const todayLabelEl = document.querySelector('[data-today-label]');
+    if (todayLabelEl) todayLabelEl.textContent = today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^./, c => c.toUpperCase()).toLocaleUpperCase('pt-BR');
+    const dueIso = mockData.billing?.current?.dueDateISO;
+    if (dueIso) {
+      const [y, m, d] = dueIso.split('-').map(Number);
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const days = Math.round((new Date(y, m - 1, d) - startOfToday) / 86400000);
+      const when = days > 1 ? `em ${days} dias` : days === 1 ? 'amanhã' : days === 0 ? 'hoje' : `há ${Math.abs(days)} dia${days === -1 ? '' : 's'}`;
+      document.querySelectorAll('[data-due-text]').forEach(el => { el.textContent = el.dataset.dueText.replace('{n}', when); });
+    }
+    const onlyDigits = value => String(value ?? '').replace(/\D/g, '');
+    const maskCpf = value => onlyDigits(value).slice(0, 11).replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+    const isValidCpf = value => {
+      const cpf = onlyDigits(value);
+      if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+      const digit = len => { let sum = 0; for (let i = 0; i < len; i += 1) sum += Number(cpf[i]) * (len + 1 - i); const rest = (sum * 10) % 11; return rest === 10 ? 0 : rest; };
+      return digit(9) === Number(cpf[9]) && digit(10) === Number(cpf[10]);
+    };
+    const maskDate = value => onlyDigits(value).slice(0, 8).replace(/^(\d{2})(\d)/, '$1/$2').replace(/^(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
+    const parseBirthDate = value => {
+      const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value || ''); if (!match) return null;
+      const [, d, m, y] = match.map(Number); const date = new Date(y, m - 1, d);
+      if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+      if (y < 1900 || date > today) return null;
+      return date;
+    };
+    const maskPhone = value => { const digits = onlyDigits(value).slice(0, 11); if (digits.length <= 10) return digits.replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d{1,4})$/, '$1-$2'); return digits.replace(/^(\d{2})(\d{5})(\d{0,4})$/, '($1) $2-$3'); };
+    const isValidPhone = value => /^\d{10,11}$/.test(onlyDigits(value)) && Number(onlyDigits(value).slice(0, 2)) >= 11;
     const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
     const appDialog = document.querySelector('[data-app-dialog]');
     const dialogForm = appDialog.querySelector('[data-dialog-form]');
@@ -347,15 +378,18 @@ const shortcuts = [
     let dialogSubmitHandler = null;
     let dialogLastFocus = null;
     const closeDialog = () => { if (appDialog.open) appDialog.close(); };
-    const openDialog = ({ eyebrow = 'ATUALIZAÇÃO', title, description = '', fields = '', submitLabel = 'Salvar', onSubmit }) => {
+    const openDialog = ({ eyebrow = 'ATUALIZAÇÃO', title, description = '', fields = '', submitLabel = 'Salvar', onSubmit, hideCancel = false, onOpen }) => {
       dialogLastFocus = document.activeElement;
       appDialog.querySelector('[data-dialog-eyebrow]').textContent = eyebrow;
       appDialog.querySelector('[data-dialog-title]').textContent = title;
       appDialog.querySelector('[data-dialog-description]').textContent = description;
       dialogFields.innerHTML = fields;
       appDialog.querySelector('[data-dialog-submit]').textContent = submitLabel;
+      appDialog.querySelector('[data-dialog-cancel]').hidden = hideCancel;
+      appDialog.querySelector('.app-dialog-actions').classList.toggle('single-action', hideCancel);
       dialogSubmitHandler = onSubmit;
       appDialog.showModal();
+      onOpen?.(dialogFields);
       requestAnimationFrame(() => dialogFields.querySelector('input,select,textarea,button')?.focus());
     };
     appDialog.addEventListener('close', () => {
@@ -387,7 +421,7 @@ const shortcuts = [
       screens.forEach(screen => screen.classList.toggle('active', screen === target));
       routeButtons.forEach(button => button.classList.toggle('active', button.dataset.route === route));
       if (productMenu) productMenu.hidden = route !== 'inicio';
-      drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open');
+      closeDrawer(false);
       if (updateHash && location.hash !== `#${route}`) history.pushState({ route }, '', `#${route}`);
       const section = scrollTarget && document.getElementById(scrollTarget);
       if (section) requestAnimationFrame(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }));
@@ -395,8 +429,29 @@ const shortcuts = [
       requestAnimationFrame(() => target.querySelectorAll('.reveal').forEach(el => el.classList.add('visible')));
     }
     routeButtons.forEach(button => button.addEventListener('click', event => { event.preventDefault(); navigate(button.dataset.route, true, button.dataset.scrollTarget); const accountMenu = document.querySelector('[data-profile-popover]'); if (accountMenu) accountMenu.hidden = true; document.querySelector('[data-profile-button]')?.setAttribute('aria-expanded', 'false'); }));
-    document.querySelectorAll('[data-menu-open]').forEach(button => button.addEventListener('click', () => { drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); document.body.classList.add('menu-open'); }));
-    document.querySelectorAll('[data-menu-close]').forEach(button => button.addEventListener('click', () => { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open'); }));
+    let drawerOpener = null;
+    function openDrawer(opener) {
+      drawerOpener = opener || document.activeElement;
+      drawer.inert = false; drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); document.body.classList.add('menu-open');
+      const focusFirst = () => { if (drawer.classList.contains('open') && !drawer.contains(document.activeElement)) (drawer.querySelector('nav .nav-item.active') || drawer.querySelector('nav .nav-item'))?.focus(); };
+      requestAnimationFrame(focusFirst);
+      window.setTimeout(focusFirst, 400);
+    }
+    function closeDrawer(restoreFocus = true) {
+      const wasOpen = drawer.classList.contains('open');
+      drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); drawer.inert = true; document.body.classList.remove('menu-open');
+      if (wasOpen && restoreFocus && drawerOpener instanceof HTMLElement && drawerOpener.isConnected) drawerOpener.focus();
+      if (wasOpen) drawerOpener = null;
+    }
+    document.querySelectorAll('[data-menu-open]').forEach(button => button.addEventListener('click', () => openDrawer(button)));
+    document.querySelectorAll('[data-menu-close]').forEach(button => button.addEventListener('click', () => closeDrawer()));
+    drawer.addEventListener('keydown', event => {
+      if (event.key !== 'Tab' || !drawer.classList.contains('open')) return;
+      const focusable = [...drawer.querySelectorAll('aside a[href], aside button:not(:disabled)')];
+      const first = focusable[0]; const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
     const searchButton = document.querySelector('[data-search-button]'); const globalSearch = document.querySelector('[data-global-search]');
     const searchInput = globalSearch.querySelector('input');
     const openSearch = () => {
@@ -419,23 +474,27 @@ const shortcuts = [
     document.querySelector('[data-search-close]').addEventListener('click', closeSearch);
     const searchResults = document.querySelector('[data-search-results]');
     const searchCatalog = [
-      ['Início', 'Visão geral, atalhos e mensalidade', 'inicio'], ['Meu cadastro', 'Dados pessoais, endereço e contatos', 'cadastro'],
-      ['Comunicação', 'Avisos e mensagens recebidas', 'avisos'], ['Plano e contrato', 'Beneficiários, coberturas e contrato', 'plano'],
-      ['Carteirinha', 'Carteirinha digital e código do benefício', 'carteirinha'], ['Financeiro', 'Boleto, Pix, faturas e extrato', 'financeiro'],
-      ['Minhas Guias', 'Gerar guia, consultas, exames e histórico', 'bommed'], ['Instituto do Luto', 'Solicitar acolhimento e apoio emocional', 'instituto']
+      ['Início', 'Visão geral, atalhos e mensalidade', 'inicio', 'home painel resumo'], ['Meu cadastro', 'Dados pessoais, endereço e contatos', 'cadastro', 'perfil cpf cep email e-mail telefone whatsapp foto dados'],
+      ['Comunicação', 'Avisos e mensagens recebidas', 'avisos', 'notificacoes comunicados mensagens'], ['Plano e contrato', 'Beneficiários, coberturas e contrato', 'plano', 'dependentes dependente conjuge filhos cobertura 2a via 2ª via segunda via contrato'],
+      ['Carteirinha', 'Carteirinha digital e código do benefício', 'carteirinha', 'qr code qrcode cartao parceiro beneficio desconto'], ['Financeiro', 'Boleto, Pix, faturas e extrato', 'financeiro', '2a via 2ª via segunda via mensalidade pagamento pagar linha digitavel codigo de barras'],
+      ['Minhas Guias', 'Gerar guia, consultas, exames e histórico', 'bommed', 'bommed medico consulta exame cardiologia clinico pediatria dermatologia terapia fisioterapia psicologia odontologia'], ['Instituto do Luto', 'Solicitar acolhimento e apoio emocional', 'instituto', 'luto apoio psicologico acolhimento protocolo']
     ];
     const renderGlobalSearch = () => {
-      const query = searchInput.value.trim().toLocaleLowerCase('pt-BR');
-      if (!query) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
-      const matches = searchCatalog.filter(item => item.join(' ').toLocaleLowerCase('pt-BR').includes(query)).slice(0, 6);
-      searchResults.innerHTML = matches.length ? matches.map(([title, text, route]) => `<button type="button" role="option" data-search-route="${route}"><strong>${title}</strong><small>${text}</small></button>`).join('') : '<p>Nenhum resultado encontrado.</p>';
+      const query = normalizeText(searchInput.value);
+      if (!query) { searchResults.hidden = true; searchResults.innerHTML = ''; searchResults.removeAttribute('role'); return; }
+      const terms = query.split(/\s+/);
+      const matches = searchCatalog.filter(item => { const haystack = normalizeText(item.join(' ')); return terms.every(term => haystack.includes(term)); }).slice(0, 6);
+      if (matches.length) searchResults.setAttribute('role', 'listbox'); else searchResults.removeAttribute('role');
+      searchResults.innerHTML = matches.length ? matches.map(([title, text, route]) => `<button type="button" role="option" data-search-route="${route}"><strong>${title}</strong><small>${text}</small></button>`).join('') : '<p role="status">Nenhum resultado encontrado.</p>';
       searchResults.hidden = false;
       searchResults.querySelectorAll('[data-search-route]').forEach(button => button.addEventListener('click', () => { navigate(button.dataset.searchRoute); searchInput.value = ''; searchResults.hidden = true; closeSearch(); }));
     };
     searchInput.addEventListener('input', renderGlobalSearch);
     searchInput.addEventListener('keydown', event => { if (event.key === 'Enter') { const first = searchResults.querySelector('[data-search-route]'); if (first) { event.preventDefault(); first.click(); } } if (event.key === 'Escape') closeSearch(); });
     const profileButton = document.querySelector('[data-profile-button]'); const profilePopover = document.querySelector('[data-profile-popover]');
+    const closeProfilePopover = () => { profilePopover.hidden = true; profileButton.setAttribute('aria-expanded', 'false'); };
     profileButton.addEventListener('click', () => { const open = profilePopover.hasAttribute('hidden'); profilePopover.toggleAttribute('hidden', !open); profileButton.setAttribute('aria-expanded', String(open)); });
+    document.addEventListener('click', event => { if (!profilePopover.hidden && !profilePopover.contains(event.target) && !profileButton.contains(event.target)) closeProfilePopover(); });
     const accessibilityButton = document.querySelector('[data-accessibility-button]');
     const accessibilityPanel = document.querySelector('[data-accessibility-panel]');
     const accessibilityBackdrop = document.querySelector('[data-accessibility-backdrop]');
@@ -444,7 +503,8 @@ const shortcuts = [
     const fontActions = [...document.querySelectorAll('[data-font-action]')];
     const fontScales = [0.9, 1, 1.1, 1.2, 1.3];
     let fontScaleIndex = Math.max(0, fontScales.indexOf(Number(document.documentElement.dataset.fontLevel || 1.1)));
-    const fontLevelLabel = index => index === 0 ? 'Texto reduzido' : index === 1 ? 'Tamanho padrão' : `Texto aumentado +${index - 1}`;
+    const defaultFontIndex = 2;
+    const fontLevelLabel = index => index === defaultFontIndex ? 'Tamanho padrão' : index < defaultFontIndex ? `Texto reduzido −${defaultFontIndex - index}` : `Texto aumentado +${index - defaultFontIndex}`;
     const applyFontScale = (index, persist = true) => {
       fontScaleIndex = Math.max(0, Math.min(fontScales.length - 1, index));
       const scale = fontScales[fontScaleIndex];
@@ -456,10 +516,11 @@ const shortcuts = [
       const increase = document.querySelector('[data-font-action="increase"]');
       decrease.disabled = fontScaleIndex === 0;
       increase.disabled = fontScaleIndex === fontScales.length - 1;
-      standard.setAttribute('aria-pressed', String(fontScaleIndex === 1));
+      standard.setAttribute('aria-pressed', String(fontScaleIndex === defaultFontIndex));
       if (persist) { try { localStorage.setItem('accessibility-font-scale', String(scale)); } catch {} }
     };
     const openAccessibility = () => {
+      closeProfilePopover();
       accessibilityPanel.hidden = false;
       accessibilityBackdrop.hidden = false;
       accessibilityButton.setAttribute('aria-expanded', 'true');
@@ -472,17 +533,17 @@ const shortcuts = [
       accessibilityBackdrop.hidden = true;
       accessibilityButton.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('accessibility-open');
-      accessibilityButton.focus();
+      profileButton.focus();
     };
     accessibilityButton.addEventListener('click', () => accessibilityPanel.hidden ? openAccessibility() : closeAccessibility());
     accessibilityClose.addEventListener('click', closeAccessibility);
     accessibilityBackdrop.addEventListener('click', closeAccessibility);
     fontActions.forEach(button => button.addEventListener('click', () => {
       if (button.dataset.fontAction === 'decrease') applyFontScale(fontScaleIndex - 1);
-      if (button.dataset.fontAction === 'default') applyFontScale(1);
+      if (button.dataset.fontAction === 'default') applyFontScale(defaultFontIndex);
       if (button.dataset.fontAction === 'increase') applyFontScale(fontScaleIndex + 1);
     }));
-    document.querySelector('[data-font-reset]').addEventListener('click', () => applyFontScale(1));
+    document.querySelector('[data-font-reset]').addEventListener('click', () => applyFontScale(defaultFontIndex));
     accessibilityPanel.addEventListener('keydown', event => {
       if (event.key === 'Escape') { event.preventDefault(); closeAccessibility(); return; }
       if (event.key !== 'Tab') return;
@@ -496,7 +557,7 @@ const shortcuts = [
       if (!accessibilityPanel.hidden) closeAccessibility();
       if (!globalSearch.hidden) closeSearch();
       if (!profilePopover.hidden) { profilePopover.hidden = true; profileButton.setAttribute('aria-expanded', 'false'); profileButton.focus(); }
-      if (drawer.classList.contains('open')) { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); document.body.classList.remove('menu-open'); }
+      if (drawer.classList.contains('open')) closeDrawer();
     });
     applyFontScale(fontScaleIndex, false);
     const profilePhotoInput = document.querySelector('[data-profile-photo-input]');
@@ -519,17 +580,22 @@ const shortcuts = [
     const addressCity = document.querySelector('[data-address-city]');
     const addressState = document.querySelector('[data-address-state]');
     const addressStatus = document.querySelector('[data-address-status]');
+    const addressNumber = document.querySelector('[data-address-number]');
+    let lastResolvedCep = (addressCep?.value || '').replace(/\D/g, '');
     const localAddresses = { '06454000': { street: 'Al. Rio Negro - Alphaville', city: 'Barueri', state: 'SP' } };
     let cepLookupController;
     const completeAddress = async (announce = true) => {
       const cep = addressCep?.value.replace(/\D/g, '') || '';
-      if (cep.length !== 8) { addressStatus.textContent = 'Digite um CEP válido com 8 números.'; return; }
+      if (cep.length !== 8) { addressStatus.textContent = 'Digite um CEP válido com 8 números.'; addressCep.setCustomValidity('Digite um CEP válido com 8 números.'); return; }
+      const cepChanged = cep !== lastResolvedCep;
       if (localAddresses[cep]) {
         const address = localAddresses[cep];
         addressField.value = address.street;
         addressCity.value = address.city;
         addressState.value = address.state;
         addressStatus.textContent = 'Endereço preenchido automaticamente pelo CEP.';
+        addressCep.setCustomValidity('');
+        if (cepChanged) { addressNumber.value = ''; lastResolvedCep = cep; if (announce) addressNumber.focus(); }
         if (announce) showToast('Endereço localizado pelo CEP');
         return;
       }
@@ -540,23 +606,31 @@ const shortcuts = [
         const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { signal: cepLookupController.signal });
         if (!response.ok) throw new Error('Falha na consulta');
         const data = await response.json();
-        if (data.erro) { addressStatus.textContent = 'CEP não encontrado. Confira os números.'; return; }
+        if (data.erro) { addressStatus.textContent = 'CEP não encontrado. Confira os números.'; addressCep.setCustomValidity('CEP não encontrado. Confira os números.'); return; }
         addressField.value = [data.logradouro, data.bairro].filter(Boolean).join(' - ');
         addressCity.value = data.localidade || '';
         addressState.value = data.uf || '';
         addressStatus.textContent = 'Endereço preenchido automaticamente. Complete o número.';
+        addressCep.setCustomValidity('');
+        if (cepChanged) { addressNumber.value = ''; lastResolvedCep = cep; if (announce) addressNumber.focus(); }
         if (announce) showToast('Endereço localizado pelo CEP');
       } catch (error) {
-        if (error.name !== 'AbortError') addressStatus.textContent = 'Não foi possível consultar agora. Digite o endereço manualmente.';
+        if (error.name !== 'AbortError') { addressStatus.textContent = 'Não foi possível consultar agora. Digite o endereço manualmente.'; addressCep.setCustomValidity(''); }
       }
     };
     addressCep?.addEventListener('input', () => {
       const digits = addressCep.value.replace(/\D/g, '').slice(0, 8);
       addressCep.value = digits.replace(/^(\d{5})(\d)/, '$1-$2');
+      addressCep.setCustomValidity(digits.length === 8 ? '' : 'Digite um CEP válido com 8 números.');
       if (digits.length === 8) completeAddress();
     });
-    addressCep?.addEventListener('blur', () => completeAddress(false));
+    addressCep?.addEventListener('blur', () => { if (addressCep.value.replace(/\D/g, '') !== lastResolvedCep) completeAddress(false); });
     completeAddress(false);
+    function bindCpfInputs(root) {
+      root.querySelectorAll('[data-cpf-input]').forEach(input => input.addEventListener('input', () => { input.value = maskCpf(input.value); input.setCustomValidity(onlyDigits(input.value).length === 11 && !isValidCpf(input.value) ? 'CPF inválido. Confira os números.' : ''); }));
+      root.querySelectorAll('[data-date-input]').forEach(input => input.addEventListener('input', () => { input.value = maskDate(input.value); input.setCustomValidity(input.value.length === 10 && !parseBirthDate(input.value) ? 'Data inválida.' : ''); }));
+      root.querySelectorAll('[data-phone-input]').forEach(input => input.addEventListener('input', () => { input.value = maskPhone(input.value); }));
+    }
     const collaboratorList = document.querySelector('[data-collaborator-list]');
     const collaboratorSearch = document.querySelector('[data-collaborator-search]');
     const collaboratorEmpty = document.querySelector('[data-collaborator-empty]');
@@ -570,23 +644,63 @@ const shortcuts = [
     document.querySelectorAll('[data-collaborator-action]').forEach(bindCollaboratorAction);
     document.querySelector('[data-add-collaborator]')?.addEventListener('click', () => openDialog({
       eyebrow: 'BOM CORP', title: 'Adicionar colaborador', description: 'Inclua os dados essenciais para iniciar o cadastro.', submitLabel: 'Adicionar',
-      fields: '<label>Nome completo<input name="name" required autocomplete="name" /></label><label>E-mail<input name="email" type="email" required autocomplete="email" /></label><label>CPF<input name="cpf" required inputmode="numeric" placeholder="000.000.000-00" /></label><label>Plano<select name="plan"><option>BomMed +</option><option>BomPet</option><option>BomAuto</option><option>TOTAL+</option></select></label>',
-      onSubmit: form => { const name = form.get('name').trim(); const email = form.get('email').trim(); if (!name || !email) return false; const row = document.createElement('tr'); row.innerHTML = `<td><span class="person"><b>${escapeHtml(initialsFor(name))}</b><span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(email)}</small></span></span></td><td>${escapeHtml(form.get('cpf'))}</td><td>${escapeHtml(form.get('plan'))}</td><td><span class="soft-badge warning">Pendente</span></td><td><button class="row-action" type="button" data-collaborator-action aria-label="Opções de ${escapeHtml(name)}">⋯</button></td>`; collaboratorList.append(row); bindCollaboratorAction(row.querySelector('[data-collaborator-action]')); const count = document.querySelector('[data-collaborator-count]'); count.textContent = String(Number(count.textContent) + 1); showToast('Colaborador adicionado'); }
+      fields: '<label>Nome completo<input name="name" required autocomplete="name" /></label><label>E-mail<input name="email" type="email" required autocomplete="email" /></label><label>CPF<input name="cpf" required inputmode="numeric" maxlength="14" placeholder="000.000.000-00" data-cpf-input /></label><label>Plano<select name="plan"><option>BomMed +</option><option>BomPet</option><option>BomAuto</option><option>TOTAL+</option></select></label>',
+      onOpen: bindCpfInputs,
+      onSubmit: form => { const name = form.get('name').trim(); const email = form.get('email').trim(); if (!name || !email) return false; const cpfInput = dialogFields.querySelector('[data-cpf-input]'); if (!isValidCpf(form.get('cpf'))) { cpfInput.setCustomValidity('CPF inválido. Confira os números.'); cpfInput.reportValidity(); return false; } const maskedCpf = maskCpf(form.get('cpf')).replace(/^(\d{3})\.\d{3}\.\d{3}-(\d{2})$/, '$1.***.***-$2'); const row = document.createElement('tr'); row.innerHTML = `<td><span class="person"><b>${escapeHtml(initialsFor(name))}</b><span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(email)}</small></span></span></td><td>${escapeHtml(maskedCpf)}</td><td>${escapeHtml(form.get('plan'))}</td><td><span class="soft-badge warning">Pendente</span></td><td><button class="row-action" type="button" data-collaborator-action aria-label="Opções de ${escapeHtml(name)}">⋯</button></td>`; collaboratorList.append(row); bindCollaboratorAction(row.querySelector('[data-collaborator-action]')); const count = document.querySelector('[data-collaborator-count]'); count.textContent = String(Number(count.textContent) + 1); showToast('Colaborador adicionado'); }
     }));
     collaboratorSearch?.addEventListener('input', () => { const query = collaboratorSearch.value.trim().toLocaleLowerCase('pt-BR'); let visible = 0; [...collaboratorList.rows].forEach(row => { const match = !query || row.textContent.toLocaleLowerCase('pt-BR').includes(query); row.hidden = !match; if (match) visible += 1; }); collaboratorEmpty.hidden = visible > 0; });
 
     const contactGrid = document.querySelector('[data-contact-grid]');
-    const contactFieldMarkup = (kind = 'email', value = '') => `<label>Tipo<select name="kind"><option value="email" ${kind === 'email' ? 'selected' : ''}>E-mail</option><option value="phone" ${kind === 'phone' ? 'selected' : ''}>Telefone / WhatsApp</option></select></label><label>Contato<input name="value" required value="${escapeHtml(value)}" ${kind === 'email' ? 'type="email"' : 'inputmode="tel"'} /></label>`;
-    const editContact = button => { const card = button.closest('[data-contact-card]'); const kind = card.dataset.contactCard; const value = card.querySelector('h3').textContent; openDialog({ eyebrow: 'MEU CADASTRO', title: 'Editar contato', description: 'A alteração será refletida nas preferências de comunicação.', fields: contactFieldMarkup(kind, value), onSubmit: form => { const nextValue = form.get('value').trim(); if (!nextValue) return false; card.querySelector('h3').textContent = nextValue; showToast('Contato atualizado'); } }); };
+    const contactFieldMarkup = (kind = 'email', value = '') => `<label>Tipo<select name="kind" data-contact-kind><option value="email" ${kind === 'email' ? 'selected' : ''}>E-mail</option><option value="phone" ${kind === 'phone' ? 'selected' : ''}>Telefone</option></select></label><label>Contato<input name="value" required value="${escapeHtml(value)}" data-contact-value /></label>`;
+    const applyContactKind = root => {
+      const kindSelect = root.querySelector('[data-contact-kind]'); const input = root.querySelector('[data-contact-value]');
+      const sync = (clear = false) => {
+        const isPhone = kindSelect.value === 'phone';
+        if (clear) input.value = '';
+        input.type = isPhone ? 'tel' : 'email';
+        input.inputMode = isPhone ? 'tel' : 'email';
+        input.autocomplete = isPhone ? 'tel' : 'email';
+        input.placeholder = isPhone ? '(11) 91234-5678' : 'nome@email.com';
+        input.setCustomValidity('');
+      };
+      kindSelect.addEventListener('change', () => { sync(true); input.focus(); });
+      input.addEventListener('input', () => { if (kindSelect.value === 'phone') input.value = maskPhone(input.value); input.setCustomValidity(''); });
+      sync(false);
+    };
+    const validateContact = (kind, value, input) => {
+      if (kind === 'phone' && !isValidPhone(value)) { input.setCustomValidity('Informe um telefone com DDD, ex.: (11) 91234-5678.'); input.reportValidity(); return false; }
+      if (kind === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) { input.setCustomValidity('Informe um e-mail válido.'); input.reportValidity(); return false; }
+      return true;
+    };
+    const pendingStatus = '<img src="/icons/clock.svg" alt="" /> Pendente de verificação';
+    const editContact = button => {
+      const card = button.closest('[data-contact-card]'); const kind = card.dataset.contactCard; const value = card.querySelector('h3').textContent;
+      openDialog({ eyebrow: 'MEU CADASTRO', title: 'Editar contato', description: 'Enviaremos um código para confirmar o novo contato.', fields: contactFieldMarkup(kind, value), onOpen: applyContactKind, onSubmit: form => {
+        const nextKind = form.get('kind'); const input = dialogFields.querySelector('[data-contact-value]');
+        const nextValue = String(form.get('value')).trim(); if (!nextValue || !validateContact(nextKind, nextValue, input)) return false;
+        if (nextValue === value && nextKind === kind) return;
+        card.dataset.contactCard = nextKind;
+        card.querySelector('h3').textContent = nextKind === 'phone' ? maskPhone(nextValue) : nextValue;
+        const status = card.querySelector('[data-contact-status]'); if (status) { status.innerHTML = pendingStatus; status.classList.add('pending'); }
+        showToast('Contato atualizado. Confirme pelo código enviado');
+      } });
+    };
     document.querySelectorAll('[data-edit-contact]').forEach(button => button.addEventListener('click', () => editContact(button)));
-    document.querySelector('[data-add-contact]')?.addEventListener('click', () => openDialog({ eyebrow: 'MEU CADASTRO', title: 'Adicionar contato', description: 'Adicione um novo canal para receber comunicados.', fields: contactFieldMarkup(), submitLabel: 'Adicionar', onSubmit: form => { const kind = form.get('kind'); const value = form.get('value').trim(); if (!value) return false; const card = document.createElement('article'); card.className = 'panel contact-card'; card.dataset.contactCard = kind; card.innerHTML = `<span class="contact-icon ${kind === 'email' ? 'gradient-blue' : 'gradient-purple'}"><img src="/icons/${kind === 'email' ? 'contact' : 'phone'}.svg" alt="" /></span><div><small>${kind === 'email' ? 'E-MAIL' : 'TELEFONE / WHATSAPP'}</small><h3>${escapeHtml(value)}</h3><span class="verified"><img src="/icons/check-circle.svg" alt="" /> Pendente de verificação</span><p>Canal adicional para seus comunicados.</p></div><button class="text-link" type="button" data-edit-contact>Editar</button>`; contactGrid.append(card); card.querySelector('[data-edit-contact]').addEventListener('click', event => editContact(event.currentTarget)); showToast('Contato adicionado'); } }));
+    document.querySelector('[data-add-contact]')?.addEventListener('click', () => openDialog({ eyebrow: 'MEU CADASTRO', title: 'Adicionar contato', description: 'Adicione um novo canal para receber comunicados.', fields: contactFieldMarkup(), submitLabel: 'Adicionar', onOpen: applyContactKind, onSubmit: form => {
+      const kind = form.get('kind'); const input = dialogFields.querySelector('[data-contact-value]');
+      const value = String(form.get('value')).trim(); if (!value || !validateContact(kind, value, input)) return false;
+      const shown = kind === 'phone' ? maskPhone(value) : value;
+      const card = document.createElement('article'); card.className = 'panel contact-card'; card.dataset.contactCard = kind;
+      card.innerHTML = `<span class="contact-icon ${kind === 'email' ? 'gradient-blue' : 'gradient-purple'}"><img src="/icons/${kind === 'email' ? 'contact' : 'phone'}.svg" alt="" /></span><div><small>${kind === 'email' ? 'E-MAIL' : 'TELEFONE / WHATSAPP'}</small><h3>${escapeHtml(shown)}</h3><span class="verified pending" data-contact-status>${pendingStatus}</span><p>Canal adicional para seus comunicados.</p></div><button class="text-link" type="button" data-edit-contact>Editar</button>`;
+      contactGrid.append(card); card.querySelector('[data-edit-contact]').addEventListener('click', event => editContact(event.currentTarget)); showToast('Contato adicionado. Confirme pelo código enviado');
+    } }));
 
     const noticeItems = [...document.querySelectorAll('[data-notice-item]')];
     const noticeEmpty = document.querySelector('[data-notice-empty]');
-    const syncUnreadCount = () => { const count = noticeItems.filter(item => item.classList.contains('unread')).length; document.querySelectorAll('.nav-badge,.profile-menu-badge,.avatar-shell i').forEach(badge => { badge.textContent = badge.matches('.avatar-shell i') ? String(count).padStart(2, '0') : String(count); badge.hidden = count === 0; badge.setAttribute('aria-label', `${count} comunicados não lidos`); }); };
-    const openNotice = item => { item.classList.remove('unread'); syncUnreadCount(); const category = item.querySelector('small').textContent; const title = item.querySelector('strong').textContent; const message = item.querySelector('p').textContent; openDialog({ eyebrow: category, title, description: message, fields: '<div class="dialog-information"><strong>Mensagem recebida</strong><p>Este comunicado foi marcado como lido e permanece disponível na sua central.</p></div>', submitLabel: 'Entendi', onSubmit: () => showToast('Comunicado lido') }); };
+    const syncUnreadCount = () => { const count = noticeItems.filter(item => item.classList.contains('unread')).length; document.querySelectorAll('.nav-badge,.profile-menu-badge,.avatar-shell i').forEach(badge => { badge.textContent = String(count); badge.hidden = count === 0; badge.setAttribute('aria-label', `${count} comunicados não lidos`); }); };
+    const openNotice = item => { item.classList.remove('unread'); syncUnreadCount(); const category = item.querySelector('small').textContent; const title = item.querySelector('strong').textContent; const message = item.querySelector('p').textContent; openDialog({ eyebrow: category, title, description: message, fields: '<div class="dialog-information"><strong>Mensagem recebida</strong><p>Este comunicado foi marcado como lido e permanece disponível na sua central.</p></div>', submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} }); };
     noticeItems.forEach(item => item.addEventListener('click', () => openNotice(item)));
-    document.querySelectorAll('[data-notice-filter]').forEach(button => button.addEventListener('click', () => { const category = button.dataset.noticeFilter; document.querySelectorAll('[data-notice-filter]').forEach(item => item.classList.toggle('active', item === button)); let visible = 0; noticeItems.forEach(item => { const match = category === 'all' || item.dataset.noticeCategory === category; item.hidden = !match; if (match) visible += 1; }); noticeEmpty.hidden = visible > 0; }));
+    document.querySelectorAll('[data-notice-filter]').forEach(button => button.addEventListener('click', () => { const category = button.dataset.noticeFilter; document.querySelectorAll('[data-notice-filter]').forEach(item => { item.classList.toggle('active', item === button); item.setAttribute('aria-pressed', String(item === button)); }); let visible = 0; noticeItems.forEach(item => { const match = category === 'all' || item.dataset.noticeCategory === category; item.hidden = !match; if (match) visible += 1; }); noticeEmpty.hidden = visible > 0; }));
     document.querySelector('[data-mark-all-read]')?.addEventListener('click', () => { noticeItems.forEach(item => item.classList.remove('unread')); syncUnreadCount(); showToast('Todos os comunicados foram marcados como lidos'); });
     syncUnreadCount();
 
@@ -606,9 +720,37 @@ const shortcuts = [
       setTimeout(() => URL.revokeObjectURL(url), 1000); showToast('Documento baixado');
     }));
     document.querySelectorAll('[data-scroll-to]').forEach(button => button.addEventListener('click', () => document.getElementById(button.dataset.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' })));
-    document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => { try { await navigator.clipboard.writeText(button.dataset.copy); showToast('Código copiado com sucesso'); } catch { showToast('Código pronto para copiar'); } }));
+    const copyText = async (text, label = 'Código') => {
+      try { await navigator.clipboard.writeText(text); showToast(`${label} copiado`); }
+      catch {
+        openDialog({ eyebrow: 'COPIAR', title: label, description: 'Não foi possível copiar automaticamente. Selecione o texto abaixo e copie manualmente.', fields: `<label class="span-2">${escapeHtml(label)}<textarea readonly rows="3" data-copy-fallback>${escapeHtml(text)}</textarea></label>`, submitLabel: 'Fechar', hideCancel: true, onOpen: root => { const area = root.querySelector('[data-copy-fallback]'); requestAnimationFrame(() => { area.focus(); area.select(); }); }, onSubmit: () => {} });
+      }
+    };
+    document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', () => copyText(button.dataset.copy, button.dataset.copyLabel || 'Código')));
     document.querySelectorAll('[data-toast]').forEach(button => button.addEventListener('click', () => showToast(button.dataset.toast)));
-    document.querySelectorAll('[data-demo-form]').forEach(form => form.addEventListener('submit', event => { event.preventDefault(); if (form.classList.contains('support-form')) { const protocol = `BP-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`; form.reset(); showToast(`Protocolo ${protocol} aberto com sucesso`); } else showToast('Informações salvas com sucesso'); }));
+    const brazilStates = new Set(['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO']);
+    const profileForm = document.querySelector('[data-profile-form]');
+    const birthInput = profileForm?.querySelector('[data-birth-date]');
+    const stateInput = profileForm?.querySelector('[data-address-state]');
+    birthInput?.addEventListener('input', () => { birthInput.value = maskDate(birthInput.value); birthInput.setCustomValidity(''); });
+    stateInput?.addEventListener('input', () => { stateInput.value = stateInput.value.toLocaleUpperCase('pt-BR'); stateInput.setCustomValidity(''); });
+    profileForm?.querySelectorAll('input[required]').forEach(input => input.addEventListener('input', () => { if (input !== addressCep) input.setCustomValidity(''); }));
+    profileForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      profileForm.querySelectorAll('input[required]').forEach(input => { if (input !== addressCep && !input.value.trim()) input.setCustomValidity('Preencha este campo.'); });
+      if (birthInput && !parseBirthDate(birthInput.value)) birthInput.setCustomValidity('Informe uma data de nascimento válida (DD/MM/AAAA).');
+      if (stateInput && !brazilStates.has(stateInput.value.trim().toUpperCase())) stateInput.setCustomValidity('Informe uma UF válida, ex.: SP.');
+      if (!profileForm.reportValidity()) return;
+      showToast('Alterações salvas nesta demonstração');
+    });
+    const supportForm = document.querySelector('[data-support-form]');
+    supportForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      const data = new FormData(supportForm);
+      const protocol = `AP-${today.getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`;
+      openDialog({ eyebrow: 'INSTITUTO DO LUTO', title: 'Protocolo aberto', description: 'Guarde este número. Nossa equipe retorna em até 24 horas úteis.', fields: `<div class="dialog-information"><strong>${escapeHtml(protocol)}</strong><p>${escapeHtml(data.get('apoio'))}<br />Para: ${escapeHtml(data.get('beneficiario'))}</p></div>`, submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} });
+      supportForm.reset();
+    });
     document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => {
       profilePopover.hidden = true;
       profileButton.setAttribute('aria-expanded', 'false');
@@ -640,7 +782,7 @@ const shortcuts = [
       clearLoginError();
       const validCredentials = loginUser.value.trim().toLocaleLowerCase('pt-BR') === 'teste' && passwordInput.value === '1234';
       if (!validCredentials) {
-        loginError.textContent = 'Usuário ou senha incorretos. Use teste e 1234 para acessar.';
+        loginError.textContent = 'Usuário ou senha incorretos. Confira os dados e tente novamente.';
         loginError.hidden = false;
         loginUser.setAttribute('aria-invalid', 'true');
         passwordInput.setAttribute('aria-invalid', 'true');
@@ -662,18 +804,34 @@ const shortcuts = [
     });
     document.querySelectorAll('[data-account-flow]').forEach(button => button.addEventListener('click', () => {
       const firstAccess = button.dataset.accountFlow === 'first-access';
-      openDialog({ eyebrow: 'ACESSO SEGURO', title: firstAccess ? 'Primeiro acesso' : 'Recuperar senha', description: firstAccess ? 'Confirme seus dados para ativar a sua conta.' : 'Enviaremos as instruções para o contato cadastrado.', fields: `<label>CPF<input name="cpf" required inputmode="numeric" placeholder="000.000.000-00" /></label>${firstAccess ? '<label>Data de nascimento<input name="birth" required placeholder="DD/MM/AAAA" inputmode="numeric" /></label>' : '<label>E-mail ou telefone<input name="contact" required autocomplete="email" /></label>'}`, submitLabel: firstAccess ? 'Continuar cadastro' : 'Enviar instruções', onSubmit: () => showToast(firstAccess ? 'Dados validados. Continue pelo link enviado' : 'Instruções de recuperação enviadas') });
+      openDialog({ eyebrow: 'ACESSO SEGURO', title: firstAccess ? 'Primeiro acesso' : 'Recuperar senha', description: firstAccess ? 'Confirme seus dados para ativar a sua conta.' : 'Enviaremos as instruções para o contato cadastrado.', fields: `<label${firstAccess ? '' : ' class="span-2"'}>CPF<input name="cpf" required inputmode="numeric" maxlength="14" placeholder="000.000.000-00" data-cpf-input /></label>${firstAccess ? '<label>Data de nascimento<input name="birth" required placeholder="DD/MM/AAAA" inputmode="numeric" maxlength="10" data-date-input /></label>' : ''}`, submitLabel: firstAccess ? 'Continuar cadastro' : 'Enviar instruções', onOpen: bindCpfInputs, onSubmit: form => {
+        const cpfInput = dialogFields.querySelector('[data-cpf-input]');
+        if (!isValidCpf(form.get('cpf'))) { cpfInput.setCustomValidity('CPF inválido. Confira os números.'); cpfInput.reportValidity(); return false; }
+        if (firstAccess) { const birth = dialogFields.querySelector('[data-date-input]'); if (!parseBirthDate(form.get('birth'))) { birth.setCustomValidity('Data inválida.'); birth.reportValidity(); return false; } }
+        showToast(firstAccess ? 'Dados validados. Continue pelo link enviado' : 'Se o CPF estiver cadastrado, enviaremos as instruções ao contato principal');
+      } });
     }));
     document.querySelector('[data-focus-support]')?.addEventListener('click', () => document.querySelector('.support-form textarea')?.focus());
-    let generatedGuide = { category: 'Consulta', specialty: 'Cardiologia', professional: 'Dr. Paulo Andrade', beneficiary: 'Fernando Ernerto', id: 'BP-2026-0929' };
-    document.querySelector('[data-open-guide]')?.addEventListener('click', () => openDialog({ eyebrow: 'GUIA BOMMED', title: 'Guia autorizada', description: `Documento ${generatedGuide.id} pronto para apresentação no atendimento.`, fields: `<div class="dialog-information"><strong>${escapeHtml(generatedGuide.beneficiary)}</strong><p>${escapeHtml(generatedGuide.category)} • ${escapeHtml(generatedGuide.specialty)}<br />${escapeHtml(generatedGuide.professional || 'Profissional definido na guia')}<br />Desconto de até 35%</p></div>`, submitLabel: 'Fechar', onSubmit: () => {} }));
+    let generatedGuide = { category: 'Consulta', specialty: 'Cardiologia', professional: 'Dr. Paulo Andrade', beneficiary: 'Fernando Ernerto', id: 'BP-2026-0918' };
+    const nextGuideId = () => `BP-${today.getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+    document.querySelector('[data-open-guide]')?.addEventListener('click', () => openDialog({ eyebrow: 'GUIA BOMMED', title: 'Guia autorizada', description: `Documento ${generatedGuide.id} pronto para apresentação no atendimento.`, fields: `<div class="dialog-information"><strong>${escapeHtml(generatedGuide.beneficiary)}</strong><p>${escapeHtml(generatedGuide.category)} • ${escapeHtml(generatedGuide.specialty)}<br />${escapeHtml(generatedGuide.professional || 'Profissional definido na guia')}<br />Desconto de até 35%</p></div>`, submitLabel: 'Fechar', hideCancel: true, onSubmit: () => {} }));
     document.querySelector('[data-share-guide]')?.addEventListener('click', async () => { const shareData = { title: 'Guia BomMed', text: `${generatedGuide.id}: ${generatedGuide.category} — ${generatedGuide.specialty}, para ${generatedGuide.beneficiary}.` }; try { if (navigator.share) await navigator.share(shareData); else { await navigator.clipboard.writeText(shareData.text); showToast('Resumo da guia copiado para compartilhar'); } } catch (error) { if (error.name !== 'AbortError') showToast('Não foi possível compartilhar agora'); } });
     const financeTabs = [...document.querySelectorAll('[data-finance-tab]')];
     const financeViews = [...document.querySelectorAll('[data-finance-view]')];
-    financeTabs.forEach(tab => tab.addEventListener('click', () => {
-      financeTabs.forEach(item => { const active = item === tab; item.classList.toggle('active', active); item.setAttribute('aria-selected', String(active)); });
+    const selectFinanceTab = (tab, focus = false) => {
+      financeTabs.forEach(item => { const active = item === tab; item.classList.toggle('active', active); item.setAttribute('aria-selected', String(active)); item.tabIndex = active ? 0 : -1; });
       financeViews.forEach(view => view.hidden = view.dataset.financeView !== tab.dataset.financeTab);
-    }));
+      if (focus) tab.focus();
+    };
+    financeTabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectFinanceTab(tab));
+      tab.addEventListener('keydown', event => {
+        const keys = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: financeTabs.length - 1 };
+        if (!(event.key in keys)) return;
+        event.preventDefault();
+        selectFinanceTab(financeTabs[(keys[event.key] + financeTabs.length) % financeTabs.length], true);
+      });
+    });
     const guideFlow = document.querySelector('[data-guide-flow]');
     if (guideFlow) {
       const usageHistory = document.querySelector('[data-screen="bommed"] .usage-history');
@@ -682,6 +840,7 @@ const shortcuts = [
       const search = guideFlow.querySelector('[data-guide-search]');
       const suggestions = guideFlow.querySelector('[data-guide-suggestions]');
       const options = [...guideFlow.querySelectorAll('[data-guide-option]')];
+      const suggestionsEmpty = guideFlow.querySelector('[data-guide-suggestions-empty]');
       const selection = guideFlow.querySelector('[data-guide-selection]');
       const beneficiary = guideFlow.querySelector('[data-guide-beneficiary]');
       const start = guideFlow.querySelector('[data-guide-step="start"]');
@@ -708,20 +867,23 @@ const shortcuts = [
         categoryButtons.forEach(item => item.classList.toggle('active', item === button));
         details.hidden = false;
         selection.hidden = true;
+        state.specialty = ''; state.professional = '';
+        suggestions.hidden = true;
         search.value = '';
         search.placeholder = state.category === 'Consulta' ? 'Busque por especialidade ou profissional' : `Busque por ${state.category.toLowerCase()}`;
         window.setTimeout(() => search.focus(), 180);
       }));
       const filterSuggestions = () => {
-        const query = search.value.trim().toLocaleLowerCase('pt-BR');
+        const query = normalizeText(search.value);
         let visibleCount = 0;
         options.forEach(option => {
-          const visible = !query || option.textContent.toLocaleLowerCase('pt-BR').includes(query);
+          const visible = option.dataset.category === state.category && (!query || normalizeText(option.textContent).includes(query));
           option.hidden = !visible;
           if (visible) visibleCount += 1;
         });
-        suggestions.hidden = visibleCount === 0;
-        search.setAttribute('aria-expanded', String(visibleCount > 0));
+        suggestionsEmpty.hidden = visibleCount > 0;
+        suggestions.hidden = false;
+        search.setAttribute('aria-expanded', 'true');
       };
       search.addEventListener('focus', filterSuggestions);
       search.addEventListener('input', filterSuggestions);
@@ -745,19 +907,19 @@ const shortcuts = [
       });
       guideFlow.querySelector('[data-guide-back]').addEventListener('click', () => { confirm.hidden = true; start.hidden = false; details.hidden = false; });
       guideFlow.querySelector('[data-guide-generate]').addEventListener('click', () => {
-        generatedGuide = { ...state, beneficiary: beneficiary.value.replace(' (Titular)', ''), id: `BP-2026-${String(Date.now()).slice(-6)}` };
+        generatedGuide = { ...state, beneficiary: beneficiary.value.replace(' (Titular)', ''), id: nextGuideId() };
         confirm.hidden = true;
         success.hidden = false;
         const list = document.querySelector('[data-guide-history-list]');
         const item = document.createElement('li');
-        item.innerHTML = `<button type="button" data-guide-history><time>29 SET</time><span><strong>${escapeHtml(generatedGuide.specialty)}</strong><small>${escapeHtml(generatedGuide.professional || 'Profissional definido na guia')}</small></span><span class="soft-badge success">Concluído</span></button><div hidden><b>Guia ${escapeHtml(generatedGuide.id)}</b><span>${escapeHtml(generatedGuide.beneficiary)} • desconto de 35%</span></div>`;
+        item.innerHTML = `<button type="button" data-guide-history><time>${shortDate(today)}</time><span><strong>${escapeHtml(generatedGuide.specialty)}</strong><small>${escapeHtml(generatedGuide.professional || 'Profissional definido na guia')} • ${escapeHtml(generatedGuide.beneficiary)}</small></span><span class="soft-badge info">Autorizada</span></button><div hidden><b>Guia ${escapeHtml(generatedGuide.id)}</b><span>${escapeHtml(generatedGuide.beneficiary)} • desconto de até 35%</span></div>`;
         list?.prepend(item);
         const historyButton = item.querySelector('[data-guide-history]');
         historyButton?.addEventListener('click', () => { const detail = item.querySelector('div'); const open = detail.hidden; detail.hidden = !open; item.classList.toggle('open', open); });
         showToast('Guia BomMed gerada com sucesso');
       });
       guideFlow.querySelector('[data-guide-new]').addEventListener('click', () => {
-        success.hidden = true; start.hidden = false; details.hidden = true; selection.hidden = true; suggestions.hidden = true;
+        success.hidden = true; start.hidden = false; details.hidden = true; selection.hidden = true; suggestions.hidden = true; suggestionsEmpty.hidden = true;
         state.category = ''; state.specialty = ''; state.professional = ''; search.value = ''; search.setAttribute('aria-expanded', 'false');
         categoryButtons.forEach(item => item.classList.remove('active'));
         requestAnimationFrame(syncGuideDensity);
@@ -773,10 +935,10 @@ const shortcuts = [
     const guideHistorySearch = document.querySelector('[data-guide-history-search]');
     const guideHistoryEmpty = document.querySelector('[data-guide-history-empty]');
     guideHistorySearch?.addEventListener('input', () => {
-      const query = guideHistorySearch.value.trim().toLocaleLowerCase('pt-BR');
+      const query = normalizeText(guideHistorySearch.value);
       let visibleItems = 0;
       document.querySelectorAll('[data-guide-history-list] > li').forEach(item => {
-        const visible = !query || item.textContent.toLocaleLowerCase('pt-BR').includes(query);
+        const visible = !query || normalizeText(item.textContent).includes(query);
         item.hidden = !visible;
         if (visible) visibleItems += 1;
       });
@@ -803,10 +965,9 @@ const shortcuts = [
     };
     walletBeneficiary?.addEventListener('change', updateWalletBeneficiary);
     walletScreen && new MutationObserver(applyWalletStatus).observe(walletScreen, { attributes: true, attributeFilter: ['data-card-status'] });
-    walletScreen?.querySelector('[data-wallet-copy]')?.addEventListener('click', async () => {
+    walletScreen?.querySelector('[data-wallet-copy]')?.addEventListener('click', () => {
       const code = walletScreen.querySelector('[data-wallet-benefit-code]').textContent.trim();
-      try { await navigator.clipboard.writeText(code); showToast('Código copiado'); }
-      catch { showToast('Código pronto para copiar'); }
+      copyText(code, 'Código do benefício');
     });
     updateWalletBeneficiary();
     applyWalletStatus();
@@ -824,6 +985,7 @@ const shortcuts = [
     window.addEventListener('popstate', () => {
       if (!isAuthenticated) { showLogin(true); return; }
       const route = location.hash.slice(1);
+      if (route === 'contatos') { navigate('cadastro', false, 'cadastro-contatos'); return; }
       const safeRoute = individualRoutes.has(route) ? route : 'inicio';
       if (safeRoute !== route) history.replaceState({ route: safeRoute }, '', `#${safeRoute}`);
       navigate(safeRoute, false);

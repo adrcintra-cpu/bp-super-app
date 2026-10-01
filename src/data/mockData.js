@@ -40,10 +40,15 @@ export const mockBilling = {
   current: {
     month: "OUTUBRO 2026",
     dueDate: "10/10/2026",
+    dueDateISO: "2026-10-10",
     dueShort: "10 OUT",
-    daysUntilDue: 11,
+    daysUntilDue: 9,
     amount: "R$ 79,90",
-    barcode: "23793.38128 60082.118504 04074.951009 1 98770000007990",
+    // Dados fictícios, mas com DVs e fator de vencimento válidos (FEBRABAN, fator 1595 = 10/10/2026).
+    barcode: "23793.81284 60082.118500 40749.510091 1 15950000007990",
+    barcodeDigits: "23793812846008211850040749510091115950000007990",
+    // BR Code estruturalmente válido (CRC16 correto) com chave aleatória inexistente.
+    pixCode: "00020126580014br.gov.bcb.pix01365f8e2b7a-1c4d-4e9a-9b3f-0d6c2a8e4b71520400005303986540579.905802BR5916GRUPO BOM PASTOR6007BARUERI62130509BP2026OUT6304D609",
   },
   paid: [
     { month: "SET 2026", amount: "R$ 79,90", paidAt: "08/09", method: "Pix" },
@@ -54,7 +59,7 @@ export const mockBilling = {
 };
 
 export const mockCommunications = [
-  { category: "financeiro", unread: true, label: "FINANCEIRO", title: "Boleto disponível", message: "Sua mensalidade de outubro vence em 11 dias.", time: "há 2h" },
+  { category: "financeiro", unread: true, label: "FINANCEIRO", title: "Boleto disponível", message: "Sua mensalidade de outubro vence em 10/10.", time: "há 2h" },
   { category: "bommed", unread: true, label: "BOMMED", title: "Nova guia autorizada", message: "Guia médica autorizada para Dr. Paulo Andrade.", time: "ontem" },
   { category: "notice", unread: false, label: "CADASTRO", title: "Telefone confirmado", message: "Seu novo telefone foi verificado com sucesso.", time: "2 dias" },
   { category: "notice", unread: false, label: "COMUNICADO", title: "Novo benefício disponível", message: "Conheça as novas vantagens para titulares.", time: "5 dias" },
@@ -66,12 +71,36 @@ export const mockGuides = [
   { date: "22 AGO", specialty: "Exame laboratorial", professional: "Lab Bom Pastor", id: "BP-2026-0822", beneficiary: "Fernando Ernerto", discount: "25%" },
 ];
 
+// Catálogo da rede BomMed por tipo de atendimento (dados de demonstração).
+export const mockGuideCatalog = [
+  { category: "Consulta", specialty: "Cardiologia" },
+  { category: "Consulta", specialty: "Cardiologia", professional: "Dr. Paulo Andrade" },
+  { category: "Consulta", specialty: "Clínico geral" },
+  { category: "Consulta", specialty: "Clínico geral", professional: "Dra. Lúcia Mendes" },
+  { category: "Consulta", specialty: "Dermatologia" },
+  { category: "Consulta", specialty: "Pediatria" },
+  { category: "Exames", specialty: "Exame laboratorial", professional: "Lab Bom Pastor" },
+  { category: "Exames", specialty: "Hemograma completo" },
+  { category: "Exames", specialty: "Ultrassonografia" },
+  { category: "Exames", specialty: "Raio-X" },
+  { category: "Terapias", specialty: "Fisioterapia" },
+  { category: "Terapias", specialty: "Psicologia" },
+  { category: "Terapias", specialty: "Fonoaudiologia" },
+  { category: "Terapias", specialty: "Nutrição" },
+  { category: "Procedimentos", specialty: "Pequenos procedimentos ambulatoriais" },
+  { category: "Procedimentos", specialty: "Vacinação" },
+  { category: "Procedimentos", specialty: "Endoscopia" },
+  { category: "Outros", specialty: "Odontologia" },
+  { category: "Outros", specialty: "Óptica" },
+  { category: "Outros", specialty: "Farmácia" },
+];
+
 export const mockAppData = {
-  todayLabel: "TERÇA-FEIRA, 29 DE SETEMBRO",
   customer: mockCustomer,
   plan: mockPlan,
   beneficiaries: mockBeneficiaries,
   billing: mockBilling,
   communications: mockCommunications,
   guides: mockGuides,
+  guideCatalog: mockGuideCatalog,
 };
