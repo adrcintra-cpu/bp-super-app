@@ -793,6 +793,7 @@ const shortcuts = [
     const readRemembered = () => { try { return JSON.parse(localStorage.getItem('bp-remembered-doc') || 'null'); } catch { return null; } };
     const writeRemembered = doc => { try { if (doc) localStorage.setItem('bp-remembered-doc', JSON.stringify(doc)); else localStorage.removeItem('bp-remembered-doc'); } catch {} };
 
+    const lockMessage = () => (login$.account?.kind === 'empresa' ? 'Por segurança, a senha ficou bloqueada por 15 minutos. Tente de novo mais tarde ou ligue 0800 950 1010.' : 'Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.');
     const showLoginError = (message, input) => {
       loginEls.error.textContent = message; loginEls.error.hidden = false;
       if (input) { input.setAttribute('aria-invalid', 'true'); input.focus(); }
@@ -814,7 +815,7 @@ const shortcuts = [
         password: account?.kind === 'empresa'
           ? { title: account.name, hint: `${privateDoc(login$.doc)} · Digite a senha do administrador da empresa.`, submit: 'Entrar', a: ['Esqueci a senha', explainCompanyPassword], b: null }
           : { title: login$.remembered ? `Olá de novo, ${first}!` : `Olá, ${first}! Digite sua senha.`, hint: `${privateDoc(login$.doc)} · ${account?.kind === 'colaborador' ? `Colaborador · ${account.company}` : kindLabel[account?.kind] || ''}`, submit: 'Entrar', a: ['Esqueci a senha', () => startCodeFlow('forgot')], b: ['Entrar com código', () => startCodeFlow('code-login')] },
-        birth: { title: `Bem-vinda(o), ${first}! Vamos criar sua senha.`, hint: 'É o seu primeiro acesso. Primeiro, confirme sua data de nascimento.', submit: 'Continuar', a: ['Preciso de ajuda', openLoginHelp], b: null },
+        birth: { title: `Que bom ter você aqui, ${first}! Vamos criar sua senha.`, hint: 'É o seu primeiro acesso. Primeiro, confirme sua data de nascimento.', submit: 'Continuar', a: ['Preciso de ajuda', openLoginHelp], b: null },
         channel: { title: 'Onde você quer receber o código?', hint: 'É um código de 6 números. Ele só vai para os contatos do seu contrato.', submit: 'Enviar código', a: ['Mudei de celular ou e-mail', explainContactChange], b: null },
         code: { title: 'Digite o código que enviamos', hint: `Enviamos para ${contact || 'o seu contato'}. Demonstração: use ${DEMO_CODE}.`, submit: 'Confirmar', a: ['Reenviar código', resendCode], b: ['Receber de outro jeito', () => goLoginStep('channel')] },
         'new-password': { title: flow === 'forgot' ? 'Crie uma senha nova' : 'Agora, crie sua senha', hint: 'Dica: uma frase curta é fácil de lembrar e difícil de adivinhar.', submit: 'Salvar e entrar', a: ['Preciso de ajuda', openLoginHelp], b: null },
@@ -823,12 +824,12 @@ const shortcuts = [
       const view = views[step];
       loginEls.title.textContent = view.title; loginEls.hint.textContent = view.hint; loginEls.submit.textContent = view.submit; loginEls.submit.disabled = false;
       setLink(loginEls.linkA, view.a?.[0], view.a?.[1]); setLink(loginEls.linkB, view.b?.[0], view.b?.[1]);
-      if (step === 'password') { loginEls.passwordLabel.textContent = account?.kind === 'empresa' ? 'Senha do administrador' : 'Senha'; loginEls.password.disabled = login$.locked; if (login$.locked) showLoginError('Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.'); }
+      if (step === 'password') { loginEls.passwordLabel.textContent = account?.kind === 'empresa' ? 'Senha do administrador' : 'Senha'; loginEls.password.disabled = login$.locked; if (login$.locked) showLoginError(lockMessage()); }
       if (step === 'channel') { loginEls.sms.textContent = account?.phone || ''; loginEls.email.textContent = account?.email || ''; }
       if (step === 'code') updateResendLink();
       if (focus) requestAnimationFrame(() => {
         const input = loginSteps.find(section => !section.hidden)?.querySelector('input:not([type=checkbox]):not([disabled])');
-        if (input && window.matchMedia('(pointer: fine)').matches) input.focus(); else loginEls.title.focus();
+        if (input && window.matchMedia('(pointer: fine)').matches) input.focus({ preventScroll: true }); else loginEls.title.focus({ preventScroll: true });
       });
     }
     function goLoginStep(step) { login$.step = step; renderLogin(); }
@@ -886,11 +887,11 @@ const shortcuts = [
         return identifyAccount(doc);
       }
       if (step === 'password') {
-        if (login$.locked) return showLoginError('Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.');
+        if (login$.locked) return showLoginError(lockMessage());
         if (!loginEls.password.value) return showLoginError('Digite sua senha.', loginEls.password);
         if (loginEls.password.value !== account.password) {
           login$.tries += 1; const left = 5 - login$.tries;
-          if (left <= 0) { login$.locked = true; loginEls.password.value = ''; loginEls.password.disabled = true; return showLoginError('Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.'); }
+          if (left <= 0) { login$.locked = true; loginEls.password.value = ''; loginEls.password.disabled = true; return showLoginError(lockMessage()); }
           loginEls.password.value = '';
           return showLoginError(`Senha incorreta. Você ainda tem ${left} ${left === 1 ? 'tentativa' : 'tentativas'}.`, loginEls.password);
         }
@@ -942,7 +943,7 @@ const shortcuts = [
       toggle.setAttribute('aria-label', wasVisible ? 'Mostrar senha' : 'Ocultar senha'); toggle.setAttribute('aria-pressed', String(!wasVisible));
       const icon = toggle.querySelector('img'); if (icon) icon.src = wasVisible ? '/icons/eye-off.svg' : '/icons/eye.svg';
     }));
-    document.addEventListener('bp:login-focus', () => { if (login.hidden) return; if (login$.step !== 'id') { resetLogin({ keepRemembered: false }); } renderLogin(); loginEls.id.focus(); });
+    document.addEventListener('bp:login-focus', () => { if (login.hidden) return; if (login$.step !== 'id') { resetLogin({ keepRemembered: false }); } renderLogin(); loginEls.id.focus({ preventScroll: true }); });
 
     // ---------- Sessão e perfis ----------
     const readSession = () => { try { return JSON.parse(sessionStorage.getItem('bp-session') || 'null'); } catch { return null; } };
@@ -988,7 +989,7 @@ const shortcuts = [
         const home = homeRoute();
         history.replaceState({ route: home }, '', `#${home}`);
         navigate(home, false);
-        showToast(message ? `${message}. Bem-vinda(o), ${session.first}!` : `Bem-vinda(o), ${session.first}!`);
+        showToast(message ? `${message}. Olá, ${session.first}!` : `Olá, ${session.first}! Que bom ter você aqui.`);
         resetLogin();
       }, 450);
     }
@@ -998,6 +999,7 @@ const shortcuts = [
       isAuthenticated = false;
       sessionStorage.removeItem('bp-master-authenticated');
       sessionStorage.removeItem('bp-session');
+      delete document.body.dataset.role;
       resetLogin();
       showLogin(true);
     }));
