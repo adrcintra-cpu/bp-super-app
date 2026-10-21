@@ -77,6 +77,7 @@ const shortcuts = [
           <button type="button" data-route="cadastro"><img src="/icons/user.svg" alt="" /> Meu cadastro</button>
           <button type="button" data-route="avisos"><img src="/icons/bell.svg" alt="" /> Comunicação <span class="profile-menu-badge" aria-label={`${unreadMessages} comunicados não lidos`}>{unreadMessages}</span></button>
           <button class="profile-accessibility-button" type="button" data-accessibility-button aria-label="Opções de acessibilidade" aria-expanded="false" aria-controls="accessibility-panel"><img src="/icons/accessibility.svg" alt="" /> Acessibilidade</button>
+          <button type="button" data-switch-access hidden><img src="/icons/users.svg" alt="" /> Trocar acesso</button>
           <button type="button" data-show-login><img src="/icons/log-out.svg" alt="" /> Sair da conta</button>
         </div>
       </header>
@@ -766,6 +767,11 @@ const shortcuts = [
       '39053344705': { kind: 'dependente', name: 'Ana da Silva', first: 'Ana', beneficiaryId: 'ana', depCode: 'DEP-4821', holder: 'Fernando' },
       '35379838839': { kind: 'colaborador', name: 'Carlos Mendes', first: 'Carlos', password: '1234', company: 'Empresa Demo Ltda', phone: '(11) •••••-7788', email: 'ca•••@empresa.com' },
       '11222333000181': { kind: 'empresa', name: 'Empresa Demo Ltda', first: 'Empresa Demo', password: '1234' },
+      // Um CPF com dois acessos: plano próprio (GBP Clientes) e convênio da empresa (Bom Corp). Cada um tem a sua senha.
+      '12345678909': [
+        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '1234', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+' },
+        { kind: 'colaborador', name: 'Paula Rocha', first: 'Paula', password: '5678', company: 'Empresa Demo Ltda', phone: '(11) •••••-3301', email: 'paula@empresa.com', choiceTitle: 'Convênio da empresa', choiceText: 'Colaboradora · Empresa Demo Ltda' },
+      ],
     };
     const DEMO_CODE = '123456';
     const kindLabel = { titular: 'Titular', dependente: 'Dependente', colaborador: 'Colaborador', empresa: 'Empresa' };
@@ -785,10 +791,10 @@ const shortcuts = [
       id: loginForm.querySelector('[data-login-id]'), remember: loginForm.querySelector('[data-login-remember]'), password: loginForm.querySelector('[data-password]'),
       passwordLabel: loginForm.querySelector('[data-password-label]'), birth: loginForm.querySelector('[data-login-birth]'), code: loginForm.querySelector('[data-login-code]'),
       dep: loginForm.querySelector('[data-login-dep]'), newPassword: loginForm.querySelector('[data-new-password]'), rule: loginForm.querySelector('[data-password-rule]'),
-      sms: loginForm.querySelector('[data-channel-sms]'), email: loginForm.querySelector('[data-channel-email]'),
+      sms: loginForm.querySelector('[data-channel-sms]'), email: loginForm.querySelector('[data-channel-email]'), options: loginForm.querySelector('[data-login-options]'),
     };
     const loginSteps = [...loginForm.querySelectorAll('[data-login-step]')];
-    const login$ = { step: 'id', doc: '', account: null, flow: 'login', channel: 'sms', tries: 0, locked: false, remembered: false, resendAt: 0, linkActions: {} };
+    const login$ = { step: 'id', doc: '', account: null, options: null, flow: 'login', channel: 'sms', tries: 0, locked: false, remembered: false, resendAt: 0, linkActions: {} };
     let resendTimer;
     const readRemembered = () => { try { return JSON.parse(localStorage.getItem('bp-remembered-doc') || 'null'); } catch { return null; } };
     const writeRemembered = doc => { try { if (doc) localStorage.setItem('bp-remembered-doc', JSON.stringify(doc)); else localStorage.removeItem('bp-remembered-doc'); } catch {} };
@@ -807,7 +813,8 @@ const shortcuts = [
       loginSteps.forEach(section => { section.hidden = section.dataset.loginStep !== step; });
       clearLoginError();
       const first = account?.first || '';
-      const backLabel = login$.remembered ? 'Não é você? Trocar CPF' : (account?.kind === 'empresa' ? 'Trocar CNPJ' : 'Trocar CPF');
+      const canChooseAgain = login$.options && step !== 'choose' && ['password', 'birth'].includes(step);
+      const backLabel = canChooseAgain ? 'Escolher outro acesso' : login$.remembered ? 'Não é você? Trocar CPF' : (account?.kind === 'empresa' ? 'Trocar CNPJ' : 'Trocar CPF');
       loginEls.back.hidden = step === 'id'; loginEls.eyebrow.hidden = step !== 'id'; loginEls.backLabel.textContent = backLabel;
       const contact = login$.channel === 'email' ? account?.email : account?.phone;
       const views = {
@@ -819,12 +826,21 @@ const shortcuts = [
         channel: { title: 'Onde você quer receber o código?', hint: 'É um código de 6 números. Ele só vai para os contatos do seu contrato.', submit: 'Enviar código', a: ['Mudei de celular ou e-mail', explainContactChange], b: null },
         code: { title: 'Digite o código que enviamos', hint: `Enviamos para ${contact || 'o seu contato'}. Demonstração: use ${DEMO_CODE}.`, submit: 'Confirmar', a: ['Reenviar código', resendCode], b: ['Receber de outro jeito', () => goLoginStep('channel')] },
         'new-password': { title: flow === 'forgot' ? 'Crie uma senha nova' : 'Agora, crie sua senha', hint: 'Dica: uma frase curta é fácil de lembrar e difícil de adivinhar.', submit: 'Salvar e entrar', a: ['Preciso de ajuda', openLoginHelp], b: null },
+        choose: { title: `${login$.remembered ? 'Olá de novo' : 'Olá'}, ${login$.options?.[0]?.first || ''}! Por onde você quer entrar?`, hint: 'Seu CPF tem dois acessos, cada um com a sua senha. Você pode trocar quando quiser.', submit: 'Continuar', a: ['Preciso de ajuda', openLoginHelp], b: null },
         dependent: { title: `Olá, ${first}! Digite seu código de acesso.`, hint: `Peça ao titular do plano${account?.holder ? ` (${account.holder})` : ''}: no app, Meu Plano › Gerar código. Começa com DEP-.`, submit: 'Entrar', a: ['Não tenho o código', explainDependentCode], b: ['Preciso de ajuda', openLoginHelp] },
       };
       const view = views[step];
       loginEls.title.textContent = view.title; loginEls.hint.textContent = view.hint; loginEls.submit.textContent = view.submit; loginEls.submit.disabled = false;
       setLink(loginEls.linkA, view.a?.[0], view.a?.[1]); setLink(loginEls.linkB, view.b?.[0], view.b?.[1]);
       if (step === 'password') { loginEls.passwordLabel.textContent = account?.kind === 'empresa' ? 'Senha do administrador' : 'Senha'; loginEls.password.disabled = login$.locked; if (login$.locked) showLoginError(lockMessage()); }
+      if (step === 'choose') {
+        loginEls.options.querySelectorAll('.login-channel').forEach(el => el.remove());
+        login$.options.forEach((option, index) => {
+          const label = document.createElement('label'); label.className = 'login-channel';
+          label.innerHTML = `<input type="radio" name="login-access" value="${index}" ${option === login$.account || (!login$.account && index === 0) ? 'checked' : ''} /><span><strong>${escapeHtml(option.choiceTitle)}</strong><small>${escapeHtml(option.choiceText)}</small></span>`;
+          loginEls.options.append(label);
+        });
+      }
       if (step === 'channel') { loginEls.sms.textContent = account?.phone || ''; loginEls.email.textContent = account?.email || ''; }
       if (step === 'code') updateResendLink();
       if (focus) requestAnimationFrame(() => {
@@ -834,7 +850,7 @@ const shortcuts = [
     }
     function goLoginStep(step) { login$.step = step; renderLogin(); }
     function resetLogin({ keepRemembered = true } = {}) {
-      Object.assign(login$, { step: 'id', doc: '', account: null, flow: 'login', tries: 0, locked: false, remembered: false });
+      Object.assign(login$, { step: 'id', doc: '', account: null, options: null, flow: 'login', tries: 0, locked: false, remembered: false });
       loginForm.querySelectorAll('input:not([type=checkbox]):not([type=radio])').forEach(input => { input.value = ''; if (input.type === 'text' && input.closest('.password-field')) input.type = 'password'; });
       loginEls.password.disabled = false;
       const remembered = keepRemembered ? readRemembered() : null;
@@ -843,8 +859,14 @@ const shortcuts = [
       renderLogin(false);
     }
     function identifyAccount(doc) {
-      login$.doc = doc; login$.account = loginAccounts[doc];
-      const account = login$.account;
+      login$.doc = doc;
+      const found = loginAccounts[doc];
+      if (Array.isArray(found)) { login$.options = found; login$.account = null; return goLoginStep('choose'); }
+      login$.options = null; login$.account = found;
+      continueWithAccount();
+    }
+    function continueWithAccount() {
+      const account = login$.account; login$.tries = 0; login$.locked = false; loginEls.password.value = '';
       if (account.kind === 'dependente') goLoginStep('dependent');
       else if (!account.password) { login$.flow = 'first'; goLoginStep('birth'); }
       else goLoginStep('password');
@@ -870,6 +892,7 @@ const shortcuts = [
         ['39053344705', 'Dependente', 'CPF 390.533.447-05 · código DEP-4821'],
         ['35379838839', 'Colaborador Bom Corp', 'CPF 353.798.388-39 · senha 1234'],
         ['11222333000181', 'Empresa Bom Corp', 'CNPJ 11.222.333/0001-81 · senha 1234'],
+        ['12345678909', 'Plano próprio + convênio da empresa', 'CPF 123.456.789-09 · senha 1234 (plano) ou 5678 (convênio)'],
       ];
       openDialog({ eyebrow: 'DEMONSTRAÇÃO', title: 'Contas de teste', description: `Escolha um perfil para ver o caminho de cada tipo de conta. Em qualquer código enviado, use ${DEMO_CODE}.`, fields: `<div class="demo-accounts">${rows.map(([doc, title, text]) => `<div class="demo-account"><span><strong>${title}</strong><small>${text}</small></span><button class="button button-ghost" type="button" data-demo-doc="${doc}">Usar</button></div>`).join('')}</div>`, submitLabel: 'Fechar', hideCancel: true, onSubmit: () => {}, onOpen: root => root.querySelectorAll('[data-demo-doc]').forEach(button => button.addEventListener('click', () => { closeDialog(); resetLogin({ keepRemembered: false }); loginEls.id.value = maskDoc(button.dataset.demoDoc); loginForm.requestSubmit(); })) });
     }
@@ -885,6 +908,11 @@ const shortcuts = [
         writeRemembered(loginEls.remember.checked && doc.length === 11 ? doc : null);
         login$.remembered = false; login$.tries = 0; login$.locked = false;
         return identifyAccount(doc);
+      }
+      if (step === 'choose') {
+        const index = Number(loginForm.querySelector('input[name="login-access"]:checked')?.value || 0);
+        login$.account = login$.options[index];
+        return continueWithAccount();
       }
       if (step === 'password') {
         if (login$.locked) return showLoginError(lockMessage());
@@ -929,7 +957,11 @@ const shortcuts = [
       }
     }
     loginForm.addEventListener('submit', event => { event.preventDefault(); submitLoginStep(); });
-    loginEls.back.addEventListener('click', () => { if (login$.remembered) writeRemembered(null); resetLogin({ keepRemembered: false }); renderLogin(); });
+    loginEls.back.addEventListener('click', () => {
+      if (login$.options && ['password', 'birth'].includes(login$.step)) return goLoginStep('choose');
+      if (login$.remembered) writeRemembered(null);
+      resetLogin({ keepRemembered: false }); renderLogin();
+    });
     [loginEls.linkA, loginEls.linkB].forEach(link => link.addEventListener('click', () => login$.linkActions[link.dataset.loginLink]?.()));
     loginEls.id.addEventListener('input', () => { loginEls.id.value = maskDoc(loginEls.id.value); clearLoginError(); });
     loginEls.birth.addEventListener('input', () => { loginEls.birth.value = maskDate(loginEls.birth.value); clearLoginError(); });
@@ -953,6 +985,7 @@ const shortcuts = [
     function applySession(session) {
       const s = session || { kind: 'titular', name: 'Fernando Ernerto', first: 'Fernando', doc: '52998224725', dependents: true };
       currentRole = s.kind;
+      document.querySelectorAll('[data-switch-access]').forEach(button => { button.hidden = !s.dual; });
       document.body.dataset.role = s.kind;
       document.body.dataset.family = s.dependents ? 'yes' : 'no';
       const initials = s.name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
@@ -978,7 +1011,7 @@ const shortcuts = [
     }
     function completeLogin(message) {
       const account = login$.account;
-      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents) };
+      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents), dual: Boolean(login$.options) };
       loginEls.submit.disabled = true; loginEls.submit.textContent = 'Entrando…';
       window.setTimeout(() => {
         isAuthenticated = true;
@@ -993,6 +1026,16 @@ const shortcuts = [
         resetLogin();
       }, 450);
     }
+    document.querySelectorAll('[data-switch-access]').forEach(button => button.addEventListener('click', () => {
+      const doc = readSession()?.doc;
+      profilePopover.hidden = true; profileButton.setAttribute('aria-expanded', 'false');
+      isAuthenticated = false;
+      sessionStorage.removeItem('bp-master-authenticated'); sessionStorage.removeItem('bp-session');
+      delete document.body.dataset.role;
+      resetLogin({ keepRemembered: false });
+      showLogin(true);
+      if (doc && loginAccounts[doc]) identifyAccount(doc);
+    }));
     document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => {
       profilePopover.hidden = true;
       profileButton.setAttribute('aria-expanded', 'false');
