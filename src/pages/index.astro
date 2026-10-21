@@ -17,6 +17,7 @@ const navItems = [
   { id: "financeiro", label: "Financeiro", icon: "wallet" },
   { id: "bommed", label: "Minhas Guias", icon: "heart-pulse" },
   { id: "instituto", label: "Instituto do Luto", icon: "heart-handshake" },
+  { id: "bomcorp", label: "Painel da empresa", icon: "building-2" },
 ];
 
 const shortcuts = [
@@ -316,7 +317,6 @@ const shortcuts = [
           <div class="support-layout"><form class="panel support-form" data-support-form><div class="panel-title"><div><p class="eyebrow">NOVO PROTOCOLO</p><h3>Como podemos ajudar?</h3></div></div><fieldset><legend>Tipo de apoio</legend><label class="radio-card"><input type="radio" name="apoio" value="Acolhimento individual" checked /><span><strong>Acolhimento individual</strong><small>Conversa reservada com um profissional.</small></span></label><label class="radio-card"><input type="radio" name="apoio" value="Grupo de apoio" /><span><strong>Grupo de apoio</strong><small>Encontros mediados em um ambiente seguro.</small></span></label><label class="radio-card"><input type="radio" name="apoio" value="Apoio familiar" /><span><strong>Apoio familiar</strong><small>Orientação para toda a família.</small></span></label></fieldset><label>Para quem é o apoio?<select name="beneficiario">{beneficiaries.map((person) => <option>{person.name} — {person.role}</option>)}</select></label><label>Mensagem opcional<textarea name="mensagem" rows="4" maxlength="1000" placeholder="Conte brevemente como podemos ajudar..."></textarea></label><button class="button button-primary full" type="submit">Abrir protocolo</button></form><aside class="privacy-note"><img src="/icons/shield-check.svg" alt="" /><h3>Seu espaço é seguro</h3><p>As informações compartilhadas são confidenciais e usadas apenas para direcionar o acolhimento.</p><span>Retorno em até 24 horas úteis</span></aside></div>
         </section>
       </main>
-      <Assistant />
     </div>
 
     <nav class="bottom-nav" aria-label="Navegação mobile"><button class="active" type="button" data-route="inicio"><img src="/icons/home.svg" alt="" /><span>Início</span></button><button type="button" data-route="plano"><img src="/icons/umbrella.svg" alt="" /><span>Meu Plano</span></button><button type="button" data-route="carteirinha"><img src="/icons/credit-card.svg" alt="" /><span>Carteirinha</span></button><button type="button" data-menu-open><img src="/icons/menu.svg" alt="" /><span>Menu</span></button></nav>
@@ -324,6 +324,7 @@ const shortcuts = [
     <div class="mobile-drawer" data-drawer aria-hidden="true" inert><button class="drawer-backdrop" type="button" data-menu-close aria-label="Fechar menu" tabindex="-1"></button><aside role="dialog" aria-modal="true" aria-label="Menu"><div class="drawer-head"><a class="brand" href="#inicio" data-route="inicio"><img class="brand-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></a><button class="icon-button" type="button" data-menu-close aria-label="Fechar menu"><img src="/icons/x.svg" alt="" /></button></div><nav>{navItems.map((item) => (<button class:list={["nav-item", { active: item.id === "inicio" }]} data-route={item.id} type="button"><img src={`/icons/${item.icon}.svg`} alt="" /><span>{item.label}</span>{item.badge && <span class="nav-badge">{item.badge}</span>}</button>))}</nav></aside></div>
 
     <Login />
+    <Assistant />
     <FeedbackLayer />
   </div>
 
@@ -338,6 +339,9 @@ const shortcuts = [
     const login = document.querySelector('[data-login]');
     const protectedSurfaces = [...document.querySelectorAll('.sidebar,.app-main,.bottom-nav')];
     const individualRoutes = new Set(['inicio', 'cadastro', 'avisos', 'plano', 'carteirinha', 'financeiro', 'bommed', 'instituto']);
+    const roleRoutes = { dependente: new Set(['inicio', 'cadastro', 'avisos', 'plano', 'carteirinha', 'bommed', 'instituto']), empresa: new Set(['bomcorp']) };
+    const allowedRoutes = () => roleRoutes[document.body.dataset.role] || individualRoutes;
+    const homeRoute = () => (document.body.dataset.role === 'empresa' ? 'bomcorp' : 'inicio');
     let isAuthenticated = sessionStorage.getItem('bp-master-authenticated') === 'true';
     let toastTimer;
     function showToast(message) { toast.querySelector('span').textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2600); }
@@ -413,12 +417,12 @@ const shortcuts = [
       document.body.classList.add('login-open');
       setProtectedState(true);
       if (resetRoute) history.replaceState({ route: 'login' }, '', '#login');
-      requestAnimationFrame(() => login.querySelector('[data-login-user]')?.focus());
+      requestAnimationFrame(() => { if (window.matchMedia('(pointer: fine)').matches) login.querySelector('.login-step:not([hidden]) input:not([type=checkbox]):not([disabled])')?.focus(); });
     };
     const hideLogin = () => { login.hidden = true; document.body.classList.remove('login-open'); setProtectedState(false); };
     function navigate(route, updateHash = true, scrollTarget = '') {
       if (!isAuthenticated) { showLogin(true); return; }
-      if (!individualRoutes.has(route)) route = 'inicio';
+      if (!allowedRoutes().has(route)) route = homeRoute();
       const target = document.querySelector(`[data-screen="${route}"]`); if (!target) return;
       screens.forEach(screen => screen.classList.toggle('active', screen === target));
       routeButtons.forEach(button => button.classList.toggle('active', button.dataset.route === route));
@@ -486,7 +490,7 @@ const shortcuts = [
       const query = normalizeText(searchInput.value);
       if (!query) { searchResults.hidden = true; searchResults.innerHTML = ''; searchResults.removeAttribute('role'); return; }
       const terms = query.split(/\s+/);
-      const matches = searchCatalog.filter(item => { const haystack = normalizeText(item.join(' ')); return terms.every(term => haystack.includes(term)); }).slice(0, 6);
+      const matches = searchCatalog.filter(item => allowedRoutes().has(item[2])).filter(item => { const haystack = normalizeText(item.join(' ')); return terms.every(term => haystack.includes(term)); }).slice(0, 6);
       if (matches.length) searchResults.setAttribute('role', 'listbox'); else searchResults.removeAttribute('role');
       searchResults.innerHTML = matches.length ? matches.map(([title, text, route]) => `<button type="button" role="option" data-search-route="${route}"><strong>${title}</strong><small>${text}</small></button>`).join('') : '<p role="status">Nenhum resultado encontrado.</p>';
       searchResults.hidden = false;
@@ -754,66 +758,250 @@ const shortcuts = [
       openDialog({ eyebrow: 'INSTITUTO DO LUTO', title: 'Protocolo aberto', description: 'Guarde este número. Nossa equipe retorna em até 24 horas úteis.', fields: `<div class="dialog-information"><strong>${escapeHtml(protocol)}</strong><p>${escapeHtml(data.get('apoio'))}<br />Para: ${escapeHtml(data.get('beneficiario'))}</p></div>`, submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} });
       supportForm.reset();
     });
+    // ---------- Login unificado ----------
+    // Contas de demonstração. Em produção, um serviço do backend responde o tipo da conta a partir do CPF/CNPJ.
+    const loginAccounts = {
+      '52998224725': { kind: 'titular', name: 'Fernando Ernerto', first: 'Fernando', password: '1234', phone: '(11) •••••-5432', email: 'fe•••@email.com', birth: '12/04/1972', dependents: true },
+      '11144477735': { kind: 'titular', name: 'Marina Costa', first: 'Marina', password: null, phone: '(11) •••••-2210', email: 'ma•••@email.com', birth: '15/08/1985' },
+      '39053344705': { kind: 'dependente', name: 'Ana da Silva', first: 'Ana', beneficiaryId: 'ana', depCode: 'DEP-4821', holder: 'Fernando' },
+      '35379838839': { kind: 'colaborador', name: 'Carlos Mendes', first: 'Carlos', password: '1234', company: 'Empresa Demo Ltda', phone: '(11) •••••-7788', email: 'ca•••@empresa.com' },
+      '11222333000181': { kind: 'empresa', name: 'Empresa Demo Ltda', first: 'Empresa Demo', password: '1234' },
+    };
+    const DEMO_CODE = '123456';
+    const kindLabel = { titular: 'Titular', dependente: 'Dependente', colaborador: 'Colaborador', empresa: 'Empresa' };
+    const isValidCnpj = value => {
+      const d = onlyDigits(value); if (d.length !== 14 || /^(\d)\1{13}$/.test(d)) return false;
+      const calc = len => { const w = len === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2]; const s = w.reduce((acc, wt, i) => acc + Number(d[i]) * wt, 0); const r = s % 11; return r < 2 ? 0 : 11 - r; };
+      return calc(12) === Number(d[12]) && calc(13) === Number(d[13]);
+    };
+    const maskDoc = value => { const d = onlyDigits(value).slice(0, 14); return d.length <= 11 ? maskCpf(d) : d.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2'); };
+    const privateDoc = doc => doc.length === 14 ? `CNPJ ${doc.slice(0, 2)}.${doc.slice(2, 5)}.***/${doc.slice(8, 12)}-${doc.slice(12)}` : `CPF ${doc.slice(0, 3)}.***.***-${doc.slice(9)}`;
+
+    const loginForm = document.querySelector('[data-login-form]');
+    const loginEls = {
+      eyebrow: loginForm.querySelector('[data-login-eyebrow]'), back: loginForm.querySelector('[data-login-back]'), backLabel: loginForm.querySelector('[data-login-back-label]'),
+      title: loginForm.querySelector('[data-login-title]'), hint: loginForm.querySelector('[data-login-hint]'), error: loginForm.querySelector('[data-login-error]'),
+      submit: loginForm.querySelector('[data-login-submit]'), linkA: loginForm.querySelector('[data-login-link="a"]'), linkB: loginForm.querySelector('[data-login-link="b"]'),
+      id: loginForm.querySelector('[data-login-id]'), remember: loginForm.querySelector('[data-login-remember]'), password: loginForm.querySelector('[data-password]'),
+      passwordLabel: loginForm.querySelector('[data-password-label]'), birth: loginForm.querySelector('[data-login-birth]'), code: loginForm.querySelector('[data-login-code]'),
+      dep: loginForm.querySelector('[data-login-dep]'), newPassword: loginForm.querySelector('[data-new-password]'), rule: loginForm.querySelector('[data-password-rule]'),
+      sms: loginForm.querySelector('[data-channel-sms]'), email: loginForm.querySelector('[data-channel-email]'),
+    };
+    const loginSteps = [...loginForm.querySelectorAll('[data-login-step]')];
+    const login$ = { step: 'id', doc: '', account: null, flow: 'login', channel: 'sms', tries: 0, locked: false, remembered: false, resendAt: 0, linkActions: {} };
+    let resendTimer;
+    const readRemembered = () => { try { return JSON.parse(localStorage.getItem('bp-remembered-doc') || 'null'); } catch { return null; } };
+    const writeRemembered = doc => { try { if (doc) localStorage.setItem('bp-remembered-doc', JSON.stringify(doc)); else localStorage.removeItem('bp-remembered-doc'); } catch {} };
+
+    const showLoginError = (message, input) => {
+      loginEls.error.textContent = message; loginEls.error.hidden = false;
+      if (input) { input.setAttribute('aria-invalid', 'true'); input.focus(); }
+    };
+    const clearLoginError = () => { loginEls.error.hidden = true; loginEls.error.textContent = ''; loginForm.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid')); };
+    const setLink = (el, label, action) => { el.hidden = !label; el.textContent = label || ''; el.disabled = false; login$.linkActions[el.dataset.loginLink] = action || null; };
+
+    function renderLogin(focus = true) {
+      const { step, account, flow } = login$;
+      loginForm.dataset.step = step;
+      loginSteps.forEach(section => { section.hidden = section.dataset.loginStep !== step; });
+      clearLoginError();
+      const first = account?.first || '';
+      const backLabel = login$.remembered ? 'Não é você? Trocar CPF' : (account?.kind === 'empresa' ? 'Trocar CNPJ' : 'Trocar CPF');
+      loginEls.back.hidden = step === 'id'; loginEls.eyebrow.hidden = step !== 'id'; loginEls.backLabel.textContent = backLabel;
+      const contact = login$.channel === 'email' ? account?.email : account?.phone;
+      const views = {
+        id: { title: 'Qual é o seu CPF?', hint: 'É de empresa conveniada? Digite o CNPJ.', submit: 'Continuar', a: ['Preciso de ajuda', openLoginHelp], b: ['Contas de teste', openDemoAccounts] },
+        password: account?.kind === 'empresa'
+          ? { title: account.name, hint: `${privateDoc(login$.doc)} · Digite a senha do administrador da empresa.`, submit: 'Entrar', a: ['Esqueci a senha', explainCompanyPassword], b: null }
+          : { title: login$.remembered ? `Olá de novo, ${first}!` : `Olá, ${first}! Digite sua senha.`, hint: `${privateDoc(login$.doc)} · ${account?.kind === 'colaborador' ? `Colaborador · ${account.company}` : kindLabel[account?.kind] || ''}`, submit: 'Entrar', a: ['Esqueci a senha', () => startCodeFlow('forgot')], b: ['Entrar com código', () => startCodeFlow('code-login')] },
+        birth: { title: `Bem-vinda(o), ${first}! Vamos criar sua senha.`, hint: 'É o seu primeiro acesso. Primeiro, confirme sua data de nascimento.', submit: 'Continuar', a: ['Preciso de ajuda', openLoginHelp], b: null },
+        channel: { title: 'Onde você quer receber o código?', hint: 'É um código de 6 números. Ele só vai para os contatos do seu contrato.', submit: 'Enviar código', a: ['Mudei de celular ou e-mail', explainContactChange], b: null },
+        code: { title: 'Digite o código que enviamos', hint: `Enviamos para ${contact || 'o seu contato'}. Demonstração: use ${DEMO_CODE}.`, submit: 'Confirmar', a: ['Reenviar código', resendCode], b: ['Receber de outro jeito', () => goLoginStep('channel')] },
+        'new-password': { title: flow === 'forgot' ? 'Crie uma senha nova' : 'Agora, crie sua senha', hint: 'Dica: uma frase curta é fácil de lembrar e difícil de adivinhar.', submit: 'Salvar e entrar', a: ['Preciso de ajuda', openLoginHelp], b: null },
+        dependent: { title: `Olá, ${first}! Digite seu código de acesso.`, hint: `Peça ao titular do plano${account?.holder ? ` (${account.holder})` : ''}: no app, Meu Plano › Gerar código. Começa com DEP-.`, submit: 'Entrar', a: ['Não tenho o código', explainDependentCode], b: ['Preciso de ajuda', openLoginHelp] },
+      };
+      const view = views[step];
+      loginEls.title.textContent = view.title; loginEls.hint.textContent = view.hint; loginEls.submit.textContent = view.submit; loginEls.submit.disabled = false;
+      setLink(loginEls.linkA, view.a?.[0], view.a?.[1]); setLink(loginEls.linkB, view.b?.[0], view.b?.[1]);
+      if (step === 'password') { loginEls.passwordLabel.textContent = account?.kind === 'empresa' ? 'Senha do administrador' : 'Senha'; loginEls.password.disabled = login$.locked; if (login$.locked) showLoginError('Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.'); }
+      if (step === 'channel') { loginEls.sms.textContent = account?.phone || ''; loginEls.email.textContent = account?.email || ''; }
+      if (step === 'code') updateResendLink();
+      if (focus) requestAnimationFrame(() => {
+        const input = loginSteps.find(section => !section.hidden)?.querySelector('input:not([type=checkbox]):not([disabled])');
+        if (input && window.matchMedia('(pointer: fine)').matches) input.focus(); else loginEls.title.focus();
+      });
+    }
+    function goLoginStep(step) { login$.step = step; renderLogin(); }
+    function resetLogin({ keepRemembered = true } = {}) {
+      Object.assign(login$, { step: 'id', doc: '', account: null, flow: 'login', tries: 0, locked: false, remembered: false });
+      loginForm.querySelectorAll('input:not([type=checkbox]):not([type=radio])').forEach(input => { input.value = ''; if (input.type === 'text' && input.closest('.password-field')) input.type = 'password'; });
+      loginEls.password.disabled = false;
+      const remembered = keepRemembered ? readRemembered() : null;
+      loginEls.remember.checked = Boolean(remembered);
+      if (remembered && loginAccounts[remembered]) { login$.remembered = true; identifyAccount(remembered); return; }
+      renderLogin(false);
+    }
+    function identifyAccount(doc) {
+      login$.doc = doc; login$.account = loginAccounts[doc];
+      const account = login$.account;
+      if (account.kind === 'dependente') goLoginStep('dependent');
+      else if (!account.password) { login$.flow = 'first'; goLoginStep('birth'); }
+      else goLoginStep('password');
+    }
+    function startCodeFlow(flow) { login$.flow = flow; login$.channel = 'sms'; loginForm.querySelector('input[name="login-channel"][value="sms"]').checked = true; goLoginStep('channel'); }
+    function updateResendLink() {
+      clearTimeout(resendTimer);
+      const wait = Math.ceil((login$.resendAt - Date.now()) / 1000);
+      if (login$.step !== 'code') return;
+      loginEls.linkA.disabled = wait > 0;
+      loginEls.linkA.textContent = wait > 0 ? `Reenviar em ${wait}s` : 'Reenviar código';
+      if (wait > 0) resendTimer = setTimeout(updateResendLink, 1000);
+    }
+    function resendCode() { if (Date.now() < login$.resendAt) return; login$.resendAt = Date.now() + 30000; updateResendLink(); showToast('Enviamos um código novo. Use sempre o mais recente.'); }
+    function openLoginHelp() { document.dispatchEvent(new CustomEvent('bp:assistant-open')); }
+    function explainCompanyPassword() { openDialog({ eyebrow: 'BOM CORP', title: 'Senha do administrador', description: 'Por segurança, a senha da empresa é trocada pela central de atendimento.', fields: '<div class="dialog-information"><strong>0800 950 1010</strong><p>Ligação gratuita. Seg. a sex., 7h às 18h30 · Sáb., 8h às 14h. Também pelo WhatsApp.</p></div>', submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} }); }
+    function explainContactChange() { openDialog({ eyebrow: 'ACESSO', title: 'Mudou de celular ou e-mail?', description: 'O código só vai para os contatos do seu contrato. Para atualizar, fale com a central.', fields: '<div class="dialog-information"><strong>0800 950 1010</strong><p>Ligação gratuita. Seg. a sex., 7h às 18h30 · Sáb., 8h às 14h. Também pelo WhatsApp.</p></div>', submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} }); }
+    function explainDependentCode() { openDialog({ eyebrow: 'DEPENDENTE', title: 'Como conseguir o código', description: 'O dependente não precisa de senha. O titular do plano gera um código de acesso para você.', fields: '<div class="dialog-information"><strong>No app do titular</strong><p>Meu Plano › no cartão do dependente › Gerar código de acesso. O código começa com DEP- e vale para uma entrada.</p></div>', submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} }); }
+    function openDemoAccounts() {
+      const rows = [
+        ['52998224725', 'Titular com senha', 'CPF 529.982.247-25 · senha 1234'],
+        ['11144477735', 'Titular no primeiro acesso', 'CPF 111.444.777-35 · nascimento 15/08/1985'],
+        ['39053344705', 'Dependente', 'CPF 390.533.447-05 · código DEP-4821'],
+        ['35379838839', 'Colaborador Bom Corp', 'CPF 353.798.388-39 · senha 1234'],
+        ['11222333000181', 'Empresa Bom Corp', 'CNPJ 11.222.333/0001-81 · senha 1234'],
+      ];
+      openDialog({ eyebrow: 'DEMONSTRAÇÃO', title: 'Contas de teste', description: `Escolha um perfil para ver o caminho de cada tipo de conta. Em qualquer código enviado, use ${DEMO_CODE}.`, fields: `<div class="demo-accounts">${rows.map(([doc, title, text]) => `<div class="demo-account"><span><strong>${title}</strong><small>${text}</small></span><button class="button button-ghost" type="button" data-demo-doc="${doc}">Usar</button></div>`).join('')}</div>`, submitLabel: 'Fechar', hideCancel: true, onSubmit: () => {}, onOpen: root => root.querySelectorAll('[data-demo-doc]').forEach(button => button.addEventListener('click', () => { closeDialog(); resetLogin({ keepRemembered: false }); loginEls.id.value = maskDoc(button.dataset.demoDoc); loginForm.requestSubmit(); })) });
+    }
+
+    function submitLoginStep() {
+      const { step, account } = login$;
+      if (step === 'id') {
+        const doc = onlyDigits(loginEls.id.value);
+        if (doc.length !== 11 && doc.length !== 14) return showLoginError('Digite os 11 números do CPF ou os 14 do CNPJ.', loginEls.id);
+        if (doc.length === 11 && !isValidCpf(doc)) return showLoginError('Esse CPF não parece certo. Confira os números.', loginEls.id);
+        if (doc.length === 14 && !isValidCnpj(doc)) return showLoginError('Esse CNPJ não parece certo. Confira os números.', loginEls.id);
+        if (!loginAccounts[doc]) return showLoginError('Não encontramos um plano com esse documento. Confira os números ou ligue 0800 950 1010.', loginEls.id);
+        writeRemembered(loginEls.remember.checked && doc.length === 11 ? doc : null);
+        login$.remembered = false; login$.tries = 0; login$.locked = false;
+        return identifyAccount(doc);
+      }
+      if (step === 'password') {
+        if (login$.locked) return showLoginError('Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.');
+        if (!loginEls.password.value) return showLoginError('Digite sua senha.', loginEls.password);
+        if (loginEls.password.value !== account.password) {
+          login$.tries += 1; const left = 5 - login$.tries;
+          if (left <= 0) { login$.locked = true; loginEls.password.value = ''; loginEls.password.disabled = true; return showLoginError('Por segurança, a senha ficou bloqueada por 15 minutos. Você pode entrar agora mesmo com um código.'); }
+          loginEls.password.value = '';
+          return showLoginError(`Senha incorreta. Você ainda tem ${left} ${left === 1 ? 'tentativa' : 'tentativas'}.`, loginEls.password);
+        }
+        return completeLogin();
+      }
+      if (step === 'birth') {
+        const date = parseBirthDate(loginEls.birth.value);
+        if (!date) return showLoginError('Digite a data assim: dia/mês/ano, por exemplo 15/08/1985.', loginEls.birth);
+        if (loginEls.birth.value !== account.birth) return showLoginError('A data não confere com o seu cadastro. Confira o dia, o mês e o ano.', loginEls.birth);
+        return startCodeFlow('first');
+      }
+      if (step === 'channel') {
+        login$.channel = loginForm.querySelector('input[name="login-channel"]:checked')?.value || 'sms';
+        login$.resendAt = Date.now() + 30000; loginEls.code.value = '';
+        goLoginStep('code');
+        return showToast(`Código enviado por ${login$.channel === 'email' ? 'e-mail' : 'SMS'}`);
+      }
+      if (step === 'code') {
+        const code = onlyDigits(loginEls.code.value);
+        if (code.length !== 6) return showLoginError('O código tem 6 números.', loginEls.code);
+        if (code !== DEMO_CODE) { loginEls.code.value = ''; return showLoginError('Código incorreto. Confira os 6 números ou peça um novo.', loginEls.code); }
+        if (login$.flow === 'code-login') return completeLogin();
+        return goLoginStep('new-password');
+      }
+      if (step === 'new-password') {
+        if (loginEls.newPassword.value.length < 8) return showLoginError('A senha precisa ter pelo menos 8 caracteres.', loginEls.newPassword);
+        account.password = loginEls.newPassword.value;
+        return completeLogin(login$.flow === 'forgot' ? 'Senha nova criada' : 'Senha criada');
+      }
+      if (step === 'dependent') {
+        let code = loginEls.dep.value.toUpperCase().replace(/\s/g, '');
+        if (!code.startsWith('DEP-')) code = `DEP-${code.replace(/^DEP-?/, '')}`;
+        if (code !== account.depCode) { loginEls.dep.value = ''; return showLoginError('Código incorreto. Confira com o titular do plano ou peça um código novo.', loginEls.dep); }
+        return completeLogin();
+      }
+    }
+    loginForm.addEventListener('submit', event => { event.preventDefault(); submitLoginStep(); });
+    loginEls.back.addEventListener('click', () => { if (login$.remembered) writeRemembered(null); resetLogin({ keepRemembered: false }); renderLogin(); });
+    [loginEls.linkA, loginEls.linkB].forEach(link => link.addEventListener('click', () => login$.linkActions[link.dataset.loginLink]?.()));
+    loginEls.id.addEventListener('input', () => { loginEls.id.value = maskDoc(loginEls.id.value); clearLoginError(); });
+    loginEls.birth.addEventListener('input', () => { loginEls.birth.value = maskDate(loginEls.birth.value); clearLoginError(); });
+    loginEls.code.addEventListener('input', () => { loginEls.code.value = onlyDigits(loginEls.code.value).slice(0, 6); clearLoginError(); if (loginEls.code.value.length === 6) loginForm.requestSubmit(); });
+    loginEls.dep.addEventListener('input', () => { loginEls.dep.value = loginEls.dep.value.toUpperCase(); clearLoginError(); });
+    loginEls.password.addEventListener('input', clearLoginError);
+    loginEls.newPassword.addEventListener('input', () => { clearLoginError(); const ok = loginEls.newPassword.value.length >= 8; loginEls.rule.classList.toggle('ok', ok); loginEls.rule.textContent = ok ? '✓ Senha com 8 caracteres ou mais' : `Use pelo menos 8 caracteres (faltam ${8 - loginEls.newPassword.value.length}).`; });
+    loginForm.querySelectorAll('[data-password-toggle]').forEach(toggle => toggle.addEventListener('click', () => {
+      const input = toggle.parentElement.querySelector('input'); const wasVisible = input.type === 'text';
+      input.type = wasVisible ? 'password' : 'text';
+      toggle.setAttribute('aria-label', wasVisible ? 'Mostrar senha' : 'Ocultar senha'); toggle.setAttribute('aria-pressed', String(!wasVisible));
+      const icon = toggle.querySelector('img'); if (icon) icon.src = wasVisible ? '/icons/eye-off.svg' : '/icons/eye.svg';
+    }));
+    document.addEventListener('bp:login-focus', () => { if (login.hidden) return; if (login$.step !== 'id') { resetLogin({ keepRemembered: false }); } renderLogin(); loginEls.id.focus(); });
+
+    // ---------- Sessão e perfis ----------
+    const readSession = () => { try { return JSON.parse(sessionStorage.getItem('bp-session') || 'null'); } catch { return null; } };
+    const guideBeneficiarySelect = document.querySelector('[data-guide-beneficiary]');
+    const guideBeneficiaryOriginal = guideBeneficiarySelect?.innerHTML || '';
+    let currentRole = 'titular';
+    function applySession(session) {
+      const s = session || { kind: 'titular', name: 'Fernando Ernerto', first: 'Fernando', doc: '52998224725', dependents: true };
+      currentRole = s.kind;
+      document.body.dataset.role = s.kind;
+      document.body.dataset.family = s.dependents ? 'yes' : 'no';
+      const initials = s.name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+      const roleText = s.kind === 'empresa' ? 'Gestor • Bom Corp' : s.kind === 'colaborador' ? `Colaborador • ${s.company}` : `${kindLabel[s.kind]} • ${mockData.plan?.name || ''}`;
+      document.querySelectorAll('.profile-copy strong, .profile-popover > div strong, [data-screen="cadastro"] .profile-card h3').forEach(el => { el.textContent = s.name; });
+      document.querySelectorAll('.profile-popover > div small').forEach(el => { el.textContent = roleText; });
+      document.querySelectorAll('.avatar, .large-avatar').forEach(el => { if (!el.classList.contains('has-photo')) el.textContent = initials; });
+      const greeting = document.querySelector('#inicio-title strong'); if (greeting) greeting.textContent = `${s.first}.`;
+      const nameInput = document.querySelector('[data-profile-form] input[autocomplete="name"]'); if (nameInput) nameInput.value = s.name;
+      const cpfInput = document.querySelector('[data-profile-form] input[disabled]'); if (cpfInput && s.doc?.length === 11) cpfInput.value = maskCpf(s.doc);
+      const person = s.kind === 'dependente' ? walletPeople[s.beneficiaryId] : null;
+      const cardName = document.querySelector('.digital-card > div:not(.card-meta):not(.card-brand) strong');
+      const cardRole = document.querySelector('.digital-card > div:not(.card-meta):not(.card-brand) small');
+      if (cardName) cardName.textContent = s.name.toLocaleUpperCase('pt-BR');
+      if (cardRole) cardRole.textContent = (s.kind === 'colaborador' ? 'COLABORADOR' : kindLabel[s.kind] || '').toLocaleUpperCase('pt-BR');
+      const cardNumber = document.querySelector('.digital-card .card-meta span:last-child strong'); if (cardNumber) cardNumber.textContent = person?.number || mockData.plan?.cardNumber || '';
+      if (walletPeople.fernando) Object.assign(walletPeople.fernando, { name: (s.kind === 'dependente' ? 'Fernando Ernerto' : s.name).toLocaleUpperCase('pt-BR'), role: s.kind === 'dependente' ? 'TITULAR' : (s.kind === 'colaborador' ? 'COLABORADOR' : 'TITULAR') });
+      if (walletBeneficiary) { walletBeneficiary.value = s.kind === 'dependente' ? s.beneficiaryId : 'fernando'; updateWalletBeneficiary(); }
+      if (guideBeneficiarySelect) {
+        if (s.dependents) guideBeneficiarySelect.innerHTML = guideBeneficiaryOriginal;
+        else guideBeneficiarySelect.innerHTML = `<option>${escapeHtml(s.name)}</option>`;
+      }
+    }
+    function completeLogin(message) {
+      const account = login$.account;
+      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents) };
+      loginEls.submit.disabled = true; loginEls.submit.textContent = 'Entrando…';
+      window.setTimeout(() => {
+        isAuthenticated = true;
+        sessionStorage.setItem('bp-master-authenticated', 'true');
+        sessionStorage.setItem('bp-session', JSON.stringify(session));
+        applySession(session);
+        hideLogin();
+        const home = homeRoute();
+        history.replaceState({ route: home }, '', `#${home}`);
+        navigate(home, false);
+        showToast(message ? `${message}. Bem-vinda(o), ${session.first}!` : `Bem-vinda(o), ${session.first}!`);
+        resetLogin();
+      }, 450);
+    }
     document.querySelectorAll('[data-show-login]').forEach(button => button.addEventListener('click', () => {
       profilePopover.hidden = true;
       profileButton.setAttribute('aria-expanded', 'false');
       isAuthenticated = false;
       sessionStorage.removeItem('bp-master-authenticated');
-      document.querySelector('[data-login-form]').reset();
-      document.querySelector('[data-login-error]').hidden = true;
+      sessionStorage.removeItem('bp-session');
+      resetLogin();
       showLogin(true);
     }));
-    const passwordInput = document.querySelector('[data-password]');
-    document.querySelector('[data-password-toggle]')?.addEventListener('click', event => {
-      if (!passwordInput) return;
-      const wasVisible = passwordInput.type === 'text';
-      passwordInput.type = wasVisible ? 'password' : 'text';
-      event.currentTarget.setAttribute('aria-label', wasVisible ? 'Mostrar senha' : 'Ocultar senha');
-      event.currentTarget.setAttribute('aria-pressed', String(!wasVisible));
-      const icon = event.currentTarget.querySelector('img');
-      if (icon) icon.src = wasVisible ? '/icons/eye-off.svg' : '/icons/eye.svg';
-    });
-    const loginForm = document.querySelector('[data-login-form]');
-    const loginUser = document.querySelector('[data-login-user]');
-    const loginError = document.querySelector('[data-login-error]');
-    const loginSubmit = document.querySelector('[data-login-submit]');
-    const clearLoginError = () => { loginError.hidden = true; loginError.textContent = ''; loginUser.removeAttribute('aria-invalid'); passwordInput.removeAttribute('aria-invalid'); };
-    loginUser.addEventListener('input', clearLoginError);
-    passwordInput.addEventListener('input', clearLoginError);
-    loginForm.addEventListener('submit', event => {
-      event.preventDefault();
-      clearLoginError();
-      const validCredentials = loginUser.value.trim().toLocaleLowerCase('pt-BR') === 'teste' && passwordInput.value === '1234';
-      if (!validCredentials) {
-        loginError.textContent = 'Usuário ou senha incorretos. Confira os dados e tente novamente.';
-        loginError.hidden = false;
-        loginUser.setAttribute('aria-invalid', 'true');
-        passwordInput.setAttribute('aria-invalid', 'true');
-        loginUser.focus();
-        return;
-      }
-      loginSubmit.disabled = true;
-      loginSubmit.textContent = 'Entrando…';
-      window.setTimeout(() => {
-        isAuthenticated = true;
-        sessionStorage.setItem('bp-master-authenticated', 'true');
-        hideLogin();
-        loginSubmit.disabled = false;
-        loginSubmit.textContent = 'Entrar';
-        history.replaceState({ route: 'inicio' }, '', '#inicio');
-        showToast('Bem-vindo de volta, Fernando');
-        navigate('inicio', false);
-      }, 450);
-    });
-    document.querySelectorAll('[data-account-flow]').forEach(button => button.addEventListener('click', () => {
-      const firstAccess = button.dataset.accountFlow === 'first-access';
-      openDialog({ eyebrow: 'ACESSO SEGURO', title: firstAccess ? 'Primeiro acesso' : 'Recuperar senha', description: firstAccess ? 'Confirme seus dados para ativar a sua conta.' : 'Enviaremos as instruções para o contato cadastrado.', fields: `<label${firstAccess ? '' : ' class="span-2"'}>CPF<input name="cpf" required inputmode="numeric" maxlength="14" placeholder="000.000.000-00" data-cpf-input /></label>${firstAccess ? '<label>Data de nascimento<input name="birth" required placeholder="DD/MM/AAAA" inputmode="numeric" maxlength="10" data-date-input /></label>' : ''}`, submitLabel: firstAccess ? 'Continuar cadastro' : 'Enviar instruções', onOpen: bindCpfInputs, onSubmit: form => {
-        const cpfInput = dialogFields.querySelector('[data-cpf-input]');
-        if (!isValidCpf(form.get('cpf'))) { cpfInput.setCustomValidity('CPF inválido. Confira os números.'); cpfInput.reportValidity(); return false; }
-        if (firstAccess) { const birth = dialogFields.querySelector('[data-date-input]'); if (!parseBirthDate(form.get('birth'))) { birth.setCustomValidity('Data inválida.'); birth.reportValidity(); return false; } }
-        showToast(firstAccess ? 'Dados validados. Continue pelo link enviado' : 'Se o CPF estiver cadastrado, enviaremos as instruções ao contato principal');
-      } });
-    }));
+    document.addEventListener('bp:font', event => applyFontScale(fontScaleIndex + (event.detail?.delta || 0)));
     document.querySelector('[data-focus-support]')?.addEventListener('click', () => document.querySelector('.support-form textarea')?.focus());
     let generatedGuide = { category: 'Consulta', specialty: 'Cardiologia', professional: 'Dr. Paulo Andrade', beneficiary: 'Fernando Ernerto', id: 'BP-2026-0918' };
     const nextGuideId = () => `BP-${today.getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
@@ -975,12 +1163,14 @@ const shortcuts = [
     updateWalletBeneficiary();
     applyWalletStatus();
     const initialRoute = location.hash.slice(1);
+    resetLogin();
     if (!isAuthenticated) showLogin(true);
     else {
+      applySession(readSession());
       hideLogin();
-      if (initialRoute === 'contatos') navigate('cadastro', false, 'cadastro-contatos');
+      if (initialRoute === 'contatos' && allowedRoutes().has('cadastro')) navigate('cadastro', false, 'cadastro-contatos');
       else {
-        const safeRoute = individualRoutes.has(initialRoute) ? initialRoute : 'inicio';
+        const safeRoute = allowedRoutes().has(initialRoute) ? initialRoute : homeRoute();
         if (safeRoute !== initialRoute) history.replaceState({ route: safeRoute }, '', `#${safeRoute}`);
         navigate(safeRoute, false);
       }
@@ -988,8 +1178,8 @@ const shortcuts = [
     window.addEventListener('popstate', () => {
       if (!isAuthenticated) { showLogin(true); return; }
       const route = location.hash.slice(1);
-      if (route === 'contatos') { navigate('cadastro', false, 'cadastro-contatos'); return; }
-      const safeRoute = individualRoutes.has(route) ? route : 'inicio';
+      if (route === 'contatos' && allowedRoutes().has('cadastro')) { navigate('cadastro', false, 'cadastro-contatos'); return; }
+      const safeRoute = allowedRoutes().has(route) ? route : homeRoute();
       if (safeRoute !== route) history.replaceState({ route: safeRoute }, '', `#${safeRoute}`);
       navigate(safeRoute, false);
     });
