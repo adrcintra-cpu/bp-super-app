@@ -4,15 +4,60 @@
     <img class="login-photo-mobile" src="/media/image-login.png" alt="" />
     <div class="login-message"><p>Seu cuidado.<br /><strong>Seu jeito de viver.</strong></p></div>
   </div>
-  <form class="login-form" data-login-form>
+  <!-- Login unificado: um campo por vez. O CPF/CNPJ define o caminho (titular, primeiro acesso, dependente, colaborador ou empresa). -->
+  <form class="login-form" data-login-form data-step="id" novalidate>
     <img class="login-stage-mark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" />
     <img class="login-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" />
-    <div class="login-heading"><p class="eyebrow">ACESSAR MINHA CONTA</p><h1>Entre com seus dados</h1><p class="login-demo-hint">Acesso de teste: <strong>teste</strong> · senha <strong>1234</strong></p></div>
-    <label>CPF ou usuário<input required autocomplete="username" placeholder="Digite seu CPF ou usuário" data-login-user /></label>
-    <label>Senha<span class="password-field"><input required type="password" autocomplete="current-password" placeholder="Digite sua senha" data-password /><button type="button" data-password-toggle aria-label="Mostrar senha" aria-pressed="false"><img src="/icons/eye-off.svg" alt="" /></button></span></label>
+    <div class="login-heading">
+      <p class="eyebrow" data-login-eyebrow>ACESSAR MINHA CONTA</p>
+      <button class="login-back" type="button" data-login-back hidden><span aria-hidden="true">←</span> <span data-login-back-label>Trocar CPF</span></button>
+      <h1 data-login-title tabindex="-1">Qual é o seu CPF?</h1>
+      <p class="login-demo-hint" data-login-hint>É de empresa conveniada? Digite o CNPJ.</p>
+    </div>
+
+    <div class="login-step" data-login-step="id">
+      <label>CPF ou CNPJ<input data-login-id inputmode="numeric" autocomplete="username" placeholder="000.000.000-00" maxlength="18" /></label>
+      <label class="login-remember"><input type="checkbox" data-login-remember /><span>Lembrar meu CPF neste aparelho</span></label>
+    </div>
+
+    <div class="login-step" data-login-step="choose" hidden>
+      <fieldset class="login-channels" data-login-options>
+        <legend class="sr-only">Escolha por onde entrar</legend>
+      </fieldset>
+    </div>
+
+    <div class="login-step" data-login-step="password" hidden>
+      <label><span data-password-label>Senha</span><span class="password-field"><input type="password" autocomplete="current-password" placeholder="Digite sua senha" data-password /><button type="button" data-password-toggle aria-label="Mostrar senha" aria-pressed="false"><img src="/icons/eye-off.svg" alt="" /></button></span></label>
+    </div>
+
+    <div class="login-step" data-login-step="birth" hidden>
+      <label>Data de nascimento<input data-login-birth inputmode="numeric" autocomplete="bday" placeholder="DD/MM/AAAA" maxlength="10" /></label>
+    </div>
+
+    <div class="login-step" data-login-step="channel" hidden>
+      <fieldset class="login-channels">
+        <legend class="sr-only">Onde receber o código</legend>
+        <label class="login-channel"><input type="radio" name="login-channel" value="sms" checked /><span><strong>SMS no celular</strong><small data-channel-sms></small></span></label>
+        <label class="login-channel"><input type="radio" name="login-channel" value="email" /><span><strong>E-mail</strong><small data-channel-email></small></span></label>
+      </fieldset>
+    </div>
+
+    <div class="login-step" data-login-step="code" hidden>
+      <label>Código de 6 números<input class="login-code" data-login-code inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" /></label>
+    </div>
+
+    <div class="login-step" data-login-step="dependent" hidden>
+      <label>Código de acesso<input class="login-code" data-login-dep autocapitalize="characters" autocomplete="one-time-code" maxlength="8" placeholder="DEP-0000" /></label>
+    </div>
+
+    <div class="login-step" data-login-step="new-password" hidden>
+      <label>Nova senha<span class="password-field"><input type="password" autocomplete="new-password" placeholder="Crie sua senha" data-new-password /><button type="button" data-password-toggle aria-label="Mostrar senha" aria-pressed="false"><img src="/icons/eye-off.svg" alt="" /></button></span></label>
+      <p class="login-rule" data-password-rule aria-live="polite">Use pelo menos 8 caracteres.</p>
+    </div>
+
     <p class="login-error" data-login-error role="alert" aria-live="polite" hidden></p>
-    <button class="button button-primary full login-submit" type="submit" data-login-submit>Entrar</button>
-    <div class="login-links"><button type="button" data-account-flow="password">Esqueci a senha</button><button type="button" data-account-flow="first-access">Primeiro acesso</button></div>
+    <button class="button button-primary full login-submit" type="submit" data-login-submit>Continuar</button>
+    <div class="login-links"><button type="button" data-login-link="a">Preciso de ajuda</button><button type="button" data-login-link="b">Contas de teste</button></div>
     <small class="login-security"><img src="/icons/shield-check.svg" alt="" /> Ambiente seguro e protegido</small>
   </form>
 </div>

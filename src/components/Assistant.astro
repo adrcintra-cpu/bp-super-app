@@ -57,7 +57,9 @@
     const closeButton = root.querySelector('[data-assistant-close]');
 
     const normalize = text => String(text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9ª\s]/g, ' ').replace(/\s+/g, ' ').trim();
-    const firstName = data.customer?.firstName || '';
+    const sessionFirstName = () => { try { return JSON.parse(sessionStorage.getItem('bp-session') || 'null')?.first || data.customer?.firstName || ''; } catch { return data.customer?.firstName || ''; } };
+    const isLoginMode = () => document.body.classList.contains('login-open');
+    const role = () => document.body.dataset.role || 'titular';
     const bill = data.billing?.current || {};
     const dueDays = () => {
       if (!bill.dueDateISO) return null;
@@ -145,12 +147,42 @@
     const defaultSuggestions = ['Como gero uma guia?', 'Quero a 2ª via do boleto', 'Mostrar minha carteirinha', 'Mudar meu telefone'];
     const normalizedIntents = intents.map(intent => ({ ...intent, nkeys: intent.keys.map(normalize) }));
 
+    // Na tela de login: ajuda só para entrar no app (conteúdo da ajuda atual do portal).
+    const loginIntents = [
+      { id: 'primeiro', keys: ['primeiro acesso', 'primeira vez', 'criar senha', 'criar minha senha', 'nao tenho senha', 'cadastrar', 'me cadastrar', 'nunca entrei', 'ativar', 'cadastro'],
+        text: () => 'É simples: digite o seu CPF e toque em Continuar. Se for a sua primeira vez, o app percebe sozinho e te guia: você confirma a data de nascimento, recebe um código por SMS ou e-mail e cria a sua senha.',
+        action: { loginFocus: true, label: 'Digitar meu CPF' } },
+      { id: 'esqueci', keys: ['esqueci', 'esqueci a senha', 'perdi a senha', 'nao lembro', 'trocar senha', 'recuperar', 'senha errada', 'senha incorreta', 'bloqueada', 'bloqueou', 'bloqueio'],
+        text: () => 'Digite o seu CPF e toque em Continuar. Na tela da senha, toque em "Esqueci a senha": enviamos um código e você cria uma senha nova. Se errar a senha 5 vezes, ela fica bloqueada por 15 minutos, mas você pode entrar na hora com um código.',
+        action: { loginFocus: true, label: 'Digitar meu CPF' } },
+      { id: 'dependente', keys: ['dependente', 'sou dependente', 'sou filho', 'sou filha', 'esposa', 'marido', 'conjuge', 'codigo dep', 'dep', 'meu pai', 'minha mae'],
+        text: () => 'O dependente não precisa de senha. Digite o seu próprio CPF e depois o código de acesso, que começa com DEP-. Quem gera o código é o titular do plano, no app dele: Meu Plano, Gerar código.',
+        action: { loginFocus: true, label: 'Digitar meu CPF' } },
+      { id: 'empresa', keys: ['empresa', 'cnpj', 'bom corp', 'bomcorp', 'gestor', 'rh', 'administrador', 'colaborador', 'convenio', 'corporativo', 'funcionario'],
+        text: () => 'Empresa: digite o CNPJ no mesmo campo do CPF e depois a senha do administrador. Colaborador do convênio: use o seu CPF e a sua senha. Se o seu CPF também tem plano próprio, o app pergunta por onde você quer entrar, e cada acesso tem a sua senha.',
+        action: { loginFocus: true, label: 'Digitar CPF ou CNPJ' } },
+      { id: 'codigo', keys: ['codigo nao chegou', 'nao recebi', 'nao chegou', 'nao veio', 'sms', 'email', 'e mail', 'reenviar', 'codigo'],
+        text: () => 'Espere um minutinho e olhe também a caixa de spam. Na tela do código, toque em "Reenviar código" ou em "Receber de outro jeito". O código só vai para o celular ou o e-mail do seu contrato; se você mudou, ligue para 0800 950 1010.' },
+      { id: 'atendente', keys: ['atendente', 'ligar', 'telefone', '0800', 'falar com alguem', 'falar com uma pessoa', 'humano', 'whatsapp', 'central', 'ajuda humana'],
+        text: () => 'Ligue grátis para 0800 950 1010, de segunda a sexta das 7h às 18h30 e aos sábados das 8h às 14h. Também atendemos pelo WhatsApp nesse número. Emergência de assistência ou funeral, 24 horas: 0800 940 3227.',
+        action: { tel: '08009501010', label: 'Ligar 0800 950 1010' } },
+      { id: 'letra', keys: ['letra maior', 'aumentar', 'aumentar letra', 'nao consigo ler', 'letra pequena', 'zoom', 'texto maior', 'enxergar', 'maior'],
+        text: () => 'Pronto, aumentei o tamanho do texto. Se quiser ainda maior, é só pedir de novo.',
+        action: { font: 1 } },
+      { id: 'entrar', keys: ['como entro', 'entrar', 'login', 'acessar', 'cpf', 'como acesso', 'nao consigo entrar'],
+        text: () => 'Digite o seu CPF no campo e toque em Continuar. O app reconhece se você é titular, dependente ou colaborador e mostra só o próximo passo.',
+        action: { loginFocus: true, label: 'Digitar meu CPF' } },
+    ].map(intent => ({ ...intent, nkeys: intent.keys.map(normalize) }));
+    const loginSuggestions = ['É meu primeiro acesso', 'Esqueci minha senha', 'Sou dependente', 'Sou de empresa'];
+    const financeIntents = new Set(['pix', 'boleto', 'vencimento', 'extrato']);
+
     function answerFor(question) {
       const q = ` ${normalize(question)} `;
       if (!q.trim()) return null;
       if (thanks.some(word => q.includes(` ${word} `))) return { text: 'Por nada! Se precisar de mais alguma coisa, é só chamar.' };
+      const loginMode = isLoginMode();
       let best = null; let bestScore = 0;
-      for (const intent of normalizedIntents) {
+      for (const intent of (loginMode ? loginIntents : normalizedIntents)) {
         let score = 0;
         for (const key of intent.nkeys) {
           if (q.includes(` ${key} `)) score += key.split(' ').length * 2 + 1;
@@ -158,14 +190,18 @@
         }
         if (score > bestScore) { best = intent; bestScore = score; }
       }
-      if (best && bestScore >= 2) return { text: best.text(), action: best.action, intent: best.id };
-      if (greetings.some(word => q.includes(` ${word} `))) return { text: `Olá${firstName ? ', ' + firstName : ''}! Posso ajudar com guias BomMed, boletos e Pix, carteirinha, plano e dependentes, seus dados e o Instituto do Luto. O que você precisa?`, suggestions: defaultSuggestions };
+      if (best && bestScore >= 2) {
+        if (!loginMode && role() === 'dependente' && financeIntents.has(best.id)) return { text: 'Os pagamentos do plano ficam com o titular. Peça para ele conferir no app, em Financeiro.' };
+        return { text: best.text(), action: best.action, intent: best.id };
+      }
+      if (loginMode) return { text: 'Aqui na entrada eu ajudo com o acesso: primeiro acesso, senha, código, dependente ou empresa. Depois de entrar, tiro dúvidas sobre o app todo.', suggestions: loginSuggestions, fallback: true };
+      if (greetings.some(word => q.includes(` ${word} `))) return { text: `Olá${sessionFirstName() ? ', ' + sessionFirstName() : ''}! Posso ajudar com guias BomMed, boletos e Pix, carteirinha, plano e dependentes, seus dados e o Instituto do Luto. O que você precisa?`, suggestions: defaultSuggestions };
       return { text: 'Não entendi muito bem. Eu ajudo só com o uso deste app: guias, pagamentos, carteirinha, plano, cadastro e Instituto do Luto. Tente uma das opções abaixo ou escreva de outro jeito.', suggestions: defaultSuggestions, fallback: true };
     }
 
     // ---------- Interface ----------
     const isNarrow = () => window.matchMedia('(max-width: 820px)').matches;
-    let started = false;
+    let started = '';
     const addMessage = (who, text, action) => {
       const item = document.createElement('div');
       item.className = `assistant-msg ${who}`;
@@ -203,6 +239,9 @@
     };
     function runAction(action, fromButton = false) {
       if (!action) return;
+      if (action.font) { document.dispatchEvent(new CustomEvent('bp:font', { detail: { delta: action.font } })); return; }
+      if (action.tel) { if (fromButton) window.location.href = `tel:${action.tel}`; return; }
+      if (action.loginFocus) { if (!fromButton) return; closePanel(false); document.dispatchEvent(new CustomEvent('bp:login-focus')); return; }
       if (action.openAccessibility) { closePanel(false); document.querySelector('[data-accessibility-button]')?.click(); return; }
       if (action.route) document.dispatchEvent(new CustomEvent('bp:navigate', { detail: { route: action.route, scrollTarget: action.scrollTarget || '' } }));
       if (action.tab) window.setTimeout(() => document.querySelector(`[data-finance-tab="${action.tab}"]`)?.click(), 120);
@@ -274,10 +313,17 @@
     function openPanel() {
       panel.hidden = false; root.classList.add('open');
       fab.setAttribute('aria-expanded', 'true'); fab.setAttribute('aria-label', 'Fechar assistente de dúvidas');
-      if (!started) {
-        started = true;
-        addMessage('bot', `Olá${firstName ? ', ' + firstName : ''}! Sou o assistente do app Bom Pastor. Me diga o que você precisa, por texto ou voz, que eu explico e te levo até lá.`);
-        setSuggestions(defaultSuggestions);
+      const mode = isLoginMode() ? 'login' : `app:${sessionFirstName()}`;
+      if (started !== mode) {
+        started = mode;
+        log.innerHTML = '';
+        if (mode === 'login') {
+          addMessage('bot', 'Olá! Sou o assistente do Bom Pastor. Posso te ajudar a entrar no app: primeiro acesso, senha esquecida, dependente ou empresa. Pode escrever ou tocar no microfone e falar.');
+          setSuggestions(loginSuggestions);
+        } else {
+          addMessage('bot', `Olá${sessionFirstName() ? ', ' + sessionFirstName() : ''}! Sou o assistente do app Bom Pastor. Me diga o que você precisa, por texto ou voz, que eu explico e te levo até lá.`);
+          setSuggestions(defaultSuggestions);
+        }
       }
       requestAnimationFrame(() => input.focus());
     }
@@ -289,6 +335,7 @@
       if (restoreFocus) fab.focus();
     }
     fab.addEventListener('click', () => (panel.hidden ? openPanel() : closePanel()));
+    document.addEventListener('bp:assistant-open', () => openPanel());
     closeButton.addEventListener('click', () => closePanel());
     panel.addEventListener('keydown', event => { if (event.key === 'Escape') { event.stopPropagation(); closePanel(); } });
   };
