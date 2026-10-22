@@ -762,18 +762,19 @@ const shortcuts = [
     // ---------- Login unificado ----------
     // Contas de demonstração. Em produção, um serviço do backend responde o tipo da conta a partir do CPF/CNPJ.
     const loginAccounts = {
-      '52998224725': { kind: 'titular', name: 'Fernando Ernerto', first: 'Fernando', password: '1234', phone: '(11) •••••-5432', email: 'fe•••@email.com', birth: '12/04/1972', dependents: true },
+      '52998224725': { kind: 'titular', name: 'Fernando Ernerto', first: 'Fernando', password: '123456', phone: '(11) •••••-5432', email: 'fe•••@email.com', birth: '12/04/1972', dependents: true },
       '11144477735': { kind: 'titular', name: 'Marina Costa', first: 'Marina', password: null, phone: '(11) •••••-2210', email: 'ma•••@email.com', birth: '15/08/1985' },
       '39053344705': { kind: 'dependente', name: 'Ana da Silva', first: 'Ana', beneficiaryId: 'ana', depCode: 'DEP-4821', holder: 'Fernando' },
-      '35379838839': { kind: 'colaborador', name: 'Carlos Mendes', first: 'Carlos', password: '1234', company: 'Empresa Demo Ltda', phone: '(11) •••••-7788', email: 'ca•••@empresa.com' },
-      '11222333000181': { kind: 'empresa', name: 'Empresa Demo Ltda', first: 'Empresa Demo', password: '1234' },
+      '35379838839': { kind: 'colaborador', name: 'Carlos Mendes', first: 'Carlos', password: '123456', company: 'Empresa Demo Ltda', phone: '(11) •••••-7788', email: 'ca•••@empresa.com' },
+      '11222333000181': { kind: 'empresa', name: 'Empresa Demo Ltda', first: 'Empresa Demo', password: '123456' },
       // Um CPF com dois acessos: plano próprio (GBP Clientes) e convênio da empresa (Bom Corp). Cada um tem a sua senha.
       '12345678909': [
-        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '1234', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+' },
-        { kind: 'colaborador', name: 'Paula Rocha', first: 'Paula', password: '5678', company: 'Empresa Demo Ltda', phone: '(11) •••••-3301', email: 'paula@empresa.com', choiceTitle: 'Convênio da empresa', choiceText: 'Colaboradora · Empresa Demo Ltda' },
+        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '123456', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+' },
+        { kind: 'colaborador', name: 'Paula Rocha', first: 'Paula', password: '123456', company: 'Empresa Demo Ltda', phone: '(11) •••••-3301', email: 'paula@empresa.com', choiceTitle: 'Convênio da empresa', choiceText: 'Colaboradora · Empresa Demo Ltda' },
       ],
     };
     const DEMO_CODE = '123456';
+    const MIN_PASSWORD = 6; // mock: aceita 123456 em todos os testes; em produção, seguir a política do portal (8+).
     const kindLabel = { titular: 'Titular', dependente: 'Dependente', colaborador: 'Colaborador', empresa: 'Empresa' };
     const isValidCnpj = value => {
       const d = onlyDigits(value); if (d.length !== 14 || /^(\d)\1{13}$/.test(d)) return false;
@@ -887,14 +888,14 @@ const shortcuts = [
     function explainDependentCode() { openDialog({ eyebrow: 'DEPENDENTE', title: 'Como conseguir o código', description: 'O dependente não precisa de senha. O titular do plano gera um código de acesso para você.', fields: '<div class="dialog-information"><strong>No app do titular</strong><p>Meu Plano › no cartão do dependente › Gerar código de acesso. O código começa com DEP- e vale para uma entrada.</p></div>', submitLabel: 'Entendi', hideCancel: true, onSubmit: () => {} }); }
     function openDemoAccounts() {
       const rows = [
-        ['52998224725', 'Titular com senha', 'CPF 529.982.247-25 · senha 1234'],
+        ['52998224725', 'Titular com senha', 'CPF 529.982.247-25 · senha 123456'],
         ['11144477735', 'Titular no primeiro acesso', 'CPF 111.444.777-35 · nascimento 15/08/1985'],
         ['39053344705', 'Dependente', 'CPF 390.533.447-05 · código DEP-4821'],
-        ['35379838839', 'Colaborador Bom Corp', 'CPF 353.798.388-39 · senha 1234'],
-        ['11222333000181', 'Empresa Bom Corp', 'CNPJ 11.222.333/0001-81 · senha 1234'],
-        ['12345678909', 'Plano próprio + convênio da empresa', 'CPF 123.456.789-09 · senha 1234 (plano) ou 5678 (convênio)'],
+        ['35379838839', 'Colaborador Bom Corp', 'CPF 353.798.388-39 · senha 123456'],
+        ['11222333000181', 'Empresa Bom Corp', 'CNPJ 11.222.333/0001-81 · senha 123456'],
+        ['12345678909', 'Plano próprio + convênio da empresa', 'CPF 123.456.789-09 · senha 123456 nos dois acessos'],
       ];
-      openDialog({ eyebrow: 'DEMONSTRAÇÃO', title: 'Contas de teste', description: `Escolha um perfil para ver o caminho de cada tipo de conta. Em qualquer código enviado, use ${DEMO_CODE}.`, fields: `<div class="demo-accounts">${rows.map(([doc, title, text]) => `<div class="demo-account"><span><strong>${title}</strong><small>${text}</small></span><button class="button button-ghost" type="button" data-demo-doc="${doc}">Usar</button></div>`).join('')}</div>`, submitLabel: 'Fechar', hideCancel: true, onSubmit: () => {}, onOpen: root => root.querySelectorAll('[data-demo-doc]').forEach(button => button.addEventListener('click', () => { closeDialog(); resetLogin({ keepRemembered: false }); loginEls.id.value = maskDoc(button.dataset.demoDoc); loginForm.requestSubmit(); })) });
+      openDialog({ eyebrow: 'DEMONSTRAÇÃO', title: 'Contas de teste', description: `Escolha um perfil para ver o caminho de cada tipo de conta. Todas as senhas e códigos de teste são ${DEMO_CODE}.`, fields: `<div class="demo-accounts">${rows.map(([doc, title, text]) => `<div class="demo-account"><span><strong>${title}</strong><small>${text}</small></span><button class="button button-ghost" type="button" data-demo-doc="${doc}">Usar</button></div>`).join('')}</div>`, submitLabel: 'Fechar', hideCancel: true, onSubmit: () => {}, onOpen: root => root.querySelectorAll('[data-demo-doc]').forEach(button => button.addEventListener('click', () => { closeDialog(); resetLogin({ keepRemembered: false }); loginEls.id.value = maskDoc(button.dataset.demoDoc); loginForm.requestSubmit(); })) });
     }
 
     function submitLoginStep() {
@@ -945,7 +946,7 @@ const shortcuts = [
         return goLoginStep('new-password');
       }
       if (step === 'new-password') {
-        if (loginEls.newPassword.value.length < 8) return showLoginError('A senha precisa ter pelo menos 8 caracteres.', loginEls.newPassword);
+        if (loginEls.newPassword.value.length < MIN_PASSWORD) return showLoginError(`A senha precisa ter pelo menos ${MIN_PASSWORD} caracteres.`, loginEls.newPassword);
         account.password = loginEls.newPassword.value;
         return completeLogin(login$.flow === 'forgot' ? 'Senha nova criada' : 'Senha criada');
       }
@@ -968,7 +969,7 @@ const shortcuts = [
     loginEls.code.addEventListener('input', () => { loginEls.code.value = onlyDigits(loginEls.code.value).slice(0, 6); clearLoginError(); if (loginEls.code.value.length === 6) loginForm.requestSubmit(); });
     loginEls.dep.addEventListener('input', () => { loginEls.dep.value = loginEls.dep.value.toUpperCase(); clearLoginError(); });
     loginEls.password.addEventListener('input', clearLoginError);
-    loginEls.newPassword.addEventListener('input', () => { clearLoginError(); const ok = loginEls.newPassword.value.length >= 8; loginEls.rule.classList.toggle('ok', ok); loginEls.rule.textContent = ok ? '✓ Senha com 8 caracteres ou mais' : `Use pelo menos 8 caracteres (faltam ${8 - loginEls.newPassword.value.length}).`; });
+    loginEls.newPassword.addEventListener('input', () => { clearLoginError(); const ok = loginEls.newPassword.value.length >= MIN_PASSWORD; loginEls.rule.classList.toggle('ok', ok); loginEls.rule.textContent = ok ? `✓ Senha com ${MIN_PASSWORD} caracteres ou mais` : `Use pelo menos ${MIN_PASSWORD} caracteres (faltam ${MIN_PASSWORD - loginEls.newPassword.value.length}).`; });
     loginForm.querySelectorAll('[data-password-toggle]').forEach(toggle => toggle.addEventListener('click', () => {
       const input = toggle.parentElement.querySelector('input'); const wasVisible = input.type === 'text';
       input.type = wasVisible ? 'password' : 'text';
