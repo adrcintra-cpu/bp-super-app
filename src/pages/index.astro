@@ -807,9 +807,18 @@ const shortcuts = [
     const clearLoginError = () => { loginEls.error.hidden = true; loginEls.error.textContent = ''; loginForm.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid')); };
     const setLink = (el, label, action) => { el.hidden = !label; el.textContent = label || ''; el.disabled = false; login$.linkActions[el.dataset.loginLink] = action || null; };
 
+    const corpImage = "url('/media/image-login-empresa.jpg')";
+    const personImage = "url('/media/image-login.png')";
+    function syncLoginPhoto() {
+      const corp = login$.step === 'id' ? onlyDigits(loginEls.id.value).length > 11 : login$.account?.kind === 'empresa';
+      if (login.classList.contains('is-corp') === corp) return;
+      login.classList.toggle('is-corp', corp);
+      login.style.setProperty('--login-image', corp ? corpImage : personImage);
+    }
     function renderLogin(focus = true) {
       const { step, account, flow } = login$;
       loginForm.dataset.step = step;
+      syncLoginPhoto();
       loginSteps.forEach(section => { section.hidden = section.dataset.loginStep !== step; });
       clearLoginError();
       const first = account?.first || '';
@@ -963,7 +972,7 @@ const shortcuts = [
       resetLogin({ keepRemembered: false }); renderLogin();
     });
     [loginEls.linkA, loginEls.linkB].forEach(link => link.addEventListener('click', () => login$.linkActions[link.dataset.loginLink]?.()));
-    loginEls.id.addEventListener('input', () => { loginEls.id.value = maskDoc(loginEls.id.value); clearLoginError(); });
+    loginEls.id.addEventListener('input', () => { loginEls.id.value = maskDoc(loginEls.id.value); clearLoginError(); syncLoginPhoto(); });
     loginEls.birth.addEventListener('input', () => { loginEls.birth.value = maskDate(loginEls.birth.value); clearLoginError(); });
     loginEls.code.addEventListener('input', () => { loginEls.code.value = onlyDigits(loginEls.code.value).slice(0, 6); clearLoginError(); if (loginEls.code.value.length === 6) loginForm.requestSubmit(); });
     loginEls.dep.addEventListener('input', () => { loginEls.dep.value = loginEls.dep.value.toUpperCase(); clearLoginError(); });
