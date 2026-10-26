@@ -212,11 +212,6 @@ const shortcuts = [
               <span><small><img src="/icons/wallet.svg" alt="" aria-hidden="true" />MENSALIDADE</small><strong>{plan.monthlyAmount}</strong></span>
               <span><small><img src="/icons/calendar.svg" alt="" aria-hidden="true" />PRÓX. VENCIMENTO</small><strong>{plan.nextDueDate}</strong><em data-plan-late>Mensalidades em dia</em></span>
             </div>
-            <div class="plan-banner-actions">
-              <button type="button" data-route="carteirinha"><span class="plan-banner-icon"><img src="/icons/contact.svg" alt="" /></span><span><strong>Ver Carteirinha Digital</strong><small>Nº {plan.cardNumber}</small></span><img class="plan-banner-arrow" src="/icons/chevron-right.svg" alt="" /></button>
-              <button type="button" data-route="financeiro"><span class="plan-banner-icon"><img src="/icons/receipt.svg" alt="" /></span><span><strong>2ª Via de Boleto</strong><small data-plan-late>Pague por Pix ou boleto</small></span><img class="plan-banner-arrow" src="/icons/chevron-right.svg" alt="" /></button>
-              <button type="button" data-download="contrato"><span class="plan-banner-icon"><img src="/icons/stamp.svg" alt="" /></span><span><strong>Solicitar 2ª Via do Contrato</strong><small>Cópia assinada</small></span><img class="plan-banner-arrow" src="/icons/chevron-right.svg" alt="" /></button>
-            </div>
             <p class="plan-banner-updated"><img src="/icons/refresh-cw.svg" alt="" aria-hidden="true" /><span data-plan-updated>Atualizado agora</span></p>
           </article>
           <div class="action-grid">
@@ -1256,9 +1251,8 @@ const shortcuts = [
         banner.dataset.planStatus = overdue ? 'overdue' : 'active';
         banner.querySelector('[data-plan-banner-status]').textContent = overdue ? 'Contrato inadimplente' : 'Contrato ativo';
         banner.querySelectorAll('[data-overdue-only]').forEach(el => { el.hidden = !overdue; });
-        const [stat, action] = banner.querySelectorAll('[data-plan-late]');
+        const stat = banner.querySelector('[data-plan-late]');
         if (stat) stat.textContent = overdue ? `${total} parcelas em atraso` : 'Mensalidades em dia';
-        if (action) action.textContent = overdue ? `${total} parcelas em atraso` : 'Pague por Pix ou boleto';
       }
       const homeStatus = document.querySelector('[data-home-status]');
       if (homeStatus) { homeStatus.classList.toggle('is-overdue', overdue); homeStatus.querySelector('span').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo'; }
