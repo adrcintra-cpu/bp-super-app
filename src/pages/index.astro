@@ -198,7 +198,27 @@ const shortcuts = [
 
         <section class="screen" data-screen="plano" aria-labelledby="plano-title">
           <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">PLANO E CONTRATO</p><h1 id="plano-title">Seu plano, <strong>sem complicação</strong></h1><p class="intro-text">Consulte vigência, contrato, carteirinha e dependentes.</p></div><span class="status-pill"><i></i> Ativo</span></div>
-          <article class="plan-banner"><div><p class="eyebrow light">PLANO ATUAL</p><h2>TOTAL<span>+</span></h2><p>Desde 15 de março de 2018</p></div><div class="plan-stats"><span><small>MENSALIDADE</small><strong>{plan.monthlyAmount}</strong></span><span><small>PRÓX. VENCIMENTO</small><strong>{plan.nextDueDate}</strong></span><span><small>CARTEIRINHA</small><strong>{plan.cardNumber}</strong></span></div></article>
+          <article class="plan-banner" data-plan-banner data-plan-status="active">
+            <div class="plan-banner-main">
+              <div class="plan-banner-top"><p class="eyebrow light">PLANO ATUAL</p><span class="plan-banner-status"><i></i><img src="/icons/alert-triangle.svg" alt="" aria-hidden="true" data-overdue-only hidden /><span data-plan-banner-status>Contrato ativo</span></span></div>
+              <h2 class="plan-banner-name">{plan.displayName.replace(/ ?TOTAL MAIS$/, '')} TOTAL<span>+</span></h2>
+              <ul class="plan-banner-chips">
+                <li>Contrato nº <strong>{plan.contractNumber}</strong></li>
+                <li><img src="/icons/calendar.svg" alt="" aria-hidden="true" />Cliente desde {plan.clientSince}</li>
+                <li>{plan.product}</li>
+              </ul>
+            </div>
+            <div class="plan-stats">
+              <span><small><img src="/icons/wallet.svg" alt="" aria-hidden="true" />MENSALIDADE</small><strong>{plan.monthlyAmount}</strong></span>
+              <span><small><img src="/icons/calendar.svg" alt="" aria-hidden="true" />PRÓX. VENCIMENTO</small><strong>{plan.nextDueDate}</strong><em data-plan-late>Mensalidades em dia</em></span>
+            </div>
+            <div class="plan-banner-actions">
+              <button type="button" data-route="carteirinha"><span class="plan-banner-icon"><img src="/icons/contact.svg" alt="" /></span><span><strong>Ver Carteirinha Digital</strong><small>Nº {plan.cardNumber}</small></span><img class="plan-banner-arrow" src="/icons/chevron-right.svg" alt="" /></button>
+              <button type="button" data-route="financeiro"><span class="plan-banner-icon"><img src="/icons/receipt.svg" alt="" /></span><span><strong>2ª Via de Boleto</strong><small data-plan-late>Pague por Pix ou boleto</small></span><img class="plan-banner-arrow" src="/icons/chevron-right.svg" alt="" /></button>
+              <button type="button" data-download="contrato"><span class="plan-banner-icon"><img src="/icons/stamp.svg" alt="" /></span><span><strong>Solicitar 2ª Via do Contrato</strong><small>Cópia assinada</small></span><img class="plan-banner-arrow" src="/icons/chevron-right.svg" alt="" /></button>
+            </div>
+            <p class="plan-banner-updated"><img src="/icons/refresh-cw.svg" alt="" aria-hidden="true" /><span data-plan-updated>Atualizado agora</span></p>
+          </article>
           <div class="action-grid">
             <button class="panel action-card" type="button" data-download="contrato"><span class="list-icon blue"><img src="/icons/download.svg" alt="" /></span><span><strong>2ª via do contrato</strong><small>Documento demonstrativo</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
             <button class="panel action-card" type="button" data-scroll-to="plan-members"><span class="list-icon purple"><img src="/icons/users.svg" alt="" /></span><span><strong>Dependentes (3)</strong><small>João, Ana e Lucas</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
@@ -368,6 +388,8 @@ const shortcuts = [
     const monthsShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
     const shortDate = date => `${String(date.getDate()).padStart(2, '0')} ${monthsShort[date.getMonth()]}`;
     const todayLabelEl = document.querySelector('[data-today-label]');
+    const planUpdatedEl = document.querySelector('[data-plan-updated]');
+    if (planUpdatedEl) planUpdatedEl.textContent = `Atualizado em ${today.toLocaleDateString('pt-BR')}, ${today.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
     if (todayLabelEl) todayLabelEl.textContent = today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^./, c => c.toUpperCase()).toLocaleUpperCase('pt-BR');
     const dueIso = mockData.billing?.current?.dueDateISO;
     if (dueIso) {
@@ -1237,6 +1259,16 @@ const shortcuts = [
         if (pending.late) parts.push(`${pending.late} atrasada${pending.late > 1 ? 's' : ''}`);
         if (pending.expired) parts.push(`${pending.expired} expirada${pending.expired > 1 ? 's' : ''}`);
         stage.querySelector('[data-plan-pending-label]').textContent = overdue && parts.length ? parts.join(' · ') : 'Mensalidades em dia';
+      }
+      const banner = document.querySelector('[data-plan-banner]');
+      if (banner) {
+        const total = (pending.late || 0) + (pending.expired || 0);
+        banner.dataset.planStatus = overdue ? 'overdue' : 'active';
+        banner.querySelector('[data-plan-banner-status]').textContent = overdue ? 'Contrato inadimplente' : 'Contrato ativo';
+        banner.querySelectorAll('[data-overdue-only]').forEach(el => { el.hidden = !overdue; });
+        const [stat, action] = banner.querySelectorAll('[data-plan-late]');
+        if (stat) stat.textContent = overdue ? `${total} parcelas em atraso` : 'Mensalidades em dia';
+        if (action) action.textContent = overdue ? `${total} parcelas em atraso` : 'Pague por Pix ou boleto';
       }
       const homeStatus = document.querySelector('[data-home-status]');
       if (homeStatus) { homeStatus.classList.toggle('is-overdue', overdue); homeStatus.querySelector('span').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo'; }
