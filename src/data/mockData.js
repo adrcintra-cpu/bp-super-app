@@ -27,6 +27,12 @@ export const mockPlan = {
   startDate: "15/03/2018",
   nextDueDate: "10/10/2026",
   cardNumber: "BP-248197-22",
+  // Dados do palco "Seu plano" (Início)
+  displayName: "BD FAMILIA TOTAL MAIS",
+  product: "TOTAL MAIS",
+  contractNumber: "999201",
+  validity: "Vigente",
+  overdue: { late: 3, expired: 1 },
 };
 
 export const mockBeneficiaries = [
