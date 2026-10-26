@@ -6,7 +6,7 @@ import Assistant from "../components/Assistant.astro";
 import "../styles/app.css";
 import { mockAppData } from "../data/mockData.js";
 
-const { customer, plan, beneficiaries, billing, communications, guides, guideCatalog } = mockAppData;
+const { customer, plan, beneficiaries, upgrades, billing, communications, guides, guideCatalog } = mockAppData;
 const unreadMessages = communications.filter((message) => message.unread).length;
 const navItems = [
   { id: "inicio", label: "Início", icon: "home" },
@@ -257,6 +257,22 @@ const shortcuts = [
               <button class="text-link" type="button" data-download="coberturas">Baixar manual de coberturas →</button>
             </article>
           </div>
+
+          <section class="section-block plan-upgrades" aria-labelledby="plan-upgrades-title">
+            <div class="section-heading"><div><p class="eyebrow">UPGRADE DE PLANO</p><h2 id="plan-upgrades-title">Amplie a sua <strong>proteção</strong></h2></div></div>
+            <div class="upgrade-grid">
+              {upgrades.map(offer => (
+                <article class="panel upgrade-card">
+                  <div class="upgrade-head"><span class="upgrade-icon"><img src={`/icons/${offer.icon}.svg`} alt="" /></span><div><h3>{offer.name}</h3><span class="upgrade-tag">{offer.tag}</span></div></div>
+                  <p class="upgrade-price"><strong>{offer.price}</strong> /mês</p>
+                  <ul class="upgrade-items">{offer.items.map(item => <li>{item}</li>)}</ul>
+                  <p class="upgrade-note"><img src="/icons/alert-triangle.svg" alt="" aria-hidden="true" />{offer.note}</p>
+                  <button class="button button-primary upgrade-cta" type="button" data-upgrade={offer.id}>Ver e contratar <span aria-hidden="true">→</span></button>
+                </article>
+              ))}
+            </div>
+            <p class="upgrade-footnote">Mensalidades da tabela oficial de vendas. As condições completas constam do contrato — confirme as do seu caso com um consultor. <a href="https://grupobompastor.com.br/" target="_blank" rel="noopener noreferrer">Ver todos os planos</a></p>
+          </section>
 
           <div class="plan-bottom-grid">
             <article class="panel contract-summary"><span class="contract-icon"><img src="/icons/file-text.svg" alt="" /></span><div><p class="eyebrow">CONTRATO</p><h3>BP-2018-0315-248197</h3><p>Vigência contínua desde 15/03/2018. Última atualização em 04/01/2026.</p></div><button class="button button-ghost" type="button" data-download="contrato"><img src="/icons/download.svg" alt="" /> Baixar documento</button></article>
@@ -1304,6 +1320,18 @@ const shortcuts = [
         anim.onfinish = () => { item.classList.remove('is-animating'); if (!opening) { item.open = false; item.classList.remove('is-closing'); } anim = null; };
       });
     });
+    // Upgrade de plano (mock): pede contato de um consultor.
+    const upgradeById = Object.fromEntries((mockData.upgrades || []).map(offer => [offer.id, offer]));
+    document.querySelectorAll('[data-upgrade]').forEach(button => button.addEventListener('click', () => {
+      const offer = upgradeById[button.dataset.upgrade]; if (!offer) return;
+      openDialog({
+        eyebrow: 'UPGRADE DE PLANO', title: offer.name,
+        description: `${offer.price} por mês. Um consultor liga para você para confirmar as condições e concluir a contratação.`,
+        fields: '<label>Melhor horário para ligarmos<select name="period"><option>Manhã (8h às 12h)</option><option>Tarde (12h às 18h)</option><option>Noite (18h às 20h)</option></select></label>',
+        submitLabel: 'Quero contratar',
+        onSubmit: data => { const when = { Manhã: 'de manhã', Tarde: 'à tarde', Noite: 'à noite' }[String(data.get('period')).split(' ')[0]] || ''; showToast(`Pedido enviado! Um consultor liga para você ${when}.`); },
+      });
+    }));
     document.querySelectorAll('[data-member-update]').forEach(button => button.addEventListener('click', () => {
       const person = memberById[button.dataset.memberUpdate]; if (!person) return;
       openDialog({

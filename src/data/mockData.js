@@ -36,6 +36,13 @@ export const mockPlan = {
   overdue: { late: 3, expired: 1 },
 };
 
+export const mockUpgrades = [
+  { id: "combo", name: "Combo Multi Assistência", tag: "Quatro assistências num só plano", price: "R$ 99,90", icon: "layers", items: ["Assistência Funeral Nacional para o titular + 3 dependentes", "Bom Med: telemedicina 24h para o titular + 3 dependentes", "Bom Pet: cremação individual e telemedicina veterinária para 1 pet (até 10 anos e 40 kg)", "Bom Auto: assistência 24h com reboque de 100 km"], note: "Vidas abaixo de 70 anos. Carência da assistência funeral: 100 dias (morte natural) e 24 horas (acidental). Vigência de 48 meses." },
+  { id: "total", name: "BD Família TOTAL+", tag: "Upgrade disponível", price: "R$ 139,90", icon: "heart-handshake", items: ["Cremação e coroa de flores já inclusas", "Telemedicina Bom Med para o titular + todos os dependentes", "Translado do corpo de 300 km (ida e volta)", "Cartão auxílio-alimentação de R$ 120,00 por 6 meses"], note: "Titular e cônjuge até 70 anos; filhos, pais e sogros sem limite de idade. Vigência de 48 meses." },
+  { id: "pet", name: "Bom Pet", tag: "Proteção para o seu pet", price: "R$ 59,90", icon: "dog", items: ["Cremação individual do pet, com urna de cinzas e ata", "Telemedicina veterinária 24 horas ilimitada", "Consultas veterinárias presenciais por R$ 75,00 (rede premium)", "Até 3 pets no mesmo plano"], note: "Carência de 30 dias para a telemedicina e de 90 dias para a cremação. Vigência de 48 meses." },
+  { id: "auto", name: "Bom Auto Ultra", tag: "Assistência veicular completa", price: "R$ 99,00", icon: "car", items: ["Reboque de 500 km (ida e volta) e 12 acionamentos por vigência", "Carro reserva: até 5 dias por colisão e até 7 por roubo ou furto", "Rastreador com aplicativo e seguros de R$ 50 mil (danos materiais) e R$ 100 mil (danos corporais) a terceiros", "Sem franquia nos acionamentos e sem perfil de condutor"], note: "Carência inicial de 30 dias. Vigência de 12 meses. Não atende van, ônibus e caminhão." },
+];
+
 export const mockBeneficiaries = [
   { id: "fernando", name: "Fernando Ernerto", role: "Titular", number: "BP-248197-22", benefitCode: "BP 9284 7712", cpf: "529.982.247-25", birth: "12/04/1972", initials: "FE", detail: "Titular" },
   { id: "joao", name: "João da Silva", role: "Cônjuge", number: "BP-248197-23", benefitCode: "BP 9284 7713", cpf: "248.438.034-80", birth: "14/02/1976", initials: "JS", detail: "Cônjuge" },
@@ -106,6 +113,7 @@ export const mockAppData = {
   customer: mockCustomer,
   plan: mockPlan,
   beneficiaries: mockBeneficiaries,
+  upgrades: mockUpgrades,
   billing: mockBilling,
   communications: mockCommunications,
   guides: mockGuides,
