@@ -683,3 +683,8 @@ body.login-open .toast{bottom:24px}
 .hero-card .orb-one,.hero-card .orb-two{opacity:1}
 .hero-content.plan-stage>p.plan-stage-pending{color:#2f7d32}
 .hero-content.plan-stage[data-plan-status="overdue"]>p.plan-stage-pending{color:#c2410c}
+/* Palco flat: branco liso (mais claro que o fundo #f6f7fa), sem vidro nem orbs. */
+.hero-card{background:#fff;border:1px solid var(--line);box-shadow:0 12px 32px rgba(19,49,98,.06)}
+.hero-card:before,.hero-card:after{display:none}
+.plan-stage .plan-stage-eyebrow{margin:0 0 12px;color:var(--orange)}
+.plan-stage-chip{background:#f6f7fa;border-color:var(--line)}
