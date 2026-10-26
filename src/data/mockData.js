@@ -22,16 +22,17 @@ export const mockCustomer = {
 export const mockPlan = {
   name: "TOTAL+",
   status: "active",
-  monthlyAmount: "R$ 79,90",
+  monthlyAmount: "R$ 250,00",
   contract: "BP-2018-0315-248197",
   startDate: "15/03/2018",
-  nextDueDate: "10/10/2026",
+  nextDueDate: "10/11/2026",
   cardNumber: "BP-248197-22",
   // Dados do palco "Seu plano" (Início)
   displayName: "BD FAMILIA TOTAL MAIS",
   product: "TOTAL MAIS",
   contractNumber: "999201",
   validity: "Vigente",
+  clientSince: "2 de janeiro de 2025",
   overdue: { late: 3, expired: 1 },
 };
 
