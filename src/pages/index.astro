@@ -283,23 +283,24 @@ const shortcuts = [
         <section class="screen wallet-screen" data-screen="carteirinha" data-card-status="active" aria-labelledby="carteirinha-title">
           <div class="page-intro wallet-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">CARTEIRINHA DIGITAL</p><h1 id="carteirinha-title">Minha <strong>Carteirinha</strong></h1><p class="intro-text">Apresente ao parceiro para utilizar seus benefícios.</p></div><span class="status-pill wallet-page-status" data-active-only><i></i> Plano ativo</span></div>
 
+          <div class="beneficiary-picker wallet-picker">
+            <p class="wallet-picker-label" id="wallet-picker-label">De quem é a carteirinha?</p>
+            <div class="wallet-people" role="radiogroup" aria-labelledby="wallet-picker-label" data-wallet-people>
+              <span class="wallet-people-glow" aria-hidden="true" data-wallet-glow></span>
+              {beneficiaries.map((person, index) => (
+                <button type="button" class="wallet-person" role="radio" aria-checked={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? '0' : '-1'} data-wallet-person={person.id}>
+                  <span class={`wallet-person-avatar${person.role === 'Titular' ? ' titular' : ''}`}>{person.initials}</span>
+                  <span class="wallet-person-copy"><strong>{person.name.split(' ')[0]}</strong><small>{person.role}</small></span>
+                </button>
+              ))}
+            </div>
+            <select class="sr-only" data-wallet-beneficiary aria-hidden="true" tabindex="-1">
+              {beneficiaries.map(person => <option value={person.id}>{person.name} — {person.role}</option>)}
+            </select>
+          </div>
+
           <div class="wallet-layout">
             <div class="wallet-main-column">
-              <div class="beneficiary-picker wallet-picker">
-                <p class="wallet-picker-label" id="wallet-picker-label">De quem é a carteirinha?</p>
-                <div class="wallet-people" role="radiogroup" aria-labelledby="wallet-picker-label" data-wallet-people>
-                  <span class="wallet-people-glow" aria-hidden="true" data-wallet-glow></span>
-                  {beneficiaries.map((person, index) => (
-                    <button type="button" class="wallet-person" role="radio" aria-checked={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? '0' : '-1'} data-wallet-person={person.id}>
-                      <span class={`wallet-person-avatar${person.role === 'Titular' ? ' titular' : ''}`}>{person.initials}</span>
-                      <span class="wallet-person-copy"><strong>{person.name.split(' ')[0]}</strong><small>{person.role}</small></span>
-                    </button>
-                  ))}
-                </div>
-                <select class="sr-only" data-wallet-beneficiary aria-hidden="true" tabindex="-1">
-                  {beneficiaries.map(person => <option value={person.id}>{person.name} — {person.role}</option>)}
-                </select>
-              </div>
 
               <article class="wallet-card" aria-label="Carteirinha digital Bom Pastor">
                 <div class="wallet-card-top"><img class="wallet-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /><span class="wallet-card-status" data-active-only><i></i> Plano ativo</span><span class="wallet-card-status unavailable" data-overdue-only hidden>Indisponível</span></div>

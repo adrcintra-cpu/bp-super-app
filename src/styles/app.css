@@ -825,3 +825,7 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 @keyframes wallet-card-shine{from{background-position:130% 0}to{background-position:-130% 0}}
 @media(max-width:820px){.wallet-person{min-width:112px}.wallet-people{border-radius:20px}}
 @media(prefers-reduced-motion:reduce){.wallet-people-glow,.wallet-person-avatar{transition:none}.wallet-people-glow:after,.wallet-card.is-shining:before{animation:none}}
+/* Seletor da carteirinha em largura total, alinhado ao título. */
+.wallet-screen .wallet-picker{width:100%;margin:0 0 22px}
+.wallet-screen .wallet-person{flex:1 1 0;justify-content:center}
+@media(max-width:820px){.wallet-screen .wallet-person{flex:1 0 auto;justify-content:flex-start}}
