@@ -779,3 +779,25 @@ body[data-role="dependente"] .member-actions{display:none}
 .upgrade-footnote a{color:var(--orange);font-weight:600;text-decoration:underline}
 body[data-role="dependente"] .plan-upgrades{display:none}
 @media(max-width:820px){.upgrade-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:2px 2px 8px;scrollbar-width:none}.upgrade-grid::-webkit-scrollbar{display:none}.upgrade-card{flex:0 0 86%;scroll-snap-align:start}}
+
+/* Tela Plano e Contrato: degradês no laranja → amarelo da marca. */
+[data-screen="plano"] .plan-banner{background:linear-gradient(120deg,#e8410a 0%,#ff5e08 40%,#ff870c 75%,#ffa914 100%)}
+[data-screen="plano"] .plan-banner:after{background:radial-gradient(circle,rgba(255,214,90,.75),transparent 67%)}
+[data-screen="plano"] .plan-banner h2 span{color:#ffe08a}
+[data-screen="plano"] .plan-banner,[data-screen="plano"] .plan-banner .plan-banner-name{text-shadow:0 1px 2px rgba(140,40,0,.25)}
+[data-screen="plano"] .plan-banner-chips li{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.14);color:#fff}
+[data-screen="plano"] .plan-banner-chips img,[data-screen="plano"] .plan-banner[data-plan-banner] .plan-stats small img{filter:brightness(0) invert(1)}
+[data-screen="plano"] .plan-banner[data-plan-banner] .plan-stats span{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.42)}
+[data-screen="plano"] .plan-banner[data-plan-banner] .plan-stats small{color:rgba(255,255,255,.88)}
+[data-screen="plano"] .plan-banner[data-plan-banner] .plan-stats em{color:#fff}
+[data-screen="plano"] .plan-banner[data-plan-status="overdue"] .plan-stats em{color:#fff3c4}
+[data-screen="plano"] .plan-banner[data-plan-status="overdue"] .plan-banner-status{border-color:rgba(255,255,255,.6);background:rgba(120,30,0,.22)}
+[data-screen="plano"] .plan-banner[data-plan-status="overdue"] .plan-banner-status i{background:#ffe08a}
+[data-screen="plano"] .plan-banner .eyebrow.light{color:rgba(255,255,255,.9)}
+[data-screen="plano"] .plan-banner p.plan-banner-updated{color:rgba(255,255,255,.9);border-top-color:rgba(255,255,255,.3)}
+[data-screen="plano"] .member-avatar.titular,[data-screen="plano"] .upgrade-icon{background:linear-gradient(135deg,#ff4a08 0%,#ff7a0b 55%,#ffb217 100%)}
+[data-screen="plano"] .member-avatar{background:linear-gradient(135deg,#fff1e8,#ffe9c7);color:#b8481f}
+[data-screen="plano"] .member-avatar.titular{color:#fff}
+[data-screen="plano"] .contract-icon{background:linear-gradient(135deg,#fff1e8,#fff4d6)}
+[data-screen="plano"] .button-primary{background:linear-gradient(110deg,#ff4a08 0%,#ff6d0a 50%,#ff9a10 100%);color:#fff;box-shadow:0 10px 22px rgba(255,94,8,.24)}
+[data-screen="plano"] .plan-help-card{background:linear-gradient(130deg,#e8410a 0%,#ff6a08 55%,#ffa914 100%)}
