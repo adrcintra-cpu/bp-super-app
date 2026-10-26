@@ -611,3 +611,9 @@ body.login-open .assistant{display:flex;z-index:95}
 /* Login: o aviso fica no rodapé (não há menu inferior) e não cobre o botão principal no celular. */
 body.login-open .toast{bottom:24px}
 @media(max-width:820px){body.login-open .toast{top:max(14px,env(safe-area-inset-top));bottom:auto;left:16px;right:78px;transform:translateY(-20px)}body.login-open .toast.show{transform:translateY(0)}}
+
+/* Login: radio e caixa de seleção não herdam o visual dos campos de texto (evita o quadrado ao tocar). */
+.login-overlay .login-form .login-channel input,.login-overlay .login-form .login-remember input{-webkit-appearance:auto;appearance:auto;padding:0;border:0;border-radius:50%;background:none;box-shadow:none!important;outline:0}
+.login-overlay .login-form .login-remember input{border-radius:4px}
+.login-overlay .login-form .login-channel:has(input:focus-visible){outline:3px solid rgba(255,255,255,.85);outline-offset:3px}
+.login-overlay .login-form .login-remember input:focus-visible{outline:2px solid #fff;outline-offset:3px}
