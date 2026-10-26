@@ -314,7 +314,8 @@ const shortcuts = [
               <div class="partner-pass-head"><div><p class="eyebrow">APRESENTAÇÃO AO PARCEIRO</p><h2>Apresente ao parceiro</h2></div><span class="soft-badge success" data-active-only><i></i> Benefício disponível</span><span class="soft-badge warning" data-overdue-only hidden>Temporariamente indisponível</span></div>
               <p class="partner-pass-copy" data-active-only>Mostre este QR Code antes de utilizar o serviço para identificar seu benefício.</p>
               <p class="partner-pass-copy overdue-copy" data-overdue-only hidden>Regularize seu plano para voltar a utilizar seus benefícios.</p>
-              <div class="wallet-qr" data-active-only><img src="/icons/qr-benefit-demo.svg" alt="QR Code demonstrativo do benefício" /></div>
+              <div class="wallet-qr" data-active-only data-wallet-qr role="img" aria-label="QR Code demonstrativo do benefício"><img src="/icons/qr-benefit-demo.svg" alt="" /></div>
+              <p class="wallet-qr-owner" data-active-only>Benefício de <strong data-wallet-qr-owner>Fernando Ernerto</strong></p>
               <div class="wallet-qr wallet-qr-blocked" data-overdue-only hidden><img src="/icons/qr-benefit-demo.svg" alt="" /><span>QR Code indisponível</span></div>
               <div class="benefit-code" data-active-only><span><small>CÓDIGO DO BENEFÍCIO</small><strong data-wallet-benefit-code>BP 9284 7712</strong></span><button class="button button-ghost" type="button" data-wallet-copy><img src="/icons/copy.svg" alt="" /> Copiar código</button></div>
               <button class="button button-primary wallet-regularize" type="button" data-overdue-only data-route="financeiro" hidden>Regularizar plano</button>
@@ -1256,6 +1257,27 @@ const shortcuts = [
     const walletScreen = document.querySelector('[data-screen="carteirinha"]');
     const walletBeneficiary = walletScreen?.querySelector('[data-wallet-beneficiary]');
     const walletPeople = Object.fromEntries((mockData.beneficiaries || []).map(person => [person.id, { name: person.name.toLocaleUpperCase('pt-BR'), role: person.role.toLocaleUpperCase('pt-BR'), number: person.number, code: person.benefitCode }]));
+    // QR demonstrativo por beneficiário: padrão determinístico gerado a partir do código do benefício.
+    const renderWalletQr = code => {
+      const box = document.querySelector('[data-wallet-qr]');
+      if (!box || box.dataset.code === code) return;
+      box.dataset.code = code;
+      const n = 25; let seed = 0;
+      for (const ch of String(code)) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+      const rand = () => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >> 17; seed ^= seed << 5; seed >>>= 0; return seed / 4294967296; };
+      const inFinder = (x, y) => [[0, 0], [n - 7, 0], [0, n - 7]].some(([fx, fy]) => x >= fx - 1 && x <= fx + 7 && y >= fy - 1 && y <= fy + 7);
+      let cells = '';
+      for (let y = 0; y < n; y += 1) for (let x = 0; x < n; x += 1) {
+        if (inFinder(x, y)) continue;
+        const timing = (x === 6 || y === 6) ? (x + y) % 2 === 0 : rand() > .52;
+        if (timing) cells += `M${x} ${y}h1v1h-1z`;
+      }
+      const finder = (fx, fy) => `M${fx} ${fy}h7v7h-7zM${fx + 1} ${fy + 1}v5h5v-5zM${fx + 2} ${fy + 2}h3v3h-3z`;
+      const svg = `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="${n + 2}" height="${n + 2}" fill="#fff"/><path fill="#111827" fill-rule="evenodd" d="${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}"/><path fill="#111827" d="${cells}"/></svg>`;
+      box.querySelector('svg, img')?.remove();
+      box.insertAdjacentHTML('beforeend', svg);
+      if (box.animate && box.offsetParent && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) box.animate([{ transform: 'scale(.92)', opacity: .2, filter: 'blur(3px)' }, { transform: 'scale(1)', opacity: 1, filter: 'blur(0)' }], { duration: 520, easing: 'cubic-bezier(.22,1.2,.36,1)' });
+    };
     const updateWalletBeneficiary = () => {
       if (!walletScreen || !walletBeneficiary) return;
       const person = walletPeople[walletBeneficiary.value];
@@ -1264,6 +1286,9 @@ const shortcuts = [
       walletScreen.querySelector('[data-wallet-role]').textContent = person.role;
       walletScreen.querySelector('[data-wallet-number]').textContent = person.number;
       walletScreen.querySelector('[data-wallet-benefit-code]').textContent = person.code;
+      const owner = walletScreen.querySelector('[data-wallet-qr-owner]');
+      if (owner) owner.textContent = person.name.toLocaleLowerCase('pt-BR').split(' ').map(w => (['da', 'de', 'do', 'das', 'dos', 'e'].includes(w) ? w : w.charAt(0).toLocaleUpperCase('pt-BR') + w.slice(1))).join(' ');
+      renderWalletQr(person.code);
     };
     const applyWalletStatus = () => {
       if (!walletScreen) return;

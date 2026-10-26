@@ -819,3 +819,14 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 .wallet-people-glow:after{background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%);background-size:220% 100%}
 .wallet-person[aria-checked="true"] .wallet-person-avatar{color:#3d4a63;box-shadow:0 6px 14px rgba(20,30,50,.3)}
 .wallet-person:focus-visible{outline-color:rgba(61,74,99,.4)}
+/* Apresente ao parceiro: título sem quebrar, QR e código do beneficiário selecionado. */
+.partner-pass-head{flex-wrap:wrap;align-items:flex-start;gap:10px 14px}
+.partner-pass-head>div{flex:1 1 220px;min-width:0}
+.partner-pass-head h2{white-space:normal;text-wrap:balance}
+.wallet-qr svg{width:100%;height:100%;display:block}
+.wallet-qr-owner{margin:10px 0 0;text-align:center;color:var(--muted);font-size:.6875rem}
+.wallet-qr-owner strong{color:var(--ink);font-weight:600}
+.partner-pass .benefit-code{flex-wrap:wrap;gap:12px}
+.partner-pass .benefit-code>span{flex:1 1 150px;min-width:0}
+.partner-pass .benefit-code strong{white-space:nowrap}
+.partner-pass .benefit-code small{white-space:nowrap}
