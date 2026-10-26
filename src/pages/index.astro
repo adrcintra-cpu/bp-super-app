@@ -224,10 +224,24 @@ const shortcuts = [
             <article class="panel plan-members" id="plan-members">
               <div class="panel-title"><div><p class="eyebrow">BENEFICIÁRIOS</p><h3>Quem está protegido</h3></div><span class="plan-count">4 pessoas</span></div>
               <ul class="member-list">
-                <li><span class="member-avatar titular">FE</span><span><strong>Fernando Ernerto</strong><small>Titular • CPF final 00</small></span><span class="soft-badge success">Ativo</span></li>
-                <li><span class="member-avatar">JS</span><span><strong>João da Silva</strong><small>Cônjuge • CPF final 18</small></span><span class="soft-badge success">Ativo</span></li>
-                <li><span class="member-avatar">AS</span><span><strong>Ana da Silva</strong><small>Filha • 17 anos</small></span><span class="soft-badge success">Ativo</span></li>
-                <li><span class="member-avatar">LS</span><span><strong>Lucas da Silva</strong><small>Filho • 12 anos</small></span><span class="soft-badge success">Ativo</span></li>
+                {beneficiaries.map((person, index) => (
+                  <li>
+                    <details class="member-item" open={index === 0}>
+                      <summary><span class={`member-avatar${person.role === 'Titular' ? ' titular' : ''}`}>{person.initials}</span><span><strong>{person.name}</strong><small>{person.detail}{person.role === 'Titular' || person.role === 'Cônjuge' ? ` • CPF final ${person.cpf.slice(-2)}` : ''}</small></span><span class="soft-badge success">Ativo</span><img class="member-chevron" src="/icons/chevron-right.svg" alt="" aria-hidden="true" /></summary>
+                      <div class="member-details">
+                        <dl class="member-facts">
+                          <div><dt>CPF</dt><dd>{person.cpf}</dd></div>
+                          <div><dt>NASCIMENTO</dt><dd>{person.birth}</dd></div>
+                          <div class="member-plan"><dt>PLANO VINCULADO</dt><dd><span class="member-plan-pill"><i></i>{plan.displayName}</span></dd></div>
+                        </dl>
+                        <div class="member-actions">
+                          <button type="button" data-member-update={person.id}><img src="/icons/phone.svg" alt="" aria-hidden="true" />Atualizar informações</button>
+                          {person.role !== 'Titular' && <button type="button" data-member-code={person.id}><img src="/icons/key.svg" alt="" aria-hidden="true" />Gerar código de acesso</button>}
+                        </div>
+                      </div>
+                    </details>
+                  </li>
+                ))}
               </ul>
               <button class="text-link" type="button" data-toast="Em breve: a gestão de beneficiários estará disponível no app">Gerenciar beneficiários →</button>
             </article>
@@ -1268,6 +1282,28 @@ const shortcuts = [
       if (homeStatus) { homeStatus.classList.toggle('is-overdue', overdue); homeStatus.querySelector('span').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo'; }
       if (walletScreen) walletScreen.dataset.cardStatus = overdue ? 'overdue' : 'active';
     };
+    // Beneficiários (Meu Plano): atualizar contato e gerar código de acesso do dependente (mock).
+    const memberById = Object.fromEntries((mockData.beneficiaries || []).map(person => [person.id, person]));
+    document.querySelectorAll('[data-member-update]').forEach(button => button.addEventListener('click', () => {
+      const person = memberById[button.dataset.memberUpdate]; if (!person) return;
+      openDialog({
+        eyebrow: 'BENEFICIÁRIO', title: person.name, description: 'Atualize o celular e o e-mail deste beneficiário.',
+        fields: '<label>Celular<input name="phone" data-phone-input inputmode="numeric" placeholder="(00) 00000-0000" required /></label><label>E-mail<input name="email" type="email" placeholder="nome@email.com" /></label>',
+        onOpen: root => bindCpfInputs(root),
+        onSubmit: () => { showToast(`Informações de ${person.name.split(' ')[0]} atualizadas`); },
+      });
+    }));
+    document.querySelectorAll('[data-member-code]').forEach(button => button.addEventListener('click', () => {
+      const person = memberById[button.dataset.memberCode]; if (!person) return;
+      const code = person.accessCode || `DEP-${String(Math.floor(1000 + Math.random() * 9000))}`;
+      person.accessCode = code;
+      openDialog({
+        eyebrow: 'CÓDIGO DE ACESSO', title: code,
+        description: `Entregue este código para ${person.name.split(' ')[0]}. Na tela de entrada, ${person.role === 'Filho' || person.role === 'Filha' ? 'ele(a)' : 'a pessoa'} digita o próprio CPF e depois o código. Vale por 24 horas.`,
+        submitLabel: 'Copiar código', hideCancel: true,
+        onSubmit: () => { navigator.clipboard?.writeText(code).catch(() => {}); showToast('Código copiado'); },
+      });
+    }));
     walletBeneficiary?.addEventListener('change', updateWalletBeneficiary);
     walletScreen && new MutationObserver(applyWalletStatus).observe(walletScreen, { attributes: true, attributeFilter: ['data-card-status'] });
     walletScreen?.querySelector('[data-wallet-copy]')?.addEventListener('click', () => {

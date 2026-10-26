@@ -37,10 +37,10 @@ export const mockPlan = {
 };
 
 export const mockBeneficiaries = [
-  { id: "fernando", name: "Fernando Ernerto", role: "Titular", number: "BP-248197-22", benefitCode: "BP 9284 7712" },
-  { id: "joao", name: "João da Silva", role: "Cônjuge", number: "BP-248197-23", benefitCode: "BP 9284 7713" },
-  { id: "ana", name: "Ana da Silva", role: "Filha", number: "BP-248197-24", benefitCode: "BP 9284 7714" },
-  { id: "lucas", name: "Lucas da Silva", role: "Filho", number: "BP-248197-25", benefitCode: "BP 9284 7715" },
+  { id: "fernando", name: "Fernando Ernerto", role: "Titular", number: "BP-248197-22", benefitCode: "BP 9284 7712", cpf: "529.982.247-25", birth: "12/04/1972", initials: "FE", detail: "Titular" },
+  { id: "joao", name: "João da Silva", role: "Cônjuge", number: "BP-248197-23", benefitCode: "BP 9284 7713", cpf: "248.438.034-80", birth: "14/02/1976", initials: "JS", detail: "Cônjuge" },
+  { id: "ana", name: "Ana da Silva", role: "Filha", number: "BP-248197-24", benefitCode: "BP 9284 7714", cpf: "390.533.447-05", birth: "22/07/2009", initials: "AS", detail: "Filha • 17 anos", accessCode: "DEP-4821" },
+  { id: "lucas", name: "Lucas da Silva", role: "Filho", number: "BP-248197-25", benefitCode: "BP 9284 7715", cpf: "153.509.460-56", birth: "05/03/2014", initials: "LS", detail: "Filho • 12 anos" },
 ];
 
 export const mockBilling = {
