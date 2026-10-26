@@ -813,3 +813,9 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 .wallet-screen .wallet-picker{width:100%;margin:0 0 22px}
 .wallet-screen .wallet-person{flex:1 1 0;justify-content:center}
 @media(max-width:820px){.wallet-screen .wallet-person{flex:1 0 auto;justify-content:flex-start}}
+/* Pílula selecionada: conteúdo à esquerda e cinza-azulado mais escuro. */
+.wallet-screen .wallet-person{justify-content:flex-start;padding-left:12px}
+.wallet-people-glow{background:linear-gradient(120deg,#3d4a63 0%,#4f5d78 55%,#62708b 100%);box-shadow:0 10px 24px rgba(42,55,80,.28)}
+.wallet-people-glow:after{background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.22) 50%,transparent 70%);background-size:220% 100%}
+.wallet-person[aria-checked="true"] .wallet-person-avatar{color:#3d4a63;box-shadow:0 6px 14px rgba(20,30,50,.3)}
+.wallet-person:focus-visible{outline-color:rgba(61,74,99,.4)}
