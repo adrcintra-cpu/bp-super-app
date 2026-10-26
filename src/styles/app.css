@@ -845,3 +845,10 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 .partner-pass .benefit-code>span{flex:1 1 150px;min-width:0}
 .partner-pass .benefit-code strong{white-space:nowrap}
 .partner-pass .benefit-code small{white-space:nowrap}
+/* Pílula selecionada na mesma cor dos ícones (pêssego com laranja). */
+.wallet-people-glow{background:linear-gradient(135deg,#fff1e8,#ffe9c7);box-shadow:0 8px 20px rgba(232,93,43,.16),inset 0 0 0 1px rgba(232,93,43,.22)}
+.wallet-people-glow:after{background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);background-size:220% 100%}
+.wallet-person[aria-checked="true"]{color:#b8481f}
+.wallet-person[aria-checked="true"] .wallet-person-copy small{color:#c2410c}
+.wallet-person[aria-checked="true"] .wallet-person-avatar{background:#fff;color:#b8481f;box-shadow:0 6px 14px rgba(232,93,43,.22)}
+.wallet-person:focus-visible{outline-color:rgba(232,93,43,.35)}
