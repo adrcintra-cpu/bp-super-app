@@ -836,3 +836,8 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 .wallet-person[aria-checked="true"] .wallet-person-copy small{color:#c2410c}
 .wallet-person[aria-checked="true"] .wallet-person-avatar{background:#fff;color:#b8481f;box-shadow:0 6px 14px rgba(232,93,43,.22)}
 .wallet-person:focus-visible{outline-color:rgba(232,93,43,.35)}
+
+/* Financeiro: fatura no degradê laranja → amarelo da marca. */
+[data-screen="financeiro"] .invoice-card{background:linear-gradient(125deg,#e8410a 0%,#ff5e08 40%,#ff870c 75%,#ffa914 100%);box-shadow:0 22px 46px rgba(255,94,8,.26)}
+[data-screen="financeiro"] .invoice-card *{text-shadow:0 1px 2px rgba(140,40,0,.18)}
+[data-screen="financeiro"] .invoice-card button,[data-screen="financeiro"] .invoice-card button *{text-shadow:none}
