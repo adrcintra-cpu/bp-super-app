@@ -21,10 +21,12 @@ const navItems = [
 ];
 
 const shortcuts = [
-  { id: "bommed", title: "Gerar guia", text: "Atendimento com até 35% de desconto", icon: "heart-pulse", tone: "blue featured" },
-  { id: "financeiro", title: "2ª via e Pix", text: `Vencimento em ${billing.current.daysUntilDue} dias`, dueDays: true, icon: "wallet", tone: "orange" },
-  { id: "plano", title: "Meu plano", text: "Contrato e dependentes", icon: "file-text", tone: "purple" },
-  { id: "instituto", title: "Pedir apoio", text: "Atendimento confidencial", icon: "heart-handshake", tone: "support-highlight" },
+  { id: "carteirinha", title: "Carteirinha digital", text: "Mostre na rede credenciada", icon: "contact", tone: "orange" },
+  { id: "financeiro", title: "2ª via de boleto", text: "Pague por Pix ou boleto", icon: "wallet", tone: "blue featured" },
+  { id: "bommed", title: "Emitir guia médica", text: "Consultas e exames na rede", icon: "heart-pulse", tone: "blue" },
+  { id: "plano", title: "Planos e benefícios", text: "Conheça e amplie sua proteção", icon: "umbrella", tone: "purple" },
+  { id: "acionamento", title: "Central de acionamento", text: "Todos os serviços 24 horas", icon: "phone", tone: "teal", href: "tel:08009501010" },
+  { id: "cadastro", title: "Meu cadastro", text: "Dados, contatos e dependentes", icon: "users", tone: "orange" },
 ];
 ---
 
@@ -120,9 +122,15 @@ const shortcuts = [
             <div class="section-heading"><div><p class="eyebrow">ACESSO RÁPIDO</p><h2>O que você precisa hoje?</h2></div></div>
             <div class="shortcut-grid">
               {shortcuts.map((item, index) => (
+                item.href ? (
+                <a class={`shortcut-card ${item.tone} reveal`} style={`--delay:${index * 70}ms`} href={item.href} aria-label={`${item.title}: ligar 0800 950 1010`}>
+                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
+                </a>
+              ) : (
                 <button class={`shortcut-card ${item.tone} reveal`} style={`--delay:${index * 70}ms`} type="button" data-route={item.id}>
-                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small {...(item.dueDays ? { "data-due-text": "Vencimento {n}" } : {})}>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
+                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
                 </button>
+              )
               ))}
             </div>
           </section>
