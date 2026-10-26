@@ -99,9 +99,8 @@ const shortcuts = [
           </div>
 
           <article class="hero-card reveal">
-            <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div>
             <div class="hero-content plan-stage" data-plan-stage data-plan-status="active">
-              <div class="plan-stage-top"><p class="eyebrow">SEU PLANO</p><span class="plan-stage-status"><i></i><span data-plan-status-label>Plano ativo</span></span></div>
+              <p class="eyebrow plan-stage-eyebrow">SEU PLANO</p>
               <h2 class="plan-stage-name">{plan.displayName}</h2>
               <p class="plan-stage-product">{plan.product}</p>
               <dl class="plan-stage-facts">
@@ -1216,7 +1215,6 @@ const shortcuts = [
       const pending = mockData.plan?.overdue || { late: 0, expired: 0 };
       if (stage) {
         stage.dataset.planStatus = overdue ? 'overdue' : 'active';
-        stage.querySelector('[data-plan-status-label]').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo';
         const parts = [];
         if (pending.late) parts.push(`${pending.late} atrasada${pending.late > 1 ? 's' : ''}`);
         if (pending.expired) parts.push(`${pending.expired} expirada${pending.expired > 1 ? 's' : ''}`);
