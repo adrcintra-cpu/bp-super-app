@@ -285,14 +285,21 @@ const shortcuts = [
 
           <div class="wallet-layout">
             <div class="wallet-main-column">
-              <label class="beneficiary-picker">Carteirinha de:
-                <select data-wallet-beneficiary aria-label="Selecionar beneficiário">
-                  <option value="fernando">Fernando Ernerto — Titular</option>
-                  <option value="joao">João da Silva — Cônjuge</option>
-                  <option value="ana">Ana da Silva — Filha</option>
-                  <option value="lucas">Lucas da Silva — Filho</option>
+              <div class="beneficiary-picker wallet-picker">
+                <p class="wallet-picker-label" id="wallet-picker-label">De quem é a carteirinha?</p>
+                <div class="wallet-people" role="radiogroup" aria-labelledby="wallet-picker-label" data-wallet-people>
+                  <span class="wallet-people-glow" aria-hidden="true" data-wallet-glow></span>
+                  {beneficiaries.map((person, index) => (
+                    <button type="button" class="wallet-person" role="radio" aria-checked={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? '0' : '-1'} data-wallet-person={person.id}>
+                      <span class={`wallet-person-avatar${person.role === 'Titular' ? ' titular' : ''}`}>{person.initials}</span>
+                      <span class="wallet-person-copy"><strong>{person.name.split(' ')[0]}</strong><small>{person.role}</small></span>
+                    </button>
+                  ))}
+                </div>
+                <select class="sr-only" data-wallet-beneficiary aria-hidden="true" tabindex="-1">
+                  {beneficiaries.map(person => <option value={person.id}>{person.name} — {person.role}</option>)}
                 </select>
-              </label>
+              </div>
 
               <article class="wallet-card" aria-label="Carteirinha digital Bom Pastor">
                 <div class="wallet-card-top"><img class="wallet-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /><span class="wallet-card-status" data-active-only><i></i> Plano ativo</span><span class="wallet-card-status unavailable" data-overdue-only hidden>Indisponível</span></div>
@@ -1068,7 +1075,7 @@ const shortcuts = [
       const cardNumber = document.querySelector('.digital-card .card-meta span:last-child strong'); if (cardNumber) cardNumber.textContent = person?.number || mockData.plan?.cardNumber || '';
       if (walletPeople.fernando) Object.assign(walletPeople.fernando, { name: (s.kind === 'dependente' ? 'Fernando Ernerto' : s.name).toLocaleUpperCase('pt-BR'), role: s.kind === 'dependente' ? 'TITULAR' : (s.kind === 'colaborador' ? 'COLABORADOR' : 'TITULAR') });
       applyPlanStatus(Boolean(s.overdue));
-      if (walletBeneficiary) { walletBeneficiary.value = s.kind === 'dependente' ? s.beneficiaryId : 'fernando'; updateWalletBeneficiary(); }
+      if (walletBeneficiary) { walletBeneficiary.value = s.kind === 'dependente' ? s.beneficiaryId : 'fernando'; updateWalletBeneficiary(); walletBeneficiary.dispatchEvent(new Event('change')); }
       if (guideBeneficiarySelect) {
         if (s.dependents) guideBeneficiarySelect.innerHTML = guideBeneficiaryOriginal;
         else guideBeneficiarySelect.innerHTML = `<option>${escapeHtml(s.name)}</option>`;
@@ -1342,6 +1349,55 @@ const shortcuts = [
         onSubmit: () => { navigator.clipboard?.writeText(code).catch(() => {}); showToast('Código copiado'); },
       });
     }));
+    // Seletor de beneficiário em "pílulas" com destaque deslizante e troca animada da carteirinha.
+    const walletPeopleGroup = walletScreen?.querySelector('[data-wallet-people]');
+    const walletGlow = walletScreen?.querySelector('[data-wallet-glow]');
+    const walletCardEl = walletScreen?.querySelector('.wallet-card');
+    const walletPersonButtons = [...(walletPeopleGroup?.querySelectorAll('[data-wallet-person]') || [])];
+    const moveWalletGlow = (instant = false) => {
+      const active = walletPersonButtons.find(button => button.getAttribute('aria-checked') === 'true');
+      if (!active || !walletGlow || !active.offsetWidth) return;
+      walletGlow.style.transition = instant ? 'none' : '';
+      walletGlow.style.width = `${active.offsetWidth}px`;
+      walletGlow.style.transform = `translateX(${active.offsetLeft}px)`;
+    };
+    const syncWalletPeople = () => {
+      walletPersonButtons.forEach(button => {
+        const on = button.dataset.walletPerson === walletBeneficiary?.value;
+        button.setAttribute('aria-checked', String(on)); button.tabIndex = on ? 0 : -1;
+      });
+      moveWalletGlow();
+    };
+    const pickWalletPerson = (id, focus = false) => {
+      if (!walletBeneficiary || walletBeneficiary.value === id) return;
+      walletBeneficiary.value = id;
+      syncWalletPeople();
+      const button = walletPersonButtons.find(b => b.dataset.walletPerson === id);
+      if (focus) button?.focus();
+      button?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      if (!walletCardEl?.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { updateWalletBeneficiary(); return; }
+      walletCardEl.getAnimations().forEach(a => a.cancel());
+      const out = walletCardEl.animate([{ transform: 'perspective(1000px) rotateY(0deg) scale(1)', opacity: 1 }, { transform: 'perspective(1000px) rotateY(90deg) scale(.96)', opacity: .4 }], { duration: 260, easing: 'cubic-bezier(.55,0,1,.45)' });
+      out.onfinish = () => {
+        updateWalletBeneficiary();
+        walletCardEl.classList.remove('is-shining'); void walletCardEl.offsetWidth; walletCardEl.classList.add('is-shining');
+        walletCardEl.animate([{ transform: 'perspective(1000px) rotateY(-90deg) scale(.96)', opacity: .4 }, { transform: 'perspective(1000px) rotateY(0deg) scale(1)', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.22,1.2,.36,1)' });
+      };
+    };
+    walletPersonButtons.forEach((button, index) => {
+      button.addEventListener('click', () => pickWalletPerson(button.dataset.walletPerson));
+      button.addEventListener('keydown', event => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+        if (!step) return;
+        event.preventDefault();
+        const visible = walletPersonButtons;
+        const next = visible[(index + step + visible.length) % visible.length];
+        pickWalletPerson(next.dataset.walletPerson, true);
+      });
+    });
+    walletBeneficiary?.addEventListener('change', syncWalletPeople);
+    window.addEventListener('resize', () => moveWalletGlow(true));
+    new MutationObserver(() => { if (walletScreen?.classList.contains('active')) requestAnimationFrame(() => { syncWalletPeople(); moveWalletGlow(true); }); }).observe(walletScreen || document.body, { attributes: true, attributeFilter: ['class'] });
     walletBeneficiary?.addEventListener('change', updateWalletBeneficiary);
     walletScreen && new MutationObserver(applyWalletStatus).observe(walletScreen, { attributes: true, attributeFilter: ['data-card-status'] });
     walletScreen?.querySelector('[data-wallet-copy]')?.addEventListener('click', () => {
