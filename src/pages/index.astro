@@ -1284,6 +1284,26 @@ const shortcuts = [
     };
     // Beneficiários (Meu Plano): atualizar contato e gerar código de acesso do dependente (mock).
     const memberById = Object.fromEntries((mockData.beneficiaries || []).map(person => [person.id, person]));
+    // Abre/fecha o beneficiário com animação suave (altura + opacidade).
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    document.querySelectorAll('.member-item').forEach(item => {
+      const summary = item.querySelector('summary');
+      const body = item.querySelector('.member-details');
+      let anim = null;
+      summary.addEventListener('click', event => {
+        if (reduceMotion.matches || !body.animate) return;
+        event.preventDefault();
+        anim?.cancel();
+        const opening = !item.open || item.classList.contains('is-closing');
+        const start = item.open ? `${body.getBoundingClientRect().height}px` : '0px';
+        if (opening) { item.classList.remove('is-closing'); item.open = true; }
+        else item.classList.add('is-closing');
+        const end = opening ? `${body.scrollHeight}px` : '0px';
+        item.classList.add('is-animating');
+        anim = body.animate([{ height: start, paddingTop: opening ? '0px' : '2px', paddingBottom: opening ? '0px' : '16px', opacity: opening ? 0 : 1 }, { height: end, paddingTop: opening ? '2px' : '0px', paddingBottom: opening ? '16px' : '0px', opacity: opening ? 1 : 0 }], { duration: 650, easing: 'cubic-bezier(.22,.61,.36,1)' });
+        anim.onfinish = () => { item.classList.remove('is-animating'); if (!opening) { item.open = false; item.classList.remove('is-closing'); } anim = null; };
+      });
+    });
     document.querySelectorAll('[data-member-update]').forEach(button => button.addEventListener('click', () => {
       const person = memberById[button.dataset.memberUpdate]; if (!person) return;
       openDialog({
