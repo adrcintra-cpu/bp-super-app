@@ -620,3 +620,50 @@ body.login-open .toast{bottom:24px}
 .digital-card{background:linear-gradient(135deg,#ff4a08 0%,#ff6a08 42%,#ff910d 72%,#ffb217 100%);border-color:rgba(255,255,255,.42);box-shadow:0 22px 44px rgba(196,62,4,.32)}
 .digital-card small{color:rgba(255,255,255,.86)}
 .digital-card strong{text-shadow:0 1px 2px rgba(140,40,0,.28)}
+
+/* Palco "Seu plano" em vidro: orbs coloridas desfocadas atrás de uma camada fosca; texto escuro. */
+.hero-card{color:var(--navy);background:linear-gradient(125deg,#fff4ec 0%,#fdf7ee 45%,#eef5ff 100%);border:1px solid rgba(255,255,255,.9);box-shadow:0 24px 60px rgba(19,49,98,.12),inset 0 1px 0 rgba(255,255,255,.95)}
+.hero-card:after{z-index:1;background:linear-gradient(140deg,rgba(255,255,255,.62),rgba(255,255,255,.34));-webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%)}
+.hero-card .hero-orb{z-index:0;filter:blur(30px);opacity:.9}
+.hero-card .orb-one{width:340px;height:340px;right:auto;left:-6%;top:-40%;background:radial-gradient(circle,#ffb15c,transparent 68%)}
+.hero-card .orb-two{width:320px;height:320px;left:34%;bottom:-55%;background:radial-gradient(circle,#ffd25a,transparent 66%)}
+.hero-card:before{content:'';position:absolute;z-index:0;width:300px;height:300px;right:-4%;top:-30%;border-radius:50%;filter:blur(30px);background:radial-gradient(circle,rgba(71,158,246,.55),transparent 68%)}
+.hero-card .digital-card{z-index:2}
+.plan-stage{max-width:440px;flex:1}
+.plan-stage-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.plan-stage-top .eyebrow{margin:0;color:var(--orange)}
+.plan-stage-status{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid rgba(19,49,98,.08);color:#2f7d32;font-size:.6875rem;font-weight:600;white-space:nowrap}
+.plan-stage-status i{width:7px;height:7px;border-radius:50%;background:#43a047;box-shadow:0 0 0 3px rgba(67,160,71,.18)}
+.plan-stage .plan-stage-name{font-size:clamp(1.5rem,2.6vw,2rem);line-height:1.15;letter-spacing:-.03em;font-weight:600;color:var(--navy)}
+.plan-stage .plan-stage-product{margin:4px 0 0;font-size:.8125rem;font-weight:500;letter-spacing:.08em;color:var(--muted)}
+.plan-stage-facts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 16px;padding-top:16px;border-top:1px solid rgba(19,49,98,.12)}
+.plan-stage-facts dt{margin-bottom:6px;font-size:.5625rem;letter-spacing:.18em;font-weight:700;color:var(--muted)}
+.plan-stage-facts dd{margin:0;font-size:.9375rem;font-weight:600;color:var(--navy)}
+.plan-stage-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:10px;background:rgba(255,255,255,.8);border:1px solid rgba(19,49,98,.1);font-variant-numeric:tabular-nums}
+.plan-stage-chip img{width:15px;height:15px;opacity:.7}
+.plan-stage-valid{display:flex;align-items:center;min-height:31px}
+.plan-stage-pending{display:inline-flex;align-items:center;gap:8px;margin:0 0 20px;padding:7px 13px;border-radius:999px;background:rgba(67,160,71,.12);color:#2f7d32;font-size:.75rem;font-weight:600}
+.plan-stage-pending i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.plan-stage-cta{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(120deg,#ffd84d 0%,#f4bc41 55%,#ffa51f 100%);color:var(--navy);font-weight:600;box-shadow:0 10px 22px rgba(244,166,31,.32);border:0}
+.plan-stage-cta:hover{filter:brightness(1.04);transform:translateY(-1px)}
+.plan-stage-cta:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+.plan-stage[data-plan-status="overdue"] .plan-stage-status{color:#b3261e}
+.plan-stage[data-plan-status="overdue"] .plan-stage-status i{background:#e53935;box-shadow:0 0 0 3px rgba(229,57,53,.18)}
+.plan-stage[data-plan-status="overdue"] .plan-stage-pending{background:rgba(232,93,43,.13);color:#c2410c}
+.plan-stage[data-plan-status="overdue"] .plan-stage-valid{color:var(--navy)}
+.status-pill.is-overdue{color:#b3261e}
+.status-pill.is-overdue i{background:#e53935}
+@media(max-width:820px){
+  .hero-card .orb-one{width:240px;height:240px;top:-14%}
+  .hero-card .orb-two{width:240px;height:240px;left:20%;bottom:-12%}
+  .hero-card:before{width:220px;height:220px;top:30%}
+  .plan-stage{max-width:none}
+  .plan-stage .plan-stage-name{font-size:1.5rem}
+  .plan-stage-cta{width:100%;justify-content:center}
+}
+.hero-card .digital-card{color:#fff}
+.hero-content.plan-stage>p.plan-stage-product{margin:4px 0 0;font-size:.8125rem;color:var(--muted)}
+.hero-content.plan-stage>p.plan-stage-pending{display:flex;width:fit-content;margin:0 0 20px;font-size:.75rem}
+.hero-card .orb-one,.hero-card .orb-two{opacity:1}
+.hero-content.plan-stage>p.plan-stage-pending{color:#2f7d32}
+.hero-content.plan-stage[data-plan-status="overdue"]>p.plan-stage-pending{color:#c2410c}

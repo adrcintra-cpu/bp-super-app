@@ -95,12 +95,22 @@ const shortcuts = [
         <section class="screen active" data-screen="inicio" aria-labelledby="inicio-title">
           <div class="page-intro intro-home">
             <div><p class="eyebrow" data-today-label>&nbsp;</p><h1 id="inicio-title">Olá, <strong>{customer.firstName}.</strong><br />Tudo bem por aí?</h1><p class="intro-text">Seu plano e seus serviços, organizados em um só lugar.</p></div>
-            <span class="status-pill"><i></i> Plano ativo</span>
+            <span class="status-pill" data-home-status><i></i> <span>Plano ativo</span></span>
           </div>
 
           <article class="hero-card reveal">
             <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div>
-            <div class="hero-content"><p class="eyebrow light">SEU PLANO</p><h2>TOTAL<span>+</span></h2><p>Proteção para você e sua família, todos os dias.</p><button class="button button-light" type="button" data-route="plano">Ver detalhes <span>→</span></button></div>
+            <div class="hero-content plan-stage" data-plan-stage data-plan-status="active">
+              <div class="plan-stage-top"><p class="eyebrow">SEU PLANO</p><span class="plan-stage-status"><i></i><span data-plan-status-label>Plano ativo</span></span></div>
+              <h2 class="plan-stage-name">{plan.displayName}</h2>
+              <p class="plan-stage-product">{plan.product}</p>
+              <dl class="plan-stage-facts">
+                <div><dt>CONTRATO</dt><dd><span class="plan-stage-chip"><img src="/icons/file-text.svg" alt="" aria-hidden="true" />{plan.contractNumber}</span></dd></div>
+                <div><dt>VIGÊNCIA</dt><dd class="plan-stage-valid">{plan.validity}</dd></div>
+              </dl>
+              <p class="plan-stage-pending" data-plan-pending><i aria-hidden="true"></i><span data-plan-pending-label>Mensalidades em dia</span></p>
+              <button class="button plan-stage-cta" type="button" data-route="plano">Ver meu plano <span aria-hidden="true">→</span></button>
+            </div>
             <div class="digital-card" aria-label="Carteirinha digital">
               <div class="card-brand"><img class="card-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></div><img class="card-watermark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" /><span class="card-chip"></span><div><small>TITULAR</small><strong>FERNANDO ERNERTO</strong></div>
               <div class="card-meta"><span><small>PLANO</small><strong>{plan.name}</strong></span><span><small>CARTEIRINHA</small><strong>{plan.cardNumber}</strong></span></div>
@@ -769,7 +779,7 @@ const shortcuts = [
       '11222333000181': { kind: 'empresa', name: 'Empresa Demo Ltda', first: 'Empresa Demo', password: '1234' },
       // Um CPF com dois acessos: plano próprio (GBP Clientes) e convênio da empresa (Bom Corp). Cada um tem a sua senha.
       '12345678909': [
-        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '1234', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+' },
+        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '1234', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+', overdue: true },
         { kind: 'colaborador', name: 'Paula Rocha', first: 'Paula', password: '5678', company: 'Empresa Demo Ltda', phone: '(11) •••••-3301', email: 'paula@empresa.com', choiceTitle: 'Convênio da empresa', choiceText: 'Colaboradora · Empresa Demo Ltda' },
       ],
     };
@@ -1003,6 +1013,7 @@ const shortcuts = [
       if (cardRole) cardRole.textContent = (s.kind === 'colaborador' ? 'COLABORADOR' : kindLabel[s.kind] || '').toLocaleUpperCase('pt-BR');
       const cardNumber = document.querySelector('.digital-card .card-meta span:last-child strong'); if (cardNumber) cardNumber.textContent = person?.number || mockData.plan?.cardNumber || '';
       if (walletPeople.fernando) Object.assign(walletPeople.fernando, { name: (s.kind === 'dependente' ? 'Fernando Ernerto' : s.name).toLocaleUpperCase('pt-BR'), role: s.kind === 'dependente' ? 'TITULAR' : (s.kind === 'colaborador' ? 'COLABORADOR' : 'TITULAR') });
+      applyPlanStatus(Boolean(s.overdue));
       if (walletBeneficiary) { walletBeneficiary.value = s.kind === 'dependente' ? s.beneficiaryId : 'fernando'; updateWalletBeneficiary(); }
       if (guideBeneficiarySelect) {
         if (s.dependents) guideBeneficiarySelect.innerHTML = guideBeneficiaryOriginal;
@@ -1011,7 +1022,7 @@ const shortcuts = [
     }
     function completeLogin(message) {
       const account = login$.account;
-      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents), dual: Boolean(login$.options) };
+      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents), overdue: Boolean(account.overdue), dual: Boolean(login$.options) };
       loginEls.submit.disabled = true; loginEls.submit.textContent = 'Entrando…';
       window.setTimeout(() => {
         isAuthenticated = true;
@@ -1198,6 +1209,22 @@ const shortcuts = [
       walletScreen.classList.toggle('is-overdue', overdue);
       walletScreen.querySelectorAll('[data-active-only]').forEach(element => element.hidden = overdue);
       walletScreen.querySelectorAll('[data-overdue-only]').forEach(element => element.hidden = !overdue);
+    };
+    // Palco "Seu plano": status ativo × inadimplente (mock por conta) e espelho na carteirinha.
+    const applyPlanStatus = overdue => {
+      const stage = document.querySelector('[data-plan-stage]');
+      const pending = mockData.plan?.overdue || { late: 0, expired: 0 };
+      if (stage) {
+        stage.dataset.planStatus = overdue ? 'overdue' : 'active';
+        stage.querySelector('[data-plan-status-label]').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo';
+        const parts = [];
+        if (pending.late) parts.push(`${pending.late} atrasada${pending.late > 1 ? 's' : ''}`);
+        if (pending.expired) parts.push(`${pending.expired} expirada${pending.expired > 1 ? 's' : ''}`);
+        stage.querySelector('[data-plan-pending-label]').textContent = overdue && parts.length ? parts.join(' · ') : 'Mensalidades em dia';
+      }
+      const homeStatus = document.querySelector('[data-home-status]');
+      if (homeStatus) { homeStatus.classList.toggle('is-overdue', overdue); homeStatus.querySelector('span').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo'; }
+      if (walletScreen) walletScreen.dataset.cardStatus = overdue ? 'overdue' : 'active';
     };
     walletBeneficiary?.addEventListener('change', updateWalletBeneficiary);
     walletScreen && new MutationObserver(applyWalletStatus).observe(walletScreen, { attributes: true, attributeFilter: ['data-card-status'] });
