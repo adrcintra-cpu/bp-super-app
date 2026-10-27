@@ -6,7 +6,7 @@ import Assistant from "../components/Assistant.astro";
 import "../styles/app.css";
 import { mockAppData } from "../data/mockData.js";
 
-const { customer, plan, beneficiaries, billing, communications, guides, guideCatalog } = mockAppData;
+const { customer, plan, beneficiaries, upgrades, billing, communications, guides, guideCatalog } = mockAppData;
 const unreadMessages = communications.filter((message) => message.unread).length;
 const navItems = [
   { id: "inicio", label: "Início", icon: "home" },
@@ -21,10 +21,12 @@ const navItems = [
 ];
 
 const shortcuts = [
-  { id: "bommed", title: "Gerar guia", text: "Atendimento com até 35% de desconto", icon: "heart-pulse", tone: "blue featured" },
-  { id: "financeiro", title: "2ª via e Pix", text: `Vencimento em ${billing.current.daysUntilDue} dias`, dueDays: true, icon: "wallet", tone: "orange" },
-  { id: "plano", title: "Meu plano", text: "Contrato e dependentes", icon: "file-text", tone: "purple" },
-  { id: "instituto", title: "Pedir apoio", text: "Atendimento confidencial", icon: "heart-handshake", tone: "support-highlight" },
+  { id: "carteirinha", title: "Carteirinha digital", text: "Mostre na rede credenciada", icon: "contact", tone: "orange" },
+  { id: "financeiro", title: "2ª via de boleto", text: "Pague por Pix ou boleto", icon: "wallet", tone: "blue featured" },
+  { id: "bommed", title: "Emitir guia médica", text: "Consultas e exames na rede", icon: "heart-pulse", tone: "blue" },
+  { id: "plano", title: "Planos e benefícios", text: "Conheça e amplie sua proteção", icon: "umbrella", tone: "purple" },
+  { id: "acionamento", title: "Central de acionamento", text: "Todos os serviços 24 horas", icon: "phone", tone: "teal", href: "tel:08009501010" },
+  { id: "cadastro", title: "Meu cadastro", text: "Dados, contatos e dependentes", icon: "users", tone: "orange" },
 ];
 ---
 
@@ -94,13 +96,22 @@ const shortcuts = [
       <main class="content" id="conteudo">
         <section class="screen active" data-screen="inicio" aria-labelledby="inicio-title">
           <div class="page-intro intro-home">
-            <div><p class="eyebrow" data-today-label>&nbsp;</p><h1 id="inicio-title">Olá, <strong>{customer.firstName}.</strong><br />Tudo bem por aí?</h1><p class="intro-text">Seu plano e seus serviços, organizados em um só lugar.</p></div>
-            <span class="status-pill"><i></i> Plano ativo</span>
+            <div><p class="eyebrow" data-today-label>&nbsp;</p><h1 id="inicio-title">Olá, <strong>{customer.firstName}.</strong></h1><p class="intro-text">Seu plano e seus serviços, organizados em um só lugar.</p></div>
+            <span class="status-pill" data-home-status><i></i> <span>Plano ativo</span></span>
           </div>
 
           <article class="hero-card reveal">
-            <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div>
-            <div class="hero-content"><p class="eyebrow light">SEU PLANO</p><h2>TOTAL<span>+</span></h2><p>Proteção para você e sua família, todos os dias.</p><button class="button button-light" type="button" data-route="plano">Ver detalhes <span>→</span></button></div>
+            <div class="hero-content plan-stage" data-plan-stage data-plan-status="active">
+              <p class="eyebrow plan-stage-eyebrow">SEU PLANO</p>
+              <h2 class="plan-stage-name">{plan.displayName}</h2>
+              <p class="plan-stage-product">{plan.product}</p>
+              <dl class="plan-stage-facts">
+                <div><dt>CONTRATO</dt><dd><span class="plan-stage-chip"><img src="/icons/file-text.svg" alt="" aria-hidden="true" />{plan.contractNumber}</span></dd></div>
+                <div><dt>VIGÊNCIA</dt><dd class="plan-stage-valid">{plan.validity}</dd></div>
+              </dl>
+              <p class="plan-stage-pending" data-plan-pending><i aria-hidden="true"></i><span data-plan-pending-label>Mensalidades em dia</span></p>
+              <button class="button plan-stage-cta" type="button" data-route="plano">Ver meu plano <span aria-hidden="true">→</span></button>
+            </div>
             <div class="digital-card" aria-label="Carteirinha digital">
               <div class="card-brand"><img class="card-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /></div><img class="card-watermark" src="/logos/bompastor-logo-minimalista.svg" alt="" aria-hidden="true" /><span class="card-chip"></span><div><small>TITULAR</small><strong>FERNANDO ERNERTO</strong></div>
               <div class="card-meta"><span><small>PLANO</small><strong>{plan.name}</strong></span><span><small>CARTEIRINHA</small><strong>{plan.cardNumber}</strong></span></div>
@@ -111,9 +122,15 @@ const shortcuts = [
             <div class="section-heading"><div><p class="eyebrow">ACESSO RÁPIDO</p><h2>O que você precisa hoje?</h2></div></div>
             <div class="shortcut-grid">
               {shortcuts.map((item, index) => (
+                item.href ? (
+                <a class={`shortcut-card ${item.tone} reveal`} style={`--delay:${index * 70}ms`} href={item.href} aria-label={`${item.title}: ligar 0800 950 1010`}>
+                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
+                </a>
+              ) : (
                 <button class={`shortcut-card ${item.tone} reveal`} style={`--delay:${index * 70}ms`} type="button" data-route={item.id}>
-                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small {...(item.dueDays ? { "data-due-text": "Vencimento {n}" } : {})}>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
+                  <span class="shortcut-icon"><img src={`/icons/${item.icon}.svg`} alt="" /></span><span class="shortcut-copy"><strong>{item.title}</strong><small>{item.text}</small></span><img class="shortcut-arrow" src="/icons/chevron-right.svg" alt="" />
                 </button>
+              )
               ))}
             </div>
           </section>
@@ -181,21 +198,50 @@ const shortcuts = [
 
         <section class="screen" data-screen="plano" aria-labelledby="plano-title">
           <div class="page-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">PLANO E CONTRATO</p><h1 id="plano-title">Seu plano, <strong>sem complicação</strong></h1><p class="intro-text">Consulte vigência, contrato, carteirinha e dependentes.</p></div><span class="status-pill"><i></i> Ativo</span></div>
-          <article class="plan-banner"><div><p class="eyebrow light">PLANO ATUAL</p><h2>TOTAL<span>+</span></h2><p>Desde 15 de março de 2018</p></div><div class="plan-stats"><span><small>MENSALIDADE</small><strong>{plan.monthlyAmount}</strong></span><span><small>PRÓX. VENCIMENTO</small><strong>{plan.nextDueDate}</strong></span><span><small>CARTEIRINHA</small><strong>{plan.cardNumber}</strong></span></div></article>
+          <article class="plan-banner" data-plan-banner data-plan-status="active">
+            <div class="plan-banner-main">
+              <div class="plan-banner-top"><p class="eyebrow light">PLANO ATUAL</p><span class="plan-banner-status"><i></i><img src="/icons/alert-triangle.svg" alt="" aria-hidden="true" data-overdue-only hidden /><span data-plan-banner-status>Contrato ativo</span></span></div>
+              <h2 class="plan-banner-name">{plan.displayName.replace(/ ?TOTAL MAIS$/, '')} TOTAL<span>+</span></h2>
+              <ul class="plan-banner-chips">
+                <li>Contrato nº <strong>{plan.contractNumber}</strong></li>
+                <li><img src="/icons/calendar.svg" alt="" aria-hidden="true" />Cliente desde {plan.clientSince}</li>
+                <li>{plan.product}</li>
+              </ul>
+            </div>
+            <div class="plan-stats">
+              <span><small><img src="/icons/wallet.svg" alt="" aria-hidden="true" />MENSALIDADE</small><strong>{plan.monthlyAmount}</strong></span>
+              <span><small><img src="/icons/calendar.svg" alt="" aria-hidden="true" />PRÓX. VENCIMENTO</small><strong>{plan.nextDueDate}</strong><em data-plan-late>Mensalidades em dia</em></span>
+            </div>
+            <p class="plan-banner-updated"><img src="/icons/refresh-cw.svg" alt="" aria-hidden="true" /><span data-plan-updated>Atualizado agora</span></p>
+          </article>
           <div class="action-grid">
             <button class="panel action-card" type="button" data-download="contrato"><span class="list-icon blue"><img src="/icons/download.svg" alt="" /></span><span><strong>2ª via do contrato</strong><small>Documento demonstrativo</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
-            <button class="panel action-card" type="button" data-scroll-to="plan-members"><span class="list-icon purple"><img src="/icons/users.svg" alt="" /></span><span><strong>Dependentes (3)</strong><small>João, Ana e Lucas</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
-            <button class="panel action-card" type="button" data-scroll-to="plan-coverages"><span class="list-icon orange"><img src="/icons/file-text.svg" alt="" /></span><span><strong>Coberturas</strong><small>Detalhamento por serviço</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-route="carteirinha"><span class="list-icon purple"><img src="/icons/contact.svg" alt="" /></span><span><strong>Ver carteirinha</strong><small>Carteirinha digital do plano</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
+            <button class="panel action-card" type="button" data-route="financeiro"><span class="list-icon orange"><img src="/icons/wallet.svg" alt="" /></span><span><strong>Acessar Financeiro</strong><small>Boletos, Pix e pagamentos</small></span><img src="/icons/chevron-right.svg" alt="" /></button>
           </div>
 
           <div class="plan-overview-grid">
             <article class="panel plan-members" id="plan-members">
               <div class="panel-title"><div><p class="eyebrow">BENEFICIÁRIOS</p><h3>Quem está protegido</h3></div><span class="plan-count">4 pessoas</span></div>
               <ul class="member-list">
-                <li><span class="member-avatar titular">FE</span><span><strong>Fernando Ernerto</strong><small>Titular • CPF final 00</small></span><span class="soft-badge success">Ativo</span></li>
-                <li><span class="member-avatar">JS</span><span><strong>João da Silva</strong><small>Cônjuge • CPF final 18</small></span><span class="soft-badge success">Ativo</span></li>
-                <li><span class="member-avatar">AS</span><span><strong>Ana da Silva</strong><small>Filha • 17 anos</small></span><span class="soft-badge success">Ativo</span></li>
-                <li><span class="member-avatar">LS</span><span><strong>Lucas da Silva</strong><small>Filho • 12 anos</small></span><span class="soft-badge success">Ativo</span></li>
+                {beneficiaries.map((person, index) => (
+                  <li>
+                    <details class="member-item" open={index === 0}>
+                      <summary><span class={`member-avatar${person.role === 'Titular' ? ' titular' : ''}`}>{person.initials}</span><span><strong>{person.name}</strong><small>{person.detail}{person.role === 'Titular' || person.role === 'Cônjuge' ? ` • CPF final ${person.cpf.slice(-2)}` : ''}</small></span><span class="soft-badge success">Ativo</span><img class="member-chevron" src="/icons/chevron-right.svg" alt="" aria-hidden="true" /></summary>
+                      <div class="member-details">
+                        <dl class="member-facts">
+                          <div><dt>CPF</dt><dd>{person.cpf}</dd></div>
+                          <div><dt>NASCIMENTO</dt><dd>{person.birth}</dd></div>
+                          <div class="member-plan"><dt>PLANO VINCULADO</dt><dd><span class="member-plan-pill"><i></i>{plan.displayName}</span></dd></div>
+                        </dl>
+                        <div class="member-actions">
+                          <button type="button" data-member-update={person.id}><img src="/icons/phone.svg" alt="" aria-hidden="true" />Atualizar informações</button>
+                          {person.role !== 'Titular' && <button type="button" data-member-code={person.id}><img src="/icons/key.svg" alt="" aria-hidden="true" />Gerar código de acesso</button>}
+                        </div>
+                      </div>
+                    </details>
+                  </li>
+                ))}
               </ul>
               <button class="text-link" type="button" data-toast="Em breve: a gestão de beneficiários estará disponível no app">Gerenciar beneficiários →</button>
             </article>
@@ -212,6 +258,22 @@ const shortcuts = [
             </article>
           </div>
 
+          <section class="section-block plan-upgrades" aria-labelledby="plan-upgrades-title">
+            <div class="section-heading"><div><p class="eyebrow">UPGRADE DE PLANO</p><h2 id="plan-upgrades-title">Amplie a sua <strong>proteção</strong></h2></div></div>
+            <div class="upgrade-grid">
+              {upgrades.map(offer => (
+                <article class="panel upgrade-card">
+                  <div class="upgrade-head"><span class="upgrade-icon"><img src={`/icons/${offer.icon}.svg`} alt="" /></span><div><h3>{offer.name}</h3><span class="upgrade-tag">{offer.tag}</span></div></div>
+                  <p class="upgrade-price"><strong>{offer.price}</strong> /mês</p>
+                  <ul class="upgrade-items">{offer.items.map(item => <li>{item}</li>)}</ul>
+                  <p class="upgrade-note"><img src="/icons/alert-triangle.svg" alt="" aria-hidden="true" />{offer.note}</p>
+                  <button class="button button-primary upgrade-cta" type="button" data-upgrade={offer.id}>Ver e contratar <span aria-hidden="true">→</span></button>
+                </article>
+              ))}
+            </div>
+            <p class="upgrade-footnote">Mensalidades da tabela oficial de vendas. As condições completas constam do contrato — confirme as do seu caso com um consultor. <a href="https://grupobompastor.com.br/" target="_blank" rel="noopener noreferrer">Ver todos os planos</a></p>
+          </section>
+
           <div class="plan-bottom-grid">
             <article class="panel contract-summary"><span class="contract-icon"><img src="/icons/file-text.svg" alt="" /></span><div><p class="eyebrow">CONTRATO</p><h3>BP-2018-0315-248197</h3><p>Vigência contínua desde 15/03/2018. Última atualização em 04/01/2026.</p></div><button class="button button-ghost" type="button" data-download="contrato"><img src="/icons/download.svg" alt="" /> Baixar documento</button></article>
             <article class="plan-help-card"><img src="/icons/contact.svg" alt="" /><div><small>PRECISA DE AJUDA?</small><strong>Fale com a equipe do seu plano</strong></div><button type="button" data-toast="Em breve: atendimento pelo app. Ligue para a central do seu plano">Atendimento →</button></article>
@@ -221,16 +283,24 @@ const shortcuts = [
         <section class="screen wallet-screen" data-screen="carteirinha" data-card-status="active" aria-labelledby="carteirinha-title">
           <div class="page-intro wallet-intro"><div><button class="page-back" type="button" data-route="inicio"><span aria-hidden="true">←</span> Voltar ao início</button><p class="eyebrow">CARTEIRINHA DIGITAL</p><h1 id="carteirinha-title">Minha <strong>Carteirinha</strong></h1><p class="intro-text">Apresente ao parceiro para utilizar seus benefícios.</p></div><span class="status-pill wallet-page-status" data-active-only><i></i> Plano ativo</span></div>
 
+          <div class="beneficiary-picker wallet-picker">
+            <p class="wallet-picker-label" id="wallet-picker-label">De quem é a carteirinha?</p>
+            <div class="wallet-people" role="radiogroup" aria-labelledby="wallet-picker-label" data-wallet-people>
+              <span class="wallet-people-glow" aria-hidden="true" data-wallet-glow></span>
+              {beneficiaries.map((person, index) => (
+                <button type="button" class="wallet-person" role="radio" aria-checked={index === 0 ? 'true' : 'false'} tabindex={index === 0 ? '0' : '-1'} data-wallet-person={person.id}>
+                  <span class={`wallet-person-avatar${person.role === 'Titular' ? ' titular' : ''}`}>{person.initials}</span>
+                  <span class="wallet-person-copy"><strong>{person.name.split(' ')[0]}</strong><small>{person.role}</small></span>
+                </button>
+              ))}
+            </div>
+            <select class="sr-only" data-wallet-beneficiary aria-hidden="true" tabindex="-1">
+              {beneficiaries.map(person => <option value={person.id}>{person.name} — {person.role}</option>)}
+            </select>
+          </div>
+
           <div class="wallet-layout">
             <div class="wallet-main-column">
-              <label class="beneficiary-picker">Carteirinha de:
-                <select data-wallet-beneficiary aria-label="Selecionar beneficiário">
-                  <option value="fernando">Fernando Ernerto — Titular</option>
-                  <option value="joao">João da Silva — Cônjuge</option>
-                  <option value="ana">Ana da Silva — Filha</option>
-                  <option value="lucas">Lucas da Silva — Filho</option>
-                </select>
-              </label>
 
               <article class="wallet-card" aria-label="Carteirinha digital Bom Pastor">
                 <div class="wallet-card-top"><img class="wallet-logo" src="/logos/bompastor-logo.svg" alt="Grupo Bom Pastor" /><span class="wallet-card-status" data-active-only><i></i> Plano ativo</span><span class="wallet-card-status unavailable" data-overdue-only hidden>Indisponível</span></div>
@@ -244,7 +314,8 @@ const shortcuts = [
               <div class="partner-pass-head"><div><p class="eyebrow">APRESENTAÇÃO AO PARCEIRO</p><h2>Apresente ao parceiro</h2></div><span class="soft-badge success" data-active-only><i></i> Benefício disponível</span><span class="soft-badge warning" data-overdue-only hidden>Temporariamente indisponível</span></div>
               <p class="partner-pass-copy" data-active-only>Mostre este QR Code antes de utilizar o serviço para identificar seu benefício.</p>
               <p class="partner-pass-copy overdue-copy" data-overdue-only hidden>Regularize seu plano para voltar a utilizar seus benefícios.</p>
-              <div class="wallet-qr" data-active-only><img src="/icons/qr-benefit-demo.svg" alt="QR Code demonstrativo do benefício" /></div>
+              <div class="wallet-qr" data-active-only data-wallet-qr role="img" aria-label="QR Code demonstrativo do benefício"><img src="/icons/qr-benefit-demo.svg" alt="" /></div>
+              <p class="wallet-qr-owner" data-active-only>Benefício de <strong data-wallet-qr-owner>Fernando Ernerto</strong></p>
               <div class="wallet-qr wallet-qr-blocked" data-overdue-only hidden><img src="/icons/qr-benefit-demo.svg" alt="" /><span>QR Code indisponível</span></div>
               <div class="benefit-code" data-active-only><span><small>CÓDIGO DO BENEFÍCIO</small><strong data-wallet-benefit-code>BP 9284 7712</strong></span><button class="button button-ghost" type="button" data-wallet-copy><img src="/icons/copy.svg" alt="" /> Copiar código</button></div>
               <button class="button button-primary wallet-regularize" type="button" data-overdue-only data-route="financeiro" hidden>Regularizar plano</button>
@@ -262,7 +333,7 @@ const shortcuts = [
           <div class="finance-view" id="finance-panel-open" role="tabpanel" aria-labelledby="finance-tab-open" data-finance-view="open">
             <div class="billing-layout">
               <article class="invoice-card"><div class="invoice-top"><p class="eyebrow light">FATURA • {billing.current.month}</p><span>Em aberto</span></div><div class="invoice-main"><span><small>VALOR TOTAL</small><strong>{billing.current.amount}</strong></span><span><small>VENCIMENTO</small><strong>{billing.current.dueDate}</strong></span></div><div class="due-line"><span><i></i> <span data-due-text="Vence {n}">Vence em {billing.current.daysUntilDue} dias</span></span><small>Sem juros até o vencimento</small></div><div class="invoice-actions"><button class="button button-light" type="button" data-download="boleto"><img src="/icons/download.svg" alt="" /> 2ª via boleto</button><button class="button button-glass" type="button" data-copy={billing.current.barcodeDigits} data-copy-label="Código de barras"><img src="/icons/copy.svg" alt="" /> Copiar código</button></div></article>
-              <article class="panel pix-card"><div><p class="eyebrow">PIX</p><h3>Pagamento imediato</h3><p>Copie o código Pix e cole na área Pix Copia e Cola do app do seu banco.</p><span class="expires"><img src="/icons/clock.svg" alt="" /> Válido até o vencimento</span><button class="text-link" type="button" data-copy={billing.current.pixCode} data-copy-label="Código Pix">Copiar Pix →</button></div><div class="fake-qr"><img src="/icons/qr-code.svg" alt="QR Code ilustrativo (demonstração)" /></div></article>
+              <article class="panel pix-card"><div><p class="eyebrow">PIX</p><h3>Pagamento imediato</h3><p>Copie o código Pix e cole na área Pix Copia e Cola do app do seu banco.</p><span class="expires"><img src="/icons/clock.svg" alt="" /> Válido até o vencimento</span><button class="button pix-copy-button" type="button" data-copy={billing.current.pixCode} data-copy-label="Código Pix"><img src="/icons/copy.svg" alt="" aria-hidden="true" />Copiar código Pix <span aria-hidden="true">→</span></button></div><div class="fake-qr"><img src="/icons/qr-code.svg" alt="QR Code ilustrativo (demonstração)" /></div></article>
             </div>
             <article class="panel barcode-card"><span class="barcode-icon"><img src="/icons/pix.svg" alt="" /></span><div><p class="eyebrow">LINHA DIGITÁVEL</p><strong>{billing.current.barcode}</strong><small>Confira os dados do beneficiário antes de concluir o pagamento.</small></div><button class="button button-ghost" type="button" data-copy={billing.current.barcodeDigits} data-copy-label="Linha digitável">Copiar linha</button></article>
           </div>
@@ -351,6 +422,8 @@ const shortcuts = [
     const monthsShort = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
     const shortDate = date => `${String(date.getDate()).padStart(2, '0')} ${monthsShort[date.getMonth()]}`;
     const todayLabelEl = document.querySelector('[data-today-label]');
+    const planUpdatedEl = document.querySelector('[data-plan-updated]');
+    if (planUpdatedEl) planUpdatedEl.textContent = `Atualizado em ${today.toLocaleDateString('pt-BR')}, ${today.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
     if (todayLabelEl) todayLabelEl.textContent = today.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^./, c => c.toUpperCase()).toLocaleUpperCase('pt-BR');
     const dueIso = mockData.billing?.current?.dueDateISO;
     if (dueIso) {
@@ -769,7 +842,7 @@ const shortcuts = [
       '11222333000181': { kind: 'empresa', name: 'Empresa Demo Ltda', first: 'Empresa Demo', password: '1234' },
       // Um CPF com dois acessos: plano próprio (GBP Clientes) e convênio da empresa (Bom Corp). Cada um tem a sua senha.
       '12345678909': [
-        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '1234', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+' },
+        { kind: 'titular', name: 'Paula Rocha', first: 'Paula', password: '1234', phone: '(11) •••••-3301', email: 'pa•••@email.com', birth: '03/02/1979', choiceTitle: 'Meu plano Bom Pastor', choiceText: 'Titular · TOTAL+', overdue: true },
         { kind: 'colaborador', name: 'Paula Rocha', first: 'Paula', password: '5678', company: 'Empresa Demo Ltda', phone: '(11) •••••-3301', email: 'paula@empresa.com', choiceTitle: 'Convênio da empresa', choiceText: 'Colaboradora · Empresa Demo Ltda' },
       ],
     };
@@ -1003,7 +1076,8 @@ const shortcuts = [
       if (cardRole) cardRole.textContent = (s.kind === 'colaborador' ? 'COLABORADOR' : kindLabel[s.kind] || '').toLocaleUpperCase('pt-BR');
       const cardNumber = document.querySelector('.digital-card .card-meta span:last-child strong'); if (cardNumber) cardNumber.textContent = person?.number || mockData.plan?.cardNumber || '';
       if (walletPeople.fernando) Object.assign(walletPeople.fernando, { name: (s.kind === 'dependente' ? 'Fernando Ernerto' : s.name).toLocaleUpperCase('pt-BR'), role: s.kind === 'dependente' ? 'TITULAR' : (s.kind === 'colaborador' ? 'COLABORADOR' : 'TITULAR') });
-      if (walletBeneficiary) { walletBeneficiary.value = s.kind === 'dependente' ? s.beneficiaryId : 'fernando'; updateWalletBeneficiary(); }
+      applyPlanStatus(Boolean(s.overdue));
+      if (walletBeneficiary) { walletBeneficiary.value = s.kind === 'dependente' ? s.beneficiaryId : 'fernando'; updateWalletBeneficiary(); walletBeneficiary.dispatchEvent(new Event('change')); }
       if (guideBeneficiarySelect) {
         if (s.dependents) guideBeneficiarySelect.innerHTML = guideBeneficiaryOriginal;
         else guideBeneficiarySelect.innerHTML = `<option>${escapeHtml(s.name)}</option>`;
@@ -1011,7 +1085,7 @@ const shortcuts = [
     }
     function completeLogin(message) {
       const account = login$.account;
-      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents), dual: Boolean(login$.options) };
+      const session = { doc: login$.doc, kind: account.kind, name: account.name, first: account.first, beneficiaryId: account.beneficiaryId || null, company: account.company || null, dependents: Boolean(account.dependents), overdue: Boolean(account.overdue), dual: Boolean(login$.options) };
       loginEls.submit.disabled = true; loginEls.submit.textContent = 'Entrando…';
       window.setTimeout(() => {
         isAuthenticated = true;
@@ -1183,6 +1257,27 @@ const shortcuts = [
     const walletScreen = document.querySelector('[data-screen="carteirinha"]');
     const walletBeneficiary = walletScreen?.querySelector('[data-wallet-beneficiary]');
     const walletPeople = Object.fromEntries((mockData.beneficiaries || []).map(person => [person.id, { name: person.name.toLocaleUpperCase('pt-BR'), role: person.role.toLocaleUpperCase('pt-BR'), number: person.number, code: person.benefitCode }]));
+    // QR demonstrativo por beneficiário: padrão determinístico gerado a partir do código do benefício.
+    const renderWalletQr = code => {
+      const box = document.querySelector('[data-wallet-qr]');
+      if (!box || box.dataset.code === code) return;
+      box.dataset.code = code;
+      const n = 25; let seed = 0;
+      for (const ch of String(code)) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+      const rand = () => { seed ^= seed << 13; seed >>>= 0; seed ^= seed >> 17; seed ^= seed << 5; seed >>>= 0; return seed / 4294967296; };
+      const inFinder = (x, y) => [[0, 0], [n - 7, 0], [0, n - 7]].some(([fx, fy]) => x >= fx - 1 && x <= fx + 7 && y >= fy - 1 && y <= fy + 7);
+      let cells = '';
+      for (let y = 0; y < n; y += 1) for (let x = 0; x < n; x += 1) {
+        if (inFinder(x, y)) continue;
+        const timing = (x === 6 || y === 6) ? (x + y) % 2 === 0 : rand() > .52;
+        if (timing) cells += `M${x} ${y}h1v1h-1z`;
+      }
+      const finder = (fx, fy) => `M${fx} ${fy}h7v7h-7zM${fx + 1} ${fy + 1}v5h5v-5zM${fx + 2} ${fy + 2}h3v3h-3z`;
+      const svg = `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="${n + 2}" height="${n + 2}" fill="#fff"/><path fill="#111827" fill-rule="evenodd" d="${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}"/><path fill="#111827" d="${cells}"/></svg>`;
+      box.querySelector('svg, img')?.remove();
+      box.insertAdjacentHTML('beforeend', svg);
+      if (box.animate && box.offsetParent && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) box.animate([{ transform: 'scale(.92)', opacity: .2, filter: 'blur(3px)' }, { transform: 'scale(1)', opacity: 1, filter: 'blur(0)' }], { duration: 520, easing: 'cubic-bezier(.22,1.2,.36,1)' });
+    };
     const updateWalletBeneficiary = () => {
       if (!walletScreen || !walletBeneficiary) return;
       const person = walletPeople[walletBeneficiary.value];
@@ -1191,6 +1286,9 @@ const shortcuts = [
       walletScreen.querySelector('[data-wallet-role]').textContent = person.role;
       walletScreen.querySelector('[data-wallet-number]').textContent = person.number;
       walletScreen.querySelector('[data-wallet-benefit-code]').textContent = person.code;
+      const owner = walletScreen.querySelector('[data-wallet-qr-owner]');
+      if (owner) owner.textContent = person.name.toLocaleLowerCase('pt-BR').split(' ').map(w => (['da', 'de', 'do', 'das', 'dos', 'e'].includes(w) ? w : w.charAt(0).toLocaleUpperCase('pt-BR') + w.slice(1))).join(' ');
+      renderWalletQr(person.code);
     };
     const applyWalletStatus = () => {
       if (!walletScreen) return;
@@ -1199,6 +1297,133 @@ const shortcuts = [
       walletScreen.querySelectorAll('[data-active-only]').forEach(element => element.hidden = overdue);
       walletScreen.querySelectorAll('[data-overdue-only]').forEach(element => element.hidden = !overdue);
     };
+    // Palco "Seu plano": status ativo × inadimplente (mock por conta) e espelho na carteirinha.
+    const applyPlanStatus = overdue => {
+      const stage = document.querySelector('[data-plan-stage]');
+      const pending = mockData.plan?.overdue || { late: 0, expired: 0 };
+      if (stage) {
+        stage.dataset.planStatus = overdue ? 'overdue' : 'active';
+        const parts = [];
+        if (pending.late) parts.push(`${pending.late} atrasada${pending.late > 1 ? 's' : ''}`);
+        if (pending.expired) parts.push(`${pending.expired} expirada${pending.expired > 1 ? 's' : ''}`);
+        stage.querySelector('[data-plan-pending-label]').textContent = overdue && parts.length ? parts.join(' · ') : 'Mensalidades em dia';
+      }
+      const banner = document.querySelector('[data-plan-banner]');
+      if (banner) {
+        const total = (pending.late || 0) + (pending.expired || 0);
+        banner.dataset.planStatus = overdue ? 'overdue' : 'active';
+        banner.querySelector('[data-plan-banner-status]').textContent = overdue ? 'Contrato inadimplente' : 'Contrato ativo';
+        banner.querySelectorAll('[data-overdue-only]').forEach(el => { el.hidden = !overdue; });
+        const stat = banner.querySelector('[data-plan-late]');
+        if (stat) stat.textContent = overdue ? `${total} parcelas em atraso` : 'Mensalidades em dia';
+      }
+      const homeStatus = document.querySelector('[data-home-status]');
+      if (homeStatus) { homeStatus.classList.toggle('is-overdue', overdue); homeStatus.querySelector('span').textContent = overdue ? 'Plano inadimplente' : 'Plano ativo'; }
+      if (walletScreen) walletScreen.dataset.cardStatus = overdue ? 'overdue' : 'active';
+    };
+    // Beneficiários (Meu Plano): atualizar contato e gerar código de acesso do dependente (mock).
+    const memberById = Object.fromEntries((mockData.beneficiaries || []).map(person => [person.id, person]));
+    // Abre/fecha o beneficiário com animação suave (altura + opacidade).
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    document.querySelectorAll('.member-item').forEach(item => {
+      const summary = item.querySelector('summary');
+      const body = item.querySelector('.member-details');
+      let anim = null;
+      summary.addEventListener('click', event => {
+        if (reduceMotion.matches || !body.animate) return;
+        event.preventDefault();
+        anim?.cancel();
+        const opening = !item.open || item.classList.contains('is-closing');
+        const start = item.open ? `${body.getBoundingClientRect().height}px` : '0px';
+        if (opening) { item.classList.remove('is-closing'); item.open = true; }
+        else item.classList.add('is-closing');
+        const end = opening ? `${body.scrollHeight}px` : '0px';
+        item.classList.add('is-animating');
+        anim = body.animate([{ height: start, paddingTop: opening ? '0px' : '2px', paddingBottom: opening ? '0px' : '16px', opacity: opening ? 0 : 1 }, { height: end, paddingTop: opening ? '2px' : '0px', paddingBottom: opening ? '16px' : '0px', opacity: opening ? 1 : 0 }], { duration: 650, easing: 'cubic-bezier(.22,.61,.36,1)' });
+        anim.onfinish = () => { item.classList.remove('is-animating'); if (!opening) { item.open = false; item.classList.remove('is-closing'); } anim = null; };
+      });
+    });
+    // Upgrade de plano (mock): pede contato de um consultor.
+    const upgradeById = Object.fromEntries((mockData.upgrades || []).map(offer => [offer.id, offer]));
+    document.querySelectorAll('[data-upgrade]').forEach(button => button.addEventListener('click', () => {
+      const offer = upgradeById[button.dataset.upgrade]; if (!offer) return;
+      openDialog({
+        eyebrow: 'UPGRADE DE PLANO', title: offer.name,
+        description: `${offer.price} por mês. Um consultor liga para você para confirmar as condições e concluir a contratação.`,
+        fields: '<label>Melhor horário para ligarmos<select name="period"><option>Manhã (8h às 12h)</option><option>Tarde (12h às 18h)</option><option>Noite (18h às 20h)</option></select></label>',
+        submitLabel: 'Quero contratar',
+        onSubmit: data => { const when = { Manhã: 'de manhã', Tarde: 'à tarde', Noite: 'à noite' }[String(data.get('period')).split(' ')[0]] || ''; showToast(`Pedido enviado! Um consultor liga para você ${when}.`); },
+      });
+    }));
+    document.querySelectorAll('[data-member-update]').forEach(button => button.addEventListener('click', () => {
+      const person = memberById[button.dataset.memberUpdate]; if (!person) return;
+      openDialog({
+        eyebrow: 'BENEFICIÁRIO', title: person.name, description: 'Atualize o celular e o e-mail deste beneficiário.',
+        fields: '<label>Celular<input name="phone" data-phone-input inputmode="numeric" placeholder="(00) 00000-0000" required /></label><label>E-mail<input name="email" type="email" placeholder="nome@email.com" /></label>',
+        onOpen: root => bindCpfInputs(root),
+        onSubmit: () => { showToast(`Informações de ${person.name.split(' ')[0]} atualizadas`); },
+      });
+    }));
+    document.querySelectorAll('[data-member-code]').forEach(button => button.addEventListener('click', () => {
+      const person = memberById[button.dataset.memberCode]; if (!person) return;
+      const code = person.accessCode || `DEP-${String(Math.floor(1000 + Math.random() * 9000))}`;
+      person.accessCode = code;
+      openDialog({
+        eyebrow: 'CÓDIGO DE ACESSO', title: code,
+        description: `Entregue este código para ${person.name.split(' ')[0]}. Na tela de entrada, ${person.role === 'Filho' || person.role === 'Filha' ? 'ele(a)' : 'a pessoa'} digita o próprio CPF e depois o código. Vale por 24 horas.`,
+        submitLabel: 'Copiar código', hideCancel: true,
+        onSubmit: () => { navigator.clipboard?.writeText(code).catch(() => {}); showToast('Código copiado'); },
+      });
+    }));
+    // Seletor de beneficiário em "pílulas" com destaque deslizante e troca animada da carteirinha.
+    const walletPeopleGroup = walletScreen?.querySelector('[data-wallet-people]');
+    const walletGlow = walletScreen?.querySelector('[data-wallet-glow]');
+    const walletCardEl = walletScreen?.querySelector('.wallet-card');
+    const walletPersonButtons = [...(walletPeopleGroup?.querySelectorAll('[data-wallet-person]') || [])];
+    const moveWalletGlow = (instant = false) => {
+      const active = walletPersonButtons.find(button => button.getAttribute('aria-checked') === 'true');
+      if (!active || !walletGlow || !active.offsetWidth) return;
+      walletGlow.style.transition = instant ? 'none' : '';
+      walletGlow.style.width = `${active.offsetWidth}px`;
+      walletGlow.style.transform = `translateX(${active.offsetLeft}px)`;
+    };
+    const syncWalletPeople = () => {
+      walletPersonButtons.forEach(button => {
+        const on = button.dataset.walletPerson === walletBeneficiary?.value;
+        button.setAttribute('aria-checked', String(on)); button.tabIndex = on ? 0 : -1;
+      });
+      moveWalletGlow();
+    };
+    const pickWalletPerson = (id, focus = false) => {
+      if (!walletBeneficiary || walletBeneficiary.value === id) return;
+      walletBeneficiary.value = id;
+      syncWalletPeople();
+      const button = walletPersonButtons.find(b => b.dataset.walletPerson === id);
+      if (focus) button?.focus();
+      button?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      if (!walletCardEl?.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { updateWalletBeneficiary(); return; }
+      walletCardEl.getAnimations().forEach(a => a.cancel());
+      const out = walletCardEl.animate([{ transform: 'perspective(1000px) rotateY(0deg) scale(1)', opacity: 1 }, { transform: 'perspective(1000px) rotateY(90deg) scale(.96)', opacity: .4 }], { duration: 260, easing: 'cubic-bezier(.55,0,1,.45)' });
+      out.onfinish = () => {
+        updateWalletBeneficiary();
+        walletCardEl.classList.remove('is-shining'); void walletCardEl.offsetWidth; walletCardEl.classList.add('is-shining');
+        walletCardEl.animate([{ transform: 'perspective(1000px) rotateY(-90deg) scale(.96)', opacity: .4 }, { transform: 'perspective(1000px) rotateY(0deg) scale(1)', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.22,1.2,.36,1)' });
+      };
+    };
+    walletPersonButtons.forEach((button, index) => {
+      button.addEventListener('click', () => pickWalletPerson(button.dataset.walletPerson));
+      button.addEventListener('keydown', event => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+        if (!step) return;
+        event.preventDefault();
+        const visible = walletPersonButtons;
+        const next = visible[(index + step + visible.length) % visible.length];
+        pickWalletPerson(next.dataset.walletPerson, true);
+      });
+    });
+    walletBeneficiary?.addEventListener('change', syncWalletPeople);
+    window.addEventListener('resize', () => moveWalletGlow(true));
+    new MutationObserver(() => { if (walletScreen?.classList.contains('active')) requestAnimationFrame(() => { syncWalletPeople(); moveWalletGlow(true); }); }).observe(walletScreen || document.body, { attributes: true, attributeFilter: ['class'] });
     walletBeneficiary?.addEventListener('change', updateWalletBeneficiary);
     walletScreen && new MutationObserver(applyWalletStatus).observe(walletScreen, { attributes: true, attributeFilter: ['data-card-status'] });
     walletScreen?.querySelector('[data-wallet-copy]')?.addEventListener('click', () => {
