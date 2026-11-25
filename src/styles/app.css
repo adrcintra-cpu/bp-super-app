@@ -932,3 +932,26 @@ body[data-role="dependente"] .plan-upgrades{display:none}
   .app-main{margin-left:calc(var(--sidebar) + 14px)}
 }
 .mobile-drawer aside{border-radius:0 28px 28px 0;box-shadow:0 14px 40px rgba(31,45,80,.14)}
+
+/* Palcos: alto relevo + super brilho (chanfro claro em cima, sombra interna embaixo, verniz). Topbar não muda. */
+:root{
+  --glass-sheen:linear-gradient(118deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.7) 14%,rgba(255,255,255,.12) 30%,rgba(255,255,255,0) 38%);
+  --glass-edge:inset 0 2px 0 rgba(255,255,255,1),inset 2px 0 0 rgba(255,255,255,.85),inset 0 -2px 0 rgba(160,120,80,.10),inset -2px 0 0 rgba(160,120,80,.06),inset 0 0 0 1px rgba(255,255,255,.5),inset 0 26px 38px -24px rgba(255,255,255,1),inset 0 -22px 34px -26px rgba(31,45,80,.14);
+  --glass-shadow:0 1px 0 rgba(255,255,255,.9),0 18px 38px -6px rgba(31,45,80,.13),0 4px 10px rgba(31,45,80,.06);
+}
+.hero-card,[data-screen] .plan-banner,[data-screen] .invoice-card,.support-hero{border-color:#fff;transform:translateZ(0)}
+/* verniz: reflexo largo e brilhante no topo + faixa diagonal mais forte */
+.hero-card:before,[data-screen] .plan-banner:before,[data-screen] .invoice-card:before,.support-hero:before{
+  inset:0 0 auto 0;width:auto;height:46%;border-radius:inherit;transform:none;opacity:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.85) 0%,rgba(255,255,255,.35) 45%,rgba(255,255,255,0) 100%);
+  -webkit-mask:radial-gradient(140% 100% at 50% 0%,#000 60%,transparent 100%);mask:radial-gradient(140% 100% at 50% 0%,#000 60%,transparent 100%);
+}
+.hero-card:after,[data-screen] .plan-banner:after,[data-screen] .invoice-card:after,.support-hero:after{
+  background:linear-gradient(104deg,transparent 48%,rgba(255,255,255,.85) 54%,rgba(255,255,255,.2) 58%,transparent 62%),linear-gradient(104deg,transparent 63%,rgba(255,255,255,.45) 65%,transparent 67.5%),linear-gradient(180deg,#fff,rgba(255,255,255,0) 3px);
+  background-size:220% 100%,220% 100%,100% 100%;background-position:30% 0,30% 0,0 0;
+  animation:stage-gloss 7s ease-in-out infinite;
+}
+@keyframes stage-gloss{0%,62%{background-position:30% 0,30% 0,0 0}82%,100%{background-position:-70% 0,-70% 0,0 0}}
+/* elementos internos também em relevo */
+[data-screen] .plan-banner[data-plan-banner] .plan-stats span,[data-screen] .plan-banner-chips li,[data-screen] .invoice-top>span,.support-symbol,.plan-stage-chip{box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(31,45,80,.06),0 6px 14px rgba(31,45,80,.07)}
+@media(prefers-reduced-motion:reduce){.hero-card:after,[data-screen] .plan-banner:after,[data-screen] .invoice-card:after,.support-hero:after{animation:none}}
