@@ -955,3 +955,43 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 /* elementos internos também em relevo */
 [data-screen] .plan-banner[data-plan-banner] .plan-stats span,[data-screen] .plan-banner-chips li,[data-screen] .invoice-top>span,.support-symbol,.plan-stage-chip{box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(31,45,80,.06),0 6px 14px rgba(31,45,80,.07)}
 @media(prefers-reduced-motion:reduce){.hero-card:after,[data-screen] .plan-banner:after,[data-screen] .invoice-card:after,.support-hero:after{animation:none}}
+
+/* ===== Liquid glass (versão final): minimalista, squircle, vidro transparente + fosco, luz atravessando,
+   brilho interno suave, refração na borda, cáusticas e iluminação de estúdio. Substitui os efeitos anteriores. ===== */
+.hero-card,[data-screen] .plan-banner,[data-screen] .invoice-card,.support-hero{
+  border-radius:44px;corner-shape:squircle;
+  border:0;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 34%),                         /* luz de estúdio vinda de cima */
+    linear-gradient(112deg,transparent 18%,rgba(255,255,255,.42) 30%,rgba(255,255,255,.08) 40%,transparent 48%), /* feixe de luz atravessando */
+    radial-gradient(16% 3.2% at 78% 93%,rgba(255,255,255,1),rgba(255,255,255,0) 70%),               /* cáusticas: luz focada pelo vidro */
+    radial-gradient(17% 4.2% at 78.6% 93.6%,rgba(255,214,160,.28),transparent 72%),
+    radial-gradient(17% 4.2% at 77.4% 92.4%,rgba(150,200,255,.24),transparent 72%),
+    radial-gradient(7% 2.2% at 90% 90%,rgba(255,255,255,.95),transparent 70%),
+    radial-gradient(30% 9% at 70% 102%,rgba(255,244,230,.55),transparent 70%),
+    linear-gradient(160deg,rgba(255,255,255,.55),rgba(244,247,252,.42)),                            /* fosco translúcido */
+    rgba(250,251,254,.7)!important;
+  -webkit-backdrop-filter:blur(30px) saturate(160%);backdrop-filter:blur(30px) saturate(160%);
+  box-shadow:0 24px 48px -18px rgba(31,45,80,.16),0 3px 8px rgba(31,45,80,.05)!important;          /* sombra de estúdio limpa */
+}
+/* brilho interno suave */
+.hero-card:before,[data-screen] .plan-banner:before,[data-screen] .invoice-card:before,.support-hero:before{
+  content:'';display:block!important;position:absolute;inset:0;width:auto;height:auto;z-index:0;pointer-events:none;border-radius:inherit;corner-shape:squircle;transform:none;opacity:1;
+  -webkit-mask:none;mask:none;background:none;
+  box-shadow:inset 0 0 42px rgba(255,255,255,.85),inset 0 14px 28px -18px rgba(255,255,255,1),inset 0 -16px 30px -22px rgba(31,45,80,.10);
+}
+/* refração: aro fino com leve dispersão de cor (iluminação sutil nas bordas) */
+.hero-card:after,[data-screen] .plan-banner:after,[data-screen] .invoice-card:after,.support-hero:after{
+  content:'';display:block!important;position:absolute;inset:0;width:auto;height:auto;z-index:0;pointer-events:none;border-radius:inherit;corner-shape:squircle;opacity:1;filter:none;
+  padding:1.5px;animation:none;
+  background:conic-gradient(from 200deg at 50% 50%,rgba(255,255,255,1),rgba(196,220,255,.85) 18%,rgba(255,255,255,.55) 34%,rgba(214,222,236,.6) 50%,rgba(255,226,196,.8) 68%,rgba(255,255,255,.95) 84%,rgba(255,255,255,1));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+}
+/* elementos internos: mini-vidros discretos, sem relevo pesado */
+[data-screen] .plan-banner[data-plan-banner] .plan-stats span,[data-screen] .plan-banner-chips li,[data-screen] .invoice-top>span,.support-symbol,.plan-stage-chip{
+  background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.9);box-shadow:inset 0 1px 0 #fff,inset 0 0 14px rgba(255,255,255,.6),0 4px 12px rgba(31,45,80,.05);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+[data-screen] .plan-banner[data-plan-banner] .plan-stats span{border-radius:24px;corner-shape:squircle}
+.support-symbol{border-radius:40px;corner-shape:squircle}
+@media(max-width:820px){.hero-card,[data-screen] .plan-banner,[data-screen] .invoice-card,.support-hero{border-radius:34px}}
