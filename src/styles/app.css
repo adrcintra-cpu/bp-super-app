@@ -863,3 +863,72 @@ body[data-role="dependente"] .plan-upgrades{display:none}
 .pix-card .pix-copy-button:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(255,94,8,.32)}
 .pix-card .pix-copy-button:focus-visible{outline:3px solid rgba(255,94,8,.35);outline-offset:3px}
 @media(max-width:820px){.pix-card .pix-copy-button{width:100%}}
+
+/* ===== Palcos em "liquid glass": vidro de alto reflexo, cores suaves por baixo e sombra leve ===== */
+:root{
+  --glass-sheen:linear-gradient(118deg,rgba(255,255,255,.95) 0%,rgba(255,255,255,.5) 16%,rgba(255,255,255,0) 34%);
+  --glass-frost:linear-gradient(180deg,rgba(255,255,255,.62) 0%,rgba(255,255,255,.34) 100%);
+  --glass-tint:radial-gradient(55% 85% at 4% -8%,rgba(255,160,80,.72),transparent 70%),radial-gradient(48% 80% at 100% 108%,rgba(255,200,70,.68),transparent 72%),radial-gradient(38% 70% at 72% -12%,rgba(120,170,255,.5),transparent 70%),radial-gradient(30% 60% at 30% 120%,rgba(255,130,185,.3),transparent 70%);
+  --glass-edge:inset 0 1px 0 rgba(255,255,255,1),inset 0 -1px 0 rgba(255,255,255,.55),inset 1px 0 0 rgba(255,255,255,.7),inset -1px 0 0 rgba(255,255,255,.45),inset 0 0 0 1px rgba(255,255,255,.25),inset 0 18px 34px -22px rgba(255,255,255,.95);
+  --glass-shadow:0 14px 34px rgba(31,45,80,.08),0 2px 6px rgba(31,45,80,.04);
+}
+.hero-card,[data-screen] .plan-banner,[data-screen] .invoice-card,.support-hero{
+  position:relative;isolation:isolate;overflow:hidden;color:var(--navy);
+  background:var(--glass-sheen),var(--glass-frost),var(--glass-tint),#f9fafc!important;
+  border:1px solid rgba(255,255,255,.95);
+  box-shadow:var(--glass-shadow),var(--glass-edge)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);
+}
+/* reflexo curvo (faixa de luz) e brilho da borda superior */
+.hero-card:before,[data-screen] .plan-banner:before,[data-screen] .invoice-card:before,.support-hero:before{
+  content:'';display:block!important;position:absolute;z-index:0;pointer-events:none;inset:-40% auto auto -10%;width:120%;height:90%;border-radius:50%;filter:none;
+  background:radial-gradient(closest-side,rgba(255,255,255,.55),rgba(255,255,255,0));transform:rotate(-8deg);opacity:.75;
+}
+.hero-card:after,[data-screen] .plan-banner:after,[data-screen] .invoice-card:after,.support-hero:after{
+  content:'';display:block!important;position:absolute;z-index:0;pointer-events:none;inset:0;border-radius:inherit;filter:none;opacity:1;width:auto;height:auto;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  background:linear-gradient(100deg,transparent 52%,rgba(255,255,255,.55) 58%,rgba(255,255,255,0) 64%),linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0) 2px);
+}
+.hero-card>*,[data-screen] .plan-banner>*,[data-screen] .invoice-card>*,.support-hero>*{position:relative;z-index:1}
+.hero-card .digital-card{z-index:2}
+
+/* textos escuros sobre o vidro */
+[data-screen] .plan-banner,[data-screen] .plan-banner *,[data-screen] .invoice-card *,.support-hero *{text-shadow:none!important}
+[data-screen] .plan-banner .eyebrow.light,[data-screen] .invoice-card .eyebrow.light,.support-hero .eyebrow.light{color:var(--orange)}
+[data-screen] .plan-banner .plan-banner-name,.support-hero h1{color:var(--navy)}
+[data-screen] .plan-banner h2 span{color:var(--orange)}
+[data-screen] .plan-banner-status{color:#2f7d32;border-color:rgba(19,49,98,.1);background:rgba(255,255,255,.7)}
+[data-screen] .plan-banner[data-plan-status="overdue"] .plan-banner-status{color:#b3261e;border-color:rgba(229,57,53,.25);background:rgba(255,255,255,.75)}
+[data-screen] .plan-banner[data-plan-status="overdue"] .plan-banner-status i{background:#e53935}
+[data-screen] .plan-banner-status img{filter:none}
+[data-screen] .plan-banner-chips li{color:var(--ink);border-color:rgba(19,49,98,.1);background:rgba(255,255,255,.66)}
+[data-screen] .plan-banner-chips li strong{color:var(--navy)}
+[data-screen] .plan-banner-chips img,[data-screen] .plan-banner[data-plan-banner] .plan-stats small img{filter:none;opacity:.75}
+[data-screen] .plan-banner[data-plan-banner] .plan-stats span{background:rgba(255,255,255,.62);border-color:rgba(255,255,255,.95);box-shadow:inset 0 1px 0 #fff,0 6px 16px rgba(31,45,80,.05)}
+[data-screen] .plan-banner[data-plan-banner] .plan-stats small{color:var(--muted)}
+[data-screen] .plan-banner[data-plan-banner] .plan-stats strong{color:var(--navy)}
+[data-screen] .plan-banner[data-plan-banner] .plan-stats em{color:#2f7d32}
+[data-screen] .plan-banner[data-plan-status="overdue"] .plan-stats em{color:#c2410c}
+[data-screen] .plan-banner p.plan-banner-updated{color:var(--muted);border-top-color:rgba(19,49,98,.1)}
+[data-screen] .plan-banner-updated img{filter:none}
+[data-screen] .invoice-main small,[data-screen] .due-line small{color:var(--muted)}
+[data-screen] .invoice-main strong{color:var(--navy);font-weight:400}
+[data-screen] .invoice-top>span{color:var(--navy);border-color:rgba(19,49,98,.1);background:rgba(255,255,255,.7)}
+[data-screen] .due-line{border-top-color:rgba(19,49,98,.1)}
+[data-screen] .due-line span i{background:var(--orange);box-shadow:0 0 0 5px rgba(232,93,43,.14)}
+[data-screen] .invoice-card .button-light{box-shadow:0 6px 16px rgba(31,45,80,.08),inset 0 0 0 1px rgba(19,49,98,.08)}
+[data-screen] .invoice-card .button-glass{color:var(--navy);background:rgba(255,255,255,.5);border-color:rgba(19,49,98,.12);box-shadow:inset 0 1px 0 #fff}
+[data-screen] .invoice-card .button-glass img{filter:none}
+.support-hero p:not(.eyebrow){color:var(--muted)}
+.support-hero .support-glow{display:none}
+.support-symbol{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.95);box-shadow:inset 0 1px 0 #fff,0 10px 24px rgba(31,45,80,.08)}
+.support-symbol img{filter:none;opacity:.85}
+.support-hero .button-light,.support-hero .page-back-light{box-shadow:0 6px 16px rgba(31,45,80,.08),inset 0 0 0 1px rgba(19,49,98,.08)}
+.hero-card .hero-orb{display:none}
+
+/* ===== Menu lateral flutuante com cantos arredondados ===== */
+@media(min-width:821px){
+  .sidebar{inset:14px auto 14px 14px;border-radius:28px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.82);box-shadow:0 14px 34px rgba(31,45,80,.07),inset 0 1px 0 #fff}
+  .app-main{margin-left:calc(var(--sidebar) + 14px)}
+}
+.mobile-drawer aside{border-radius:0 28px 28px 0;box-shadow:0 14px 40px rgba(31,45,80,.14)}
